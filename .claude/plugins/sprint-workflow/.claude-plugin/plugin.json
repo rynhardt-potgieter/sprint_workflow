@@ -1,0 +1,8 @@
+{
+  "name": "sprint-workflow",
+  "version": "2.0.0",
+  "description": "Sprint workflow orchestration — parallel specialist agents for backend, frontend, testing, QA, docs, security, DBA, and product management with auto skill discovery",
+  "author": {
+    "name": "rynha"
+  }
+}

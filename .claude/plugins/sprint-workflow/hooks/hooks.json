@@ -1,0 +1,40 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/scripts/post-edit-lint.sh",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "prompt",
+            "prompt": "Before stopping, check: If any sprint tasks were worked on during this session, has the source project plan document (e.g., PROJECT_PLAN*.md, TASKS.md, or whatever file the sprint was started from) been updated to mark completed tasks? Check for checklist items that should be checked off, status fields that should say completed, or verification items that should be marked done. Return 'approve' if the plan is up to date or no sprint tasks were worked on. Return 'block' with a reminder listing which tasks need their status updated in the plan document.",
+            "timeout": 15
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/scripts/pre-push-build-check.sh",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}
