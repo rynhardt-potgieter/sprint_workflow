@@ -77,30 +77,39 @@ Claude Code is powerful but undirected. Without structure, it writes code howeve
 
 ## Installation
 
-### 1. Clone this repo
+### Option A: Install from GitHub (recommended)
+
+Add the marketplace and install plugins directly in Claude Code:
+
+```
+/plugins marketplace add rynhardt-potgieter/sprint_workflow
+/plugins install sprint-workflow
+/plugins install engineering-standards
+```
+
+### Option B: Install from local clone
 
 ```bash
 git clone https://github.com/rynhardt-potgieter/sprint_workflow.git
 ```
 
-### 2. Copy plugins to your project workspace
+Then in Claude Code:
 
-Copy the `.claude/plugins/` directory to your workspace root (the parent directory containing your projects):
-
-```bash
-# If your projects live in ~/repos/
-cp -r sprint_workflow/.claude ~/repos/.claude
+```
+/plugins marketplace add ./sprint_workflow
+/plugins install sprint-workflow
+/plugins install engineering-standards
 ```
 
 ### 3. Copy CLAUDE.md (optional but recommended)
+
+Copy the included `CLAUDE.md` to your workspace root and customize it with project-specific conventions:
 
 ```bash
 cp sprint_workflow/CLAUDE.md ~/repos/CLAUDE.md
 ```
 
-Edit it to add project-specific conventions. The included CLAUDE.md is a universal template.
-
-### 4. Verify in Claude Code
+### 4. Verify
 
 Open Claude Code in your workspace and run:
 
@@ -108,7 +117,7 @@ Open Claude Code in your workspace and run:
 /sprint-status
 ```
 
-If the plugin is loaded, you'll see the skill discovery output and status report.
+If the plugins are loaded, you'll see the skill discovery output and status report.
 
 ---
 
@@ -279,50 +288,52 @@ Update the `/sprint-start` command to include the new agent in its dispatch opti
 
 ```
 sprint_workflow/
+├── .claude-plugin/
+│   └── marketplace.json                   # Plugin marketplace (install source)
 ├── CLAUDE.md                              # Universal workflow conventions
-├── README.md                              # This file
-├── .gitignore
-└── .claude/
-    └── plugins/
-        ├── sprint-workflow/               # Orchestration plugin
-        │   ├── .claude-plugin/plugin.json
-        │   ├── agents/                    # 8 specialist agents
-        │   │   ├── backend-dev.md
-        │   │   ├── frontend-dev.md
-        │   │   ├── test-writer.md
-        │   │   ├── qa-agent.md
-        │   │   ├── docs-agent.md
-        │   │   ├── product-manager.md
-        │   │   ├── dba-agent.md
-        │   │   └── security-agent.md
-        │   ├── commands/                  # Sprint lifecycle commands
-        │   │   ├── sprint-start.md
-        │   │   ├── sprint-review.md
-        │   │   └── sprint-status.md
-        │   ├── hooks/                     # Automated quality hooks
-        │   │   ├── hooks.json
-        │   │   └── scripts/
-        │   ├── scripts/
-        │   │   └── discover-skills.sh     # Auto skill discovery
-        │   └── skills/
-        │       └── task-board-ops/         # Task tracking skill
-        └── engineering-standards/          # Standards plugin
-            ├── .claude-plugin/plugin.json
-            └── skills/                    # 14 engineering skills
-                ├── api-design/
-                ├── bpmn-workflow/
-                ├── cli-agent-patterns/
-                ├── code-standards/
-                ├── computational-geometry/
-                ├── cqrs-patterns/
-                ├── dotnet-api/
-                ├── event-mqtt/
-                ├── git-flow/
-                ├── postgresql-data/
-                ├── react-typescript/
-                ├── rust-cli/
-                ├── rust-testing/
-                └── security-compliance/
+├── README.md
+├── docs/
+│   └── AGENT_ENRICHMENT_PLAN.md           # Research plan for new agents
+└── plugins/
+    ├── sprint-workflow/                   # Orchestration plugin
+    │   ├── .claude-plugin/plugin.json
+    │   ├── agents/                        # 8 specialist agents
+    │   │   ├── backend-dev.md
+    │   │   ├── frontend-dev.md
+    │   │   ├── test-writer.md
+    │   │   ├── qa-agent.md
+    │   │   ├── docs-agent.md
+    │   │   ├── product-manager.md
+    │   │   ├── dba-agent.md
+    │   │   └── security-agent.md
+    │   ├── commands/                      # Sprint lifecycle commands
+    │   │   ├── sprint-start.md
+    │   │   ├── sprint-review.md
+    │   │   └── sprint-status.md
+    │   ├── hooks/                         # Automated quality hooks
+    │   │   ├── hooks.json
+    │   │   └── scripts/
+    │   ├── scripts/
+    │   │   └── discover-skills.sh         # Auto skill discovery
+    │   └── skills/
+    │       └── task-board-ops/             # Task tracking skill
+    └── engineering-standards/             # Standards plugin
+        ├── .claude-plugin/plugin.json
+        └── skills/                        # 14 engineering skills
+            ├── api-design/
+            ├── bpmn-workflow/
+            ├── cli-agent-patterns/
+            ├── code-standards/
+            ├── computational-geometry/
+            ├── cqrs-patterns/
+            ├── dotnet-api/
+            ├── event-mqtt/
+            ├── git-flow/
+            ├── postgresql-data/
+            ├── react-typescript/
+            ├── rust-cli/
+            ├── rust-testing/
+            └── security-compliance/
 ```
 
 ---

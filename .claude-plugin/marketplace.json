@@ -1,0 +1,22 @@
+{
+  "name": "sprint-workflow-plugins",
+  "version": "2.0.0",
+  "description": "Sprint workflow orchestration plugins — specialist agents and engineering standards for Claude Code",
+  "owner": {
+    "name": "rynha"
+  },
+  "plugins": [
+    {
+      "name": "sprint-workflow",
+      "version": "2.0.0",
+      "description": "Sprint workflow orchestration — 8 specialist agents, 3 sprint commands, automated hooks, auto skill discovery",
+      "source": "./plugins/sprint-workflow"
+    },
+    {
+      "name": "engineering-standards",
+      "version": "2.0.0",
+      "description": "Global engineering standards — 14 skills for .NET 8, React 19, Rust, PostgreSQL, API design, security, MQTT, BPMN, CQRS, geometry, and code quality",
+      "source": "./plugins/engineering-standards"
+    }
+  ]
+}
