@@ -6,7 +6,7 @@ These rules govern how Claude Code orchestrates development work across any proj
 
 | Plugin | Version | Purpose |
 |--------|---------|---------|
-| `sprint-workflow` | 2.0.0 | 8 specialist agents, 15 engineering skills, 3 commands, hooks, auto skill discovery |
+| `sprint-workflow` | 2.0.0 | 9 specialist agents, 15 engineering skills, 3 commands, hooks, auto skill discovery |
 
 Install via: `/plugins marketplace add rynhardt-potgieter/sprint_workflow` then `/plugins install sprint-workflow`
 
@@ -52,8 +52,10 @@ The orchestrator (main Claude session or `/sprint-start` command) is the sprint 
 | `backend-dev` | Server-side code | opus | `code-standards` | `dotnet-api`, `rust-cli`, `api-design`, `postgresql-data`, `security-compliance`, `cqrs-patterns`, `event-mqtt`, `bpmn-workflow`, `cli-agent-patterns`, `rust-testing` |
 | `frontend-dev` | Client-side UI | opus | `code-standards` | `react-typescript`, `api-design`, `event-mqtt`, `security-compliance`, `computational-geometry` |
 | `test-writer` | Tests | sonnet | `code-standards` | `dotnet-api`, `react-typescript`, `rust-testing`, `api-design` |
+| `qa-agent` | Quality gates | sonnet | `code-standards` | All skills relevant to work being validated |
+| `qa-playwright` | E2E browser testing | sonnet | `code-standards`, `react-typescript` | `api-design`, `security-compliance` |
 | `docs-agent` | Documentation | sonnet | `code-standards`, `api-design` | All domain-relevant skills |
-| `dba-agent` | Database design & compliance | opus | `postgresql-data`, `security-compliance`, `code-standards` | `dotnet-api` |
+| `dba-agent` | Database & compliance | opus | `postgresql-data`, `security-compliance`, `code-standards` | `dotnet-api` |
 | `security-agent` | Security audits | opus | `security-compliance`, `code-standards`, `api-design` | All domain-relevant skills |
 | `product-manager` | Sprint planning & specs | opus | All available skills | — |
 

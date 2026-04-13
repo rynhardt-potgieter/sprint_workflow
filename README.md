@@ -10,7 +10,7 @@ A portable [Claude Code](https://docs.anthropic.com/en/docs/claude-code) plugin 
 
 Sprint Workflow is a Claude Code plugin that turns Claude into a full development team:
 
-- **8 specialist agents** — backend, frontend, testing, QA, docs, security, DBA, product management
+- **9 specialist agents** — backend, frontend, testing, QA, E2E/Playwright, docs, security, DBA, product management
 - **15 engineering skills** — .NET, React, Rust, PostgreSQL, security, MQTT, BPMN, CQRS, and more
 - **3 sprint commands** — start, review, status
 - **Automated hooks** — type-check reminders, push gates, plan update enforcement
@@ -47,10 +47,9 @@ Claude Code is powerful but undirected. Without structure, it writes code howeve
               │               │               │
      ┌────────▼──────┐ ┌─────▼──────┐ ┌──────▼───────┐
      │  backend-dev  │ │ frontend-  │ │  test-writer  │
-     │  (.NET/Rust/  │ │    dev     │ │  (xUnit/     │
-     │   Go/Python)  │ │ (React/TS) │ │  Vitest/     │
-     └────────┬──────┘ └─────┬──────┘ │  insta)      │
-              │               │        └──────┬───────┘
+     │  (.NET/Rust/  │ │    dev     │ │  + qa-play-  │
+     │   Go/Python)  │ │ (React/TS) │ │   wright     │
+     └────────┬──────┘ └─────┬──────┘ └──────┬───────┘
               └───────────────┼───────────────┘
                               │
                     ┌─────────▼───────────┐
@@ -125,18 +124,19 @@ If the plugin is loaded, you'll see the skill discovery output and status report
 
 ## The Plugin
 
-### 8 Specialist Agents
+### 9 Specialist Agents
 
 | Agent | Model | Role |
 |-------|-------|------|
 | `backend-dev` | opus | Server-side code — .NET, Rust, Go, Python, Node.js |
 | `frontend-dev` | opus | Client-side UI — React, Vue, Svelte, Angular |
-| `test-writer` | sonnet | Unit, integration, and E2E tests |
+| `test-writer` | sonnet | Unit, integration, and snapshot tests |
 | `qa-agent` | sonnet | Build verification, spec compliance, quality gates |
-| `docs-agent` | sonnet | README, changelogs, ADRs, API documentation |
-| `product-manager` | opus | Sprint planning, user stories, acceptance criteria |
-| `dba-agent` | opus | Schema review, migration safety, index audit, compliance |
-| `security-agent` | opus | OWASP audit, secret scanning, dependency vulnerabilities |
+| `qa-playwright` | sonnet | E2E browser testing — Playwright, visual regression, accessibility |
+| `docs-agent` | sonnet | README, changelogs, ADRs (MADR), API docs, architecture diagrams |
+| `product-manager` | opus | Sprint planning, INVEST stories, MoSCoW prioritization, tech debt |
+| `dba-agent` | opus | Schema review, zero-downtime migrations, index audit, PII compliance |
+| `security-agent` | opus | OWASP 2025, Gitleaks/TruffleHog, supply chain, dependency audit |
 
 Every agent follows a **3-step onboarding**:
 1. Read bundled engineering skill files (via `${CLAUDE_PLUGIN_ROOT}/skills/`)
@@ -295,11 +295,12 @@ sprint_workflow/
 └── plugins/
     └── sprint-workflow/                   # Single plugin — batteries included
         ├── .claude-plugin/plugin.json
-        ├── agents/                        # 8 specialist agents
+        ├── agents/                        # 9 specialist agents
         │   ├── backend-dev.md
         │   ├── frontend-dev.md
         │   ├── test-writer.md
         │   ├── qa-agent.md
+        │   ├── qa-playwright.md
         │   ├── docs-agent.md
         │   ├── product-manager.md
         │   ├── dba-agent.md
@@ -335,14 +336,24 @@ sprint_workflow/
 
 ## Roadmap
 
-Agents planned for enrichment (research & development needed):
+### Completed
 
-| Agent | Status | Notes |
-|-------|--------|-------|
-| QA + Playwright | Planned | E2E testing with Playwright MCP or Chrome DevTools Protocol |
-| Enhanced Security | Planned | Integration with gitleaks, OWASP ZAP CLI, Snyk |
-| DBA + Migration CI | Planned | Automated migration safety checks in CI pipelines |
-| Documentation + OpenAPI | Planned | Auto-generate OpenAPI specs from controller attributes |
+| Agent | Status | What Was Added |
+|-------|--------|----------------|
+| `qa-playwright` | Done | New agent — Playwright E2E, Page Object Model, visual regression, accessibility (axe-core), CI integration |
+| `security-agent` | Done | OWASP Top 10 2025 update, Gitleaks + TruffleHog layered scanning, supply chain security (A03:2025), SBOM |
+| `dba-agent` | Done | Expand-contract pattern, zero-downtime migration checklist, `pg_stat_*` index analysis, pgroll/pg_osc tooling |
+| `product-manager` | Done | INVEST validation, MoSCoW prioritization, Given/When/Then acceptance criteria, tech debt quadrant, Definition of Done |
+| `docs-agent` | Done | MADR ADR format, changelog from conventional commits, OpenAPI derivation, Mermaid architecture diagrams |
+
+### Future
+
+| Enhancement | Notes |
+|-------------|-------|
+| Playwright MCP integration | Add `.mcp.json` config for `@playwright/mcp` — agents could drive real browsers |
+| OWASP ZAP CLI scanning | Automated API security scanning in CI |
+| OpenAPI auto-generation | Generate specs from code annotations, not just document existing ones |
+| Migration CI gate | Pre-merge migration safety check as a CI step |
 
 ---
 

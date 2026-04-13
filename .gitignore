@@ -14,3 +14,4 @@ desktop.ini
 
 # Local settings (per-machine)
 .claude/settings.local.json
+bash.exe.stackdump

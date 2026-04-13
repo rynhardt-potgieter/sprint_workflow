@@ -87,9 +87,10 @@ Once approved, YOU orchestrate directly — do NOT use a sprint-lead agent. You 
 1. **Dispatch specialist agents directly** using the Agent tool:
    - `frontend-dev` for UI / client work
    - `backend-dev` for server-side / API work
-   - `test-writer` for writing tests
-   - `qa-agent` for validation and quality checks
-   - `docs-agent` for documentation, READMEs, and guides
+   - `test-writer` for writing unit/integration/snapshot tests
+   - `qa-agent` for build verification and quality checks
+   - `qa-playwright` for E2E browser testing, visual regression, and accessibility audits
+   - `docs-agent` for documentation, READMEs, ADRs, and API docs
    - `product-manager` for requirements analysis, user stories, and acceptance criteria
    - `dba-agent` for database schema design, migrations, and query optimization
    - `security-agent` for security audits, auth flows, and vulnerability checks

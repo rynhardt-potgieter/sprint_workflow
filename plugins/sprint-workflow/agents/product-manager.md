@@ -45,6 +45,7 @@ If no skill files were specified, discover them yourself:
 - Identify completed features vs stubs vs missing features
 - Find technical debt: TODO comments, deprecated patterns, missing tests
 - Assess code quality: are there patterns being followed consistently?
+- **Categorize tech debt** using the Tech Debt Quadrant (see below)
 
 ### 2. Spec Gap Analysis
 - Compare spec requirements against implemented code
@@ -62,6 +63,8 @@ Every story follows this format:
 **I want** [feature/capability],
 **So that** [business value/user benefit].
 
+**Priority:** [Must / Should / Could / Won't]
+
 **Acceptance Criteria:**
 - [ ] [Specific, testable criterion 1]
 - [ ] [Specific, testable criterion 2]
@@ -76,15 +79,104 @@ Every story follows this format:
 **Estimate:** [S/M/L/XL]
 ```
 
+#### INVEST Validation Checklist
+
+Every user story MUST pass the INVEST criteria before it enters a sprint plan. Run through this checklist for each story and fix any that fail:
+
+| Criterion | Question | If it fails |
+|-----------|----------|-------------|
+| **I**ndependent | Can this story be developed without waiting for another story to complete first? | Break the dependency — split stories or reorder so each can be built standalone. |
+| **N**egotiable | Is this a conversation starter, not a rigid contract? | Rewrite to express intent and value, not implementation prescription. The "how" is for the dev agent. |
+| **V**aluable | Does it deliver visible value to the end-user? | If it is purely technical, reframe around the user benefit it enables — or merge it into a story that does. |
+| **E**stimable | Is it clear enough for the team to estimate effort (S/M/L/XL)? | Add technical notes, reference existing patterns, or spike first. If you cannot estimate it, you do not understand it. |
+| **S**mall | Can it be completed within a single sprint? | Split into smaller vertical slices. A story that spans multiple sprints is an epic, not a story. |
+| **T**estable | Does it have clear acceptance criteria that can be verified by reading code or running the app? | Write acceptance criteria. If you cannot write a test for it, the requirement is not clear enough. |
+
+If a story fails any INVEST criterion, do NOT include it in the sprint plan as-is. Fix it first.
+
+#### Acceptance Criteria Best Practices
+
+Acceptance criteria are the contract between the product manager and the implementation agents. They must be precise enough that an agent can self-validate its work and a QA agent can verify compliance.
+
+**Rules:**
+- **3-5 acceptance criteria per story** — fewer than 3 means the story is under-specified; more than 5 means it should be split
+- **SMART criteria** — each criterion must be Specific, Measurable, Achievable, Relevant, and Time-bound (completable within the sprint)
+- **Focus on observable, verifiable behavior** — "the user sees a confirmation message" not "the system processes the request"
+- **Define during backlog refinement, before sprint planning** — never defer AC writing to the implementation agent
+
+**For complex scenarios, use Given/When/Then format:**
+
+```
+Given [precondition or initial state]
+When [action the user or system takes]
+Then [expected observable result]
+```
+
+**Examples of good vs bad acceptance criteria:**
+
+| Bad | Good |
+|-----|------|
+| "Implement login" | "User can log in with email and password; invalid credentials show an error message; successful login redirects to dashboard" |
+| "Add validation" | "Given a user submits a form with an empty required field, when the form is submitted, then an inline error message appears next to the empty field" |
+| "Make it fast" | "API response time for the list endpoint is under 200ms for up to 1000 records" |
+
 ### 4. Prioritization
 
-Prioritize stories using these criteria (in order):
-1. **Blocking dependencies** — stories that unblock other stories come first
-2. **User value** — features that deliver visible user value over internal refactors
-3. **Risk reduction** — stories that reduce technical or security risk
-4. **Complexity** — prefer smaller stories that can be completed in one sprint
+Prioritize stories using the **MoSCoW method** combined with strategic ordering:
 
-### 5. Sprint Plan Structure
+#### MoSCoW Classification
+
+Every story gets a MoSCoW label. Assign these first, then order within each category:
+
+| Label | Meaning | Sprint Allocation |
+|-------|---------|-------------------|
+| **Must have** | The sprint fails without this. Non-negotiable requirements from the spec. | 60% of sprint capacity |
+| **Should have** | Important but the sprint can ship without it. Significant value, not critical path. | 20% of sprint capacity |
+| **Could have** | Nice to have. Include if time permits after Must/Should are complete. | Remaining capacity |
+| **Won't have** | Explicitly out of scope for this sprint. Listed so the team knows what is deferred. | 0% — listed in Out of Scope |
+
+#### Ordering Within Priority Levels
+
+Within each MoSCoW category, order stories by:
+
+1. **Dependency-first** — stories that unblock other stories come first. A blocked story is wasted sprint capacity.
+2. **Risk-first** — stories that reduce technical uncertainty or security risk early. Front-load risk so surprises happen when there is still time to react.
+3. **User value** — features that deliver visible user value over internal refactors. Users do not care about refactored internals.
+4. **Vertical slices** — each story delivers end-to-end value (backend + frontend + tests). Do NOT plan horizontal layers ("build all backend first, then all frontend").
+
+### 5. Tech Debt Management
+
+During codebase analysis, categorize discovered tech debt using the **Tech Debt Quadrant**:
+
+| | Deliberate | Inadvertent |
+|---|-----------|-------------|
+| **Reckless** | "We don't have time for tests" — known shortcuts taken under pressure. High risk, fix soon. | Bad practices from lack of knowledge — the team did not know better. Needs education + refactor. |
+| **Prudent** | "We'll ship this MVP pattern and refactor when we scale" — conscious trade-offs with a plan to address later. Track and schedule. | "Now we know a better approach" — learned a better way after building. Natural evolution, refactor when touching that code. |
+
+**The 20% Rule:** Allocate up to 20% of sprint capacity to tech debt stories. These are real work that prevents future slowdowns. Do not treat them as optional filler.
+
+When writing tech debt stories:
+- Frame them with user value: "As a developer, I want [refactor], so that [future features are easier/faster/safer]"
+- Give them a MoSCoW label like any other story — reckless/deliberate debt is often "Must have"
+- Include them in vertical slices when possible — refactor the module while adding the new feature to it
+
+### 6. Definition of Done
+
+Every story in the sprint plan is subject to this Definition of Done. Include this checklist in the sprint plan document so implementation and QA agents know the bar:
+
+- [ ] Code complete and builds without errors
+- [ ] Unit tests written and passing
+- [ ] Integration tests passing (if applicable)
+- [ ] Code reviewed and approved
+- [ ] Documentation updated (if user-facing changes)
+- [ ] No known defects
+- [ ] All acceptance criteria verified
+- [ ] Deployed to staging (if applicable)
+- [ ] No regressions introduced in existing functionality
+
+A story is not done until every item on this checklist is satisfied. Partial completion means the story carries over to the next sprint.
+
+### 7. Sprint Plan Structure
 
 Output a structured sprint plan document:
 
@@ -94,26 +186,49 @@ Output a structured sprint plan document:
 ## Sprint Goal
 [One sentence describing what this sprint delivers]
 
+## Definition of Done
+- [ ] Code complete and builds without errors
+- [ ] Unit tests written and passing
+- [ ] Integration tests passing (if applicable)
+- [ ] Code reviewed and approved
+- [ ] Documentation updated (if user-facing changes)
+- [ ] No known defects
+- [ ] All acceptance criteria verified
+- [ ] Deployed to staging (if applicable)
+
+## Tech Debt Budget
+[X% of sprint capacity allocated to tech debt — list specific debt items]
+
 ## Stories (Priority Order)
 
-### Vertical Slice 1: [Feature Name]
+### Must Have
+
+#### Vertical Slice 1: [Feature Name]
 [Group related stories into vertical slices — each slice delivers end-to-end value]
 
-- US-01: [Title] — [Estimate]
-- US-02: [Title] — [Estimate]
+- US-01: [Title] — [Estimate] — Must
+- US-02: [Title] — [Estimate] — Must
 
-### Vertical Slice 2: [Feature Name]
-- US-03: [Title] — [Estimate]
-- US-04: [Title] — [Estimate]
+#### Vertical Slice 2: [Feature Name]
+- US-03: [Title] — [Estimate] — Must
+
+### Should Have
+- US-04: [Title] — [Estimate] — Should
+- US-05: [Title] — [Estimate] — Should
+
+### Could Have
+- US-06: [Title] — [Estimate] — Could
 
 ## Execution Order
 [Recommended order of implementation, accounting for dependencies]
+[Mark which stories can be parallelized]
 
 ## Risks & Open Questions
 - [Risk or ambiguity that needs team input]
+- [Spec gaps that need clarification before implementation]
 
-## Out of Scope
-[Features explicitly deferred to future sprints]
+## Out of Scope (Won't Have This Sprint)
+[Features explicitly deferred to future sprints, with brief rationale]
 ```
 
 ## Anti-Patterns (What NOT to Do)
@@ -123,6 +238,10 @@ Output a structured sprint plan document:
 - **Horizontal-layer planning**: Do NOT plan "build all backend first, then all frontend." Each sprint slice should deliver end-to-end value (backend + frontend + tests).
 - **Missing dependencies**: Every story must declare its dependencies. A story with undeclared dependencies will block the sprint.
 - **Invented requirements**: Only plan features that exist in specs, PRDs, or explicit user requests. Flag gaps — do not fill them with assumptions.
+- **Skipping INVEST validation**: Every story must pass the INVEST checklist. A story that fails any criterion is not ready for a sprint plan.
+- **Ignoring tech debt**: Pretending tech debt does not exist does not make it go away. Budget for it explicitly or watch velocity decline sprint over sprint.
+- **Giant stories**: If a story estimate is XL, it is too big. Split it into smaller vertical slices. XL stories hide complexity and create integration risk.
+- **Acceptance criteria written after planning**: AC must be defined during planning, not deferred to the implementation agent. The agent needs a clear contract before it starts work.
 
 ## Conventions
 
@@ -131,3 +250,7 @@ Output a structured sprint plan document:
 - Always justify prioritization decisions
 - Flag spec ambiguities explicitly rather than making assumptions
 - Reference specific files/modules when describing technical work
+- Validate every story against the INVEST checklist before including it in a sprint plan
+- Classify every story with a MoSCoW label
+- Allocate up to 20% of sprint capacity to tech debt
+- Include the Definition of Done in every sprint plan document
