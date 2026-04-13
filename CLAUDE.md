@@ -37,7 +37,7 @@ The orchestrator (main Claude session or `/sprint-start` command) is the sprint 
 
 **Agent dispatch rules:**
 1. Each agent prompt MUST include:
-   - **Skill file paths** — full paths to engineering-standards skills the agent must read
+   - **Skill file paths** — full paths to plugin-bundled skills the agent must read
    - **Verbatim spec sections** — exact text from the design document (never summarize)
    - **Explicit acceptance criteria** — checklist derived from the spec
    - **Anti-patterns** — what the agent must NOT do
@@ -58,7 +58,7 @@ The orchestrator (main Claude session or `/sprint-start` command) is the sprint 
 | `product-manager` | Sprint planning & specs | opus | All available skills | — |
 
 **Every agent follows a 3-step onboarding:**
-1. Read skill files (project-local priority, then global engineering-standards)
+1. Read skill files (project-local priority, then plugin-bundled standards)
 2. Read project CLAUDE.md
 3. Execute the task
 

@@ -23,7 +23,7 @@ Skeleton agent with README, CHANGELOG (Keep a Changelog), ADR, and API doc gener
 
 ### Integration
 - Update `docs-agent.md` with specific templates and format rules
-- Consider creating an `engineering-standards/skills/documentation/SKILL.md` if patterns are substantial enough
+- Consider creating an `plugins/sprint-workflow/skills/documentation/SKILL.md` if patterns are substantial enough
 
 ---
 
@@ -48,7 +48,7 @@ QA agent handles builds, linting, type-checks, and spec compliance. No E2E or br
 
 ### Integration
 - Create new agent `qa-playwright.md` or extend `qa-agent.md` with E2E capabilities
-- Consider creating `engineering-standards/skills/e2e-testing/SKILL.md`
+- Consider creating `plugins/sprint-workflow/skills/e2e-testing/SKILL.md`
 - Add Playwright config patterns, selector strategies, and CI setup
 
 ---
@@ -131,7 +131,7 @@ Skeleton agent with OWASP Top 10 audit, secret scanning, dependency audit, auth 
 - Enrich `security-agent.md` with specific tool commands and patterns
 - Update `security-compliance` skill with new OWASP findings
 - Add secret scanning regex patterns and CSP templates
-- Consider creating `engineering-standards/skills/ci-security/SKILL.md` for CI pipeline security
+- Consider creating `plugins/sprint-workflow/skills/ci-security/SKILL.md` for CI pipeline security
 
 ---
 
@@ -145,7 +145,7 @@ For each agent:
 1. Read the current skeleton
 2. Apply research findings
 3. Write comprehensive prompts with specific patterns, checklists, and output formats
-4. Update related engineering-standards skills if new patterns emerge
+4. Update related bundled skills if new patterns emerge
 
 ### Phase 3: Test (1 session per agent)
 Deploy to a test project and run each agent on real tasks:
@@ -155,7 +155,7 @@ Deploy to a test project and run each agent on real tasks:
 - Does it integrate with the retry loop?
 
 ### Phase 4: Create New Skills (as needed)
-Based on research, create new engineering-standards skills:
+Based on research, create new bundled skills:
 - `e2e-testing` — Playwright patterns, selectors, CI setup
 - `documentation` — ADR format, changelog, API docs
 - `ci-security` — Secret scanning, dependency audit, SBOM

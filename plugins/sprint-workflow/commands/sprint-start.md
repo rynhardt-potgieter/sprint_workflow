@@ -13,7 +13,7 @@ Branch: !`git branch --show-current 2>/dev/null || echo "n/a"`
 
 ## Available Skills (auto-discovered)
 
-!`bash "${CLAUDE_PLUGIN_ROOT}/scripts/discover-skills.sh" 2>/dev/null || echo "Skill discovery failed — agents must discover skills manually by searching for .claude/skills/*/SKILL.md (project-local) and .claude/plugins/engineering-standards/skills/*/SKILL.md (global)."`
+!`bash "${CLAUDE_PLUGIN_ROOT}/scripts/discover-skills.sh" 2>/dev/null || echo "Skill discovery failed — agents must discover skills manually by searching for .claude/skills/*/SKILL.md (project-local) and ${CLAUDE_PLUGIN_ROOT}/skills/*/SKILL.md (plugin-bundled)."`
 
 ## Your Task
 
@@ -41,8 +41,8 @@ Using the **Available Skills** section above (already resolved), assign skills t
 
 **Rules:**
 1. **If project-local skills exist (priority = LOCAL or MIXED)**: Assign local skills that match the agent's domain. For a Rust project, `rust-cli` goes to backend-dev, `rust-testing` goes to test-writer, etc.
-2. **Global engineering-standards fill gaps**: If no local skill covers a domain needed for the task (e.g., security, API design), assign the relevant global skill.
-3. **`code-standards` is always additive**: Include the global `code-standards` skill for all agents even when local skills exist — it provides universal conventions (git, logging, naming).
+2. **Plugin-bundled skills fill gaps**: If no local skill covers a domain needed for the task (e.g., security, API design), assign the relevant bundled skill from `${CLAUDE_PLUGIN_ROOT}/skills/`.
+3. **`code-standards` is always additive**: Include the `code-standards` skill for all agents even when local skills exist — it provides universal conventions (git, logging, naming).
 4. **Only assign relevant skills**: Don't give `react-typescript` to an agent working on a Rust CLI. Match skills to the actual work.
 
 Build a concrete mapping:
@@ -95,7 +95,7 @@ Once approved, YOU orchestrate directly — do NOT use a sprint-lead agent. You 
    - `security-agent` for security audits, auth flows, and vulnerability checks
 2. Launch independent tasks **in parallel** (multiple Agent calls in a single message)
 3. Each agent prompt MUST include:
-   - **Skill file paths to read**: Include the FULL PATHS from the skill assignment table. Example: "Before starting, read these skill files:\n- `/d/Users/rynha/repos/scope/.claude/skills/rust-cli/SKILL.md`\n- `/d/Users/rynha/repos/.claude/plugins/engineering-standards/skills/code-standards/SKILL.md`"
+   - **Skill file paths to read**: Include the FULL PATHS from the skill assignment table. Example: "Before starting, read these skill files:\n- `${CLAUDE_PLUGIN_ROOT}/skills/code-standards/SKILL.md`\n- `${CLAUDE_PLUGIN_ROOT}/skills/rust-cli/SKILL.md`"
    - **Verbatim acceptance criteria** from the plan document
    - Relevant spec sections (design system, architecture docs) — quote them or tell the agent which files to read
    - Anti-patterns and constraints

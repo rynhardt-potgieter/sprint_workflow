@@ -11,7 +11,7 @@ Branch: !`git branch --show-current 2>/dev/null || echo "n/a"`
 
 ## Available Skills (auto-discovered)
 
-!`bash "${CLAUDE_PLUGIN_ROOT}/scripts/discover-skills.sh" 2>/dev/null || echo "Skill discovery failed — discover manually by searching for .claude/skills/*/SKILL.md and .claude/plugins/engineering-standards/skills/*/SKILL.md"`
+!`bash "${CLAUDE_PLUGIN_ROOT}/scripts/discover-skills.sh" 2>/dev/null || echo "Skill discovery failed — discover manually by searching for .claude/skills/*/SKILL.md (project-local) and ${CLAUDE_PLUGIN_ROOT}/skills/*/SKILL.md (plugin-bundled)"`
 
 ## Your Task
 

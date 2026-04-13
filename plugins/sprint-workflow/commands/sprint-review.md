@@ -1,5 +1,5 @@
 ---
-description: Review completed work in the current project — runs builds, tests, and code review against all 14 discovered skills
+description: Review completed work in the current project — runs builds, tests, and code review against discovered skills
 allowed-tools: Bash, Glob, Grep, Read, Agent
 ---
 
@@ -13,7 +13,7 @@ Staged changes: !`git diff --cached --stat 2>/dev/null`
 
 ## Available Skills (auto-discovered)
 
-!`bash "${CLAUDE_PLUGIN_ROOT}/scripts/discover-skills.sh" 2>/dev/null || echo "Skill discovery failed — discover manually by searching for .claude/skills/*/SKILL.md and .claude/plugins/engineering-standards/skills/*/SKILL.md"`
+!`bash "${CLAUDE_PLUGIN_ROOT}/scripts/discover-skills.sh" 2>/dev/null || echo "Skill discovery failed — discover manually by searching for .claude/skills/*/SKILL.md (project-local) and ${CLAUDE_PLUGIN_ROOT}/skills/*/SKILL.md (plugin-bundled)"`
 
 ## Your Task
 

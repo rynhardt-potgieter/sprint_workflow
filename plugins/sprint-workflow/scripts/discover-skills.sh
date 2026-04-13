@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Discovers skill files for the current project.
-# Priority: project-local (.claude/skills/) > global engineering-standards
+# Priority: project-local (.claude/skills/) > plugin-bundled (${CLAUDE_PLUGIN_ROOT}/skills/)
 # Output: structured list of skill paths with names and source labels
 
 set -euo pipefail
@@ -88,9 +88,9 @@ echo "### Skill Priority"
 if [ "$LOCAL_FOUND" -eq 1 ] && [ "$GLOBAL_FOUND" -eq 1 ]; then
   echo "**MIXED**: Project has local skills AND global standards. Agents MUST read local skills first. Use global standards only for domains not covered locally (e.g., security, API design)."
 elif [ "$LOCAL_FOUND" -eq 1 ]; then
-  echo "**LOCAL ONLY**: Project has its own skills. Agents MUST read these. No global engineering-standards found."
+  echo "**LOCAL ONLY**: Project has its own skills. Agents MUST read these. No plugin-bundled skills found."
 elif [ "$GLOBAL_FOUND" -eq 1 ]; then
-  echo "**GLOBAL ONLY**: No project-local skills. Agents MUST read the relevant global engineering-standards skills."
+  echo "**PLUGIN ONLY**: No project-local skills. Agents MUST read the relevant plugin-bundled skills."
 else
   echo "**NONE**: No skills found. Agents should follow CLAUDE.md conventions and general best practices."
 fi

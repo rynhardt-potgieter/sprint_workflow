@@ -139,7 +139,7 @@ If the plugin is loaded, you'll see the skill discovery output and status report
 | `security-agent` | opus | OWASP audit, secret scanning, dependency vulnerabilities |
 
 Every agent follows a **3-step onboarding**:
-1. Read engineering-standards skill files
+1. Read bundled engineering skill files (via `${CLAUDE_PLUGIN_ROOT}/skills/`)
 2. Read project CLAUDE.md
 3. Execute the task
 
@@ -163,7 +163,7 @@ Every agent follows a **3-step onboarding**:
 
 The `discover-skills.sh` script automatically finds:
 1. **Project-local skills** (`.claude/skills/*/SKILL.md`) — highest priority
-2. **Global engineering-standards** — fills gaps where no local skill exists
+2. **Plugin-bundled skills** — fills gaps where no local skill exists
 
 This means agents adapt to any project without manual configuration.
 
@@ -235,7 +235,7 @@ Both gates have retry loops. Failed work goes back to the implementation agent w
 
 ### Project-Local Skills Override Globals
 
-If a project defines its own `.claude/skills/rust-cli/SKILL.md`, it takes priority over the global `engineering-standards` version. This lets projects customize patterns without forking the plugin.
+If a project defines its own `.claude/skills/rust-cli/SKILL.md`, it takes priority over the plugin-bundled version. This lets projects customize patterns without forking the plugin.
 
 ---
 
