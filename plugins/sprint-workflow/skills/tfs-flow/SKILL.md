@@ -88,6 +88,61 @@ tf vc destroy "$/Project/Features/user-authentication"
 3. **Never merge directly** from Feature → Main. Always go through Dev.
 4. **Keep branches short-lived**. Merge frequently to minimize conflicts.
 
+## Adding New Files
+
+**CRITICAL: TFVC does NOT automatically track new files.** Unlike Git (where `git add` stages everything) or .NET projects (where `.csproj` includes trigger VS to add files), TFVC requires you to explicitly add new files to version control. This applies to ALL file types — `.ts`, `.js`, `.json`, `.css`, `.md`, `.html`, config files, etc.
+
+C# files created via Visual Studio may be auto-added if the project system handles it, but files created outside VS (by CLI tools, code generators, agents, or manual creation) are **never** auto-tracked.
+
+```bash
+# Add a single new file
+tf vc add "src/components/LoginForm.tsx"
+
+# Add all new files in a directory recursively
+tf vc add "src/components/" /recursive
+
+# Add all new files matching a pattern
+tf vc add "src/**/*.ts" /recursive
+
+# Check what's new but NOT tracked (these will be missed on checkin!)
+tf vc status /recursive
+# Look for files NOT listed — they're invisible to TFVC
+```
+
+### After Creating New Files — Always Run This
+
+After any operation that creates files (scaffolding, `npm init`, code generation, agent work), run:
+
+```bash
+# Find and add all untracked files in the working directory
+tf vc add . /recursive 2>/dev/null
+
+# Then verify everything is pending
+tf vc status /recursive
+```
+
+### Common Gotchas
+
+| Scenario | Risk | Prevention |
+|----------|------|------------|
+| `npm install` adds `package-lock.json` | Lock file not versioned, builds differ | `tf vc add package-lock.json` after first install |
+| Agent creates new `.ts`/`.tsx` files | New components missing from checkin | Always `tf vc add . /recursive` after agent work |
+| Config files (`.env.example`, `tsconfig.json`) | Missing from repo, breaks onboarding | Add config templates explicitly |
+| Test fixtures or snapshot files | Tests pass locally, fail on server | `tf vc add tests/ /recursive` after test generation |
+| Rename or move a file via OS | TFVC sees a delete + untracked new file | Use `tf vc rename` instead of OS-level move |
+
+### Renaming and Moving Files
+
+Never rename or move files using OS commands or file explorer — TFVC loses the history. Always use:
+
+```bash
+# Rename a file
+tf vc rename "src/OldName.ts" "src/NewName.ts"
+
+# Move a file to a different directory
+tf vc rename "src/utils/helper.ts" "src/services/helper.ts"
+```
+
 ## Checkin Workflow
 
 ### Getting Latest
@@ -258,20 +313,23 @@ tf vc checkin /associate:12345 /resolve:12340
 # 1. Get latest and resolve conflicts
 tf vc get /recursive
 
-# 2. Build — must pass
+# 2. Add any new files that aren't tracked yet
+tf vc add . /recursive 2>/dev/null
+
+# 3. Build — must pass
 <project-specific build command>
 
-# 3. Run tests — must all pass
+# 4. Run tests — must all pass
 <project-specific test runner>
 
-# 4. Review pending changes
-tf vc status
+# 5. Review pending changes — verify new files appear
+tf vc status /recursive
 
-# 5. Check in
+# 6. Check in
 tf vc checkin /comment:"<message>" /associate:<work-item-id>
 ```
 
-All checks must pass. No exceptions.
+All checks must pass. **Step 2 is critical** — without it, new files silently stay local and break the server build.
 
 ## Handling Merge Conflicts
 
