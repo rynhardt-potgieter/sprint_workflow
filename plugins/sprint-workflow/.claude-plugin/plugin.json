@@ -1,6 +1,6 @@
 {
   "name": "sprint-workflow",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Sprint workflow orchestration — 9 specialist agents, 15 engineering skills, 5 sprint commands (plan/enrich/start/review/status), automated hooks, and auto skill discovery. Batteries included.",
   "author": {
     "name": "rynha"

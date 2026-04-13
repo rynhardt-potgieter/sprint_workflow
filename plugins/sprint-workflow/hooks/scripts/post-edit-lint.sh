@@ -1,10 +1,17 @@
 #!/bin/bash
 set -euo pipefail
 
-input=$(cat)
-file_path=$(echo "$input" | jq -r '.tool_input.file_path // .tool_input.filePath // ""' 2>/dev/null)
+# Read hook input from stdin, parse with node (cross-platform, no jq dependency)
+file_path=$(node -e "
+let d='';
+process.stdin.on('data',c=>d+=c);
+process.stdin.on('end',()=>{
+  try{const j=JSON.parse(d);console.log(j.tool_input?.file_path||j.tool_input?.filePath||'')}
+  catch(e){console.log('')}
+});
+" 2>/dev/null || echo "")
 
-if [ -z "$file_path" ] || [ "$file_path" = "null" ]; then
+if [ -z "$file_path" ] || [ "$file_path" = "undefined" ]; then
   echo '{}'
   exit 0
 fi

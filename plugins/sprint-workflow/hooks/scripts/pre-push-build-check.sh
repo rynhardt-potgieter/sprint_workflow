@@ -1,11 +1,18 @@
 #!/bin/bash
 set -euo pipefail
 
-input=$(cat)
-tool_input=$(echo "$input" | jq -r '.tool_input.command // ""' 2>/dev/null)
+# Read hook input from stdin, parse with node (cross-platform, no jq dependency)
+tool_command=$(node -e "
+let d='';
+process.stdin.on('data',c=>d+=c);
+process.stdin.on('end',()=>{
+  try{const j=JSON.parse(d);console.log(j.tool_input?.command||'')}
+  catch(e){console.log('')}
+});
+" 2>/dev/null || echo "")
 
 # Only intercept git push commands
-if ! echo "$tool_input" | grep -q "git push"; then
+if ! echo "$tool_command" | grep -q "git push"; then
   echo '{}'
   exit 0
 fi
