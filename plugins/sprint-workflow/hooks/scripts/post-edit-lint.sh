@@ -1,17 +1,18 @@
 #!/bin/bash
-set -euo pipefail
+# Post-edit hook: reminds to type-check after editing language-specific files.
+# Must ALWAYS exit 0 and output valid JSON — never crash the hook pipeline.
 
-# Read hook input from stdin, parse with node (cross-platform, no jq dependency)
-file_path=$(node -e "
-let d='';
-process.stdin.on('data',c=>d+=c);
-process.stdin.on('end',()=>{
-  try{const j=JSON.parse(d);console.log(j.tool_input?.file_path||j.tool_input?.filePath||'')}
-  catch(e){console.log('')}
-});
-" 2>/dev/null || echo "")
+# Read all stdin first
+input=$(cat 2>/dev/null || true)
 
-if [ -z "$file_path" ] || [ "$file_path" = "undefined" ]; then
+# Parse file_path using node (guaranteed by Claude Code). Fall back gracefully.
+file_path=""
+if command -v node >/dev/null 2>&1; then
+  file_path=$(node -e "try{const j=JSON.parse(process.argv[1]);console.log(j.tool_input?.file_path||j.tool_input?.filePath||'')}catch(e){console.log('')}" "$input" 2>/dev/null || true)
+fi
+
+# If we couldn't parse, just pass through
+if [ -z "$file_path" ] || [ "$file_path" = "undefined" ] || [ "$file_path" = "null" ]; then
   echo '{}'
   exit 0
 fi
