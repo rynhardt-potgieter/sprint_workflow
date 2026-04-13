@@ -2,14 +2,15 @@
 
 These rules govern how Claude Code orchestrates development work across any project using this plugin system.
 
-## Plugin System
+## Plugin
 
 | Plugin | Version | Purpose |
 |--------|---------|---------|
-| `sprint-workflow` | 2.0.0 | Sprint orchestration — 8 specialist agents, 3 commands, hooks, auto skill discovery |
-| `engineering-standards` | 2.0.0 | 14 engineering skills — .NET, React, Rust, PostgreSQL, API, security, geometry, MQTT, BPMN, CQRS, code quality |
+| `sprint-workflow` | 2.0.0 | 8 specialist agents, 15 engineering skills, 3 commands, hooks, auto skill discovery |
 
-Plugins live in `.claude/plugins/`. Install into any project by copying the `.claude/plugins/` directory.
+Install via: `/plugins marketplace add rynhardt-potgieter/sprint_workflow` then `/plugins install sprint-workflow`
+
+All engineering-standards skills are bundled inside the plugin. Agents access them via `${CLAUDE_PLUGIN_ROOT}/skills/<name>/SKILL.md`.
 
 ---
 
@@ -171,7 +172,9 @@ commit (logical separation) → push
 
 ---
 
-## Engineering Standards Skills (14)
+## Bundled Engineering Skills (15)
+
+All skills live at `${CLAUDE_PLUGIN_ROOT}/skills/<name>/SKILL.md` inside the plugin.
 
 | Skill | Domain | When to Use |
 |-------|--------|-------------|
@@ -189,6 +192,7 @@ commit (logical separation) → push
 | `computational-geometry` | 2D Math | Bezier, boolean ops, compositing, curve fitting |
 | `git-flow` | Git Workflow | Branching, commits, PRs, releases |
 | `cli-agent-patterns` | Agent UX | How LLM agents should use CLI tools efficiently |
+| `task-board-ops` | Sprint Ops | Task tracking, status flow, board format |
 
 ---
 

@@ -10,7 +10,7 @@ You are a documentation specialist. You generate and maintain accurate documenta
 
 ## Required Skills
 
-Before writing any documentation, read the relevant engineering-standards skill files at `../../engineering-standards/skills/<name>/SKILL.md` (relative to this agent file).
+Skills are bundled in this plugin at `${CLAUDE_PLUGIN_ROOT}/skills/<name>/SKILL.md`. Read the relevant ones before writing any documentation.
 
 ### Always Read
 - `code-standards` — naming conventions, git commit format, logging patterns
@@ -21,15 +21,14 @@ Before writing any documentation, read the relevant engineering-standards skill 
 
 ## Getting Started on Any Project
 
-### Step 1: Read skill files (if provided in your prompt)
+### Step 1: Read skill files
 
-Your orchestrator may include skill file paths in your task prompt. These provide domain context for writing accurate documentation. **Read every skill file listed in your prompt before writing any docs.**
+Your orchestrator may include skill file paths in your task prompt. **Read every skill file listed before writing any docs.**
 
 If no skill files were specified, discover them yourself:
 
-1. **Project-local skills (priority)**: Search for `.claude/skills/*/SKILL.md` relative to the project root. These define project-specific patterns you need to document accurately.
-2. **Global engineering-standards**: Search for `.claude/plugins/engineering-standards/skills/*/SKILL.md` relative to the workspace root. Read `code-standards` and `api-design` always, plus any relevant to the project's domain.
-3. **Project-local skills override globals** — document against local conventions first.
+1. **Plugin skills**: Read from `${CLAUDE_PLUGIN_ROOT}/skills/` — read `code-standards` and `api-design` always, plus domain-relevant skills.
+2. **Project-local skills (override)**: Search for `.claude/skills/*/SKILL.md` relative to the project root. Document against local conventions first when they exist.
 
 ### Step 2: Read project conventions
 

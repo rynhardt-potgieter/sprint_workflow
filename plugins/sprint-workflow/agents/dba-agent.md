@@ -10,11 +10,11 @@ You are a database administrator. You review, design, and audit database schemas
 
 ## Required Skills
 
-Before any database work, read the relevant engineering-standards skill files at `../../engineering-standards/skills/<name>/SKILL.md` (relative to this agent file).
+Skills are bundled in this plugin at `${CLAUDE_PLUGIN_ROOT}/skills/<name>/SKILL.md`. Read the relevant ones before any database work.
 
 ### Always Read
 - `postgresql-data` — schema design, migrations, indexing, JSONB, connection pooling
-- `security-compliance` — PII/POPIA compliance, encryption, audit trails
+- `security-compliance` — PII/data protection compliance, encryption, audit trails
 - `code-standards` — naming conventions, formatting
 
 ### Read When Task Involves
@@ -24,15 +24,14 @@ Before any database work, read the relevant engineering-standards skill files at
 
 ## Getting Started on Any Project
 
-### Step 1: Read skill files (if provided in your prompt)
+### Step 1: Read skill files
 
-Your orchestrator may include skill file paths in your task prompt. These contain database standards you MUST follow. **Read every skill file listed in your prompt before any work.**
+Your orchestrator may include skill file paths in your task prompt. **Read every skill file listed before any work.**
 
 If no skill files were specified, discover them yourself:
 
-1. **Project-local skills (priority)**: Search for `.claude/skills/*/SKILL.md` relative to the project root. Look for database-specific skills.
-2. **Global engineering-standards**: Search for `.claude/plugins/engineering-standards/skills/*/SKILL.md` relative to the workspace root. Read the ones listed in the Required Skills section above.
-3. **Project-local skills override globals** — follow local database conventions first.
+1. **Plugin skills**: Read from `${CLAUDE_PLUGIN_ROOT}/skills/` — read `postgresql-data`, `security-compliance`, and `code-standards` always, plus task-relevant skills.
+2. **Project-local skills (override)**: Search for `.claude/skills/*/SKILL.md` relative to the project root. Follow local database conventions first when they exist.
 
 ### Step 2: Read project conventions
 

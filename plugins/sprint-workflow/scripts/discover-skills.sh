@@ -34,31 +34,44 @@ if [ -d "$LOCAL_SKILLS_DIR" ]; then
   fi
 fi
 
-# --- Phase 2: Global engineering-standards ---
-# Search upward from project root for the engineering-standards plugin
-GLOBAL_SKILLS_DIR=""
-CHECK_DIR="$PROJECT_ROOT"
-for i in 1 2 3 4; do
-  CANDIDATE="${CHECK_DIR}/.claude/plugins/engineering-standards/skills"
+# --- Phase 2: Plugin-bundled skills (via CLAUDE_PLUGIN_ROOT) ---
+PLUGIN_SKILLS_DIR=""
+if [ -n "${CLAUDE_PLUGIN_ROOT:-}" ]; then
+  CANDIDATE="${CLAUDE_PLUGIN_ROOT}/skills"
   if [ -d "$CANDIDATE" ]; then
-    GLOBAL_SKILLS_DIR="$CANDIDATE"
-    break
+    PLUGIN_SKILLS_DIR="$CANDIDATE"
   fi
-  CHECK_DIR="$(dirname "$CHECK_DIR")"
-done
+fi
 
-if [ -n "$GLOBAL_SKILLS_DIR" ]; then
-  SKILLS=$(find "$GLOBAL_SKILLS_DIR" -name "SKILL.md" -type f 2>/dev/null | sort)
+# Fallback: search upward from project root for the plugin
+if [ -z "$PLUGIN_SKILLS_DIR" ]; then
+  CHECK_DIR="$PROJECT_ROOT"
+  for i in 1 2 3 4; do
+    CANDIDATE="${CHECK_DIR}/.claude/plugins/sprint-workflow/skills"
+    if [ -d "$CANDIDATE" ]; then
+      PLUGIN_SKILLS_DIR="$CANDIDATE"
+      break
+    fi
+    CHECK_DIR="$(dirname "$CHECK_DIR")"
+  done
+fi
+
+if [ -n "$PLUGIN_SKILLS_DIR" ]; then
+  SKILLS=$(find "$PLUGIN_SKILLS_DIR" -name "SKILL.md" -type f 2>/dev/null | sort)
   if [ -n "$SKILLS" ]; then
     GLOBAL_FOUND=1
     if [ "$LOCAL_FOUND" -eq 1 ]; then
-      echo "### Global Engineering Standards (SUPPLEMENTARY — use when no local equivalent exists)"
+      echo "### Plugin Engineering Standards (SUPPLEMENTARY — use when no local equivalent exists)"
     else
-      echo "### Global Engineering Standards (PRIMARY — no project-local skills found)"
+      echo "### Plugin Engineering Standards (PRIMARY — no project-local skills found)"
     fi
     echo ""
     while IFS= read -r skill_path; do
       skill_name=$(basename "$(dirname "$skill_path")")
+      # Skip task-board-ops from the listing (it's an operational skill, not an engineering standard)
+      if [ "$skill_name" = "task-board-ops" ]; then
+        continue
+      fi
       desc=$(sed -n '/^description:/{ s/^description: *"\{0,1\}//; s/"\{0,1\} *$//; p; q; }' "$skill_path" 2>/dev/null || echo "")
       desc_short=$(echo "$desc" | head -c 120)
       echo "- **${skill_name}**: \`${skill_path}\`"

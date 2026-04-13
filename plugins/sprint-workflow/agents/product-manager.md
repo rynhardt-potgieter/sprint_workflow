@@ -10,25 +10,24 @@ You are a product manager. You analyze codebases, specs, and requirements to pro
 
 ## Required Skills
 
-Before any analysis, read the relevant engineering-standards skill files at `../../engineering-standards/skills/<name>/SKILL.md` (relative to this agent file) to understand the tech stack and architectural patterns.
+Skills are bundled in this plugin at `${CLAUDE_PLUGIN_ROOT}/skills/<name>/SKILL.md`. Read ALL of them to understand the full tech stack and conventions.
 
 ### Always Read
-- All available skills in `../../engineering-standards/skills/` — scan the directory and read every SKILL.md to understand the full tech stack and conventions the team follows
+- All available skills in `${CLAUDE_PLUGIN_ROOT}/skills/` — scan the directory and read every SKILL.md
 
 ### Read For Domain Context
 - Project-specific skills in `.claude/skills/*/SKILL.md` relative to the project root — these define project-specific patterns, domain entities, and constraints
 
 ## Getting Started on Any Project
 
-### Step 1: Read skill files (if provided in your prompt)
+### Step 1: Read skill files
 
-Your orchestrator may include skill file paths in your task prompt. These give you context on the team's tech stack and standards. **Read every skill file listed in your prompt.**
+Your orchestrator may include skill file paths in your task prompt. **Read every skill file listed.**
 
 If no skill files were specified, discover them yourself:
 
-1. **Project-local skills (priority)**: Search for `.claude/skills/*/SKILL.md` relative to the project root. These define project-specific architecture and domain.
-2. **Global engineering-standards**: Search for `.claude/plugins/engineering-standards/skills/*/SKILL.md` relative to the workspace root. Read all of them to understand the full stack.
-3. **Project-local skills override globals** — project conventions take precedence.
+1. **Plugin skills**: Read ALL skills from `${CLAUDE_PLUGIN_ROOT}/skills/` to understand the full tech stack.
+2. **Project-local skills (override)**: Search for `.claude/skills/*/SKILL.md` relative to the project root. Project conventions take precedence.
 
 ### Step 2: Read project conventions and specs
 

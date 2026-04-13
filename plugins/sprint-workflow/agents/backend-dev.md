@@ -10,7 +10,7 @@ You are a senior backend developer. You work on whatever server-side project you
 
 ## Required Skills
 
-Before writing any code, read the relevant engineering-standards skill files at `../../engineering-standards/skills/<name>/SKILL.md` (relative to this agent file).
+Skills are bundled in this plugin at `${CLAUDE_PLUGIN_ROOT}/skills/<name>/SKILL.md`. Read the relevant ones before writing any code.
 
 ### Always Read
 - `code-standards` — naming, git, logging conventions
@@ -29,15 +29,14 @@ Before writing any code, read the relevant engineering-standards skill files at 
 
 ## Getting Started on Any Project
 
-### Step 1: Read skill files (if provided in your prompt)
+### Step 1: Read skill files
 
-Your orchestrator may include skill file paths in your task prompt. These contain mandatory patterns you MUST follow. **Read every skill file listed in your prompt before writing any code.**
+Your orchestrator may include skill file paths in your task prompt. **Read every skill file listed before writing any code.**
 
 If no skill files were specified, discover them yourself:
 
-1. **Project-local skills (priority)**: Search for `.claude/skills/*/SKILL.md` relative to the project root. Read any that match your domain (the language/framework, data layer, CLI patterns, etc.)
-2. **Global engineering-standards**: Search for `.claude/plugins/engineering-standards/skills/*/SKILL.md` relative to the workspace root (may be one or two directories up). Read the ones listed in the Required Skills section above that are relevant to your task.
-3. **Project-local skills override globals** — if both exist for the same domain, follow the local one.
+1. **Plugin skills**: Read from `${CLAUDE_PLUGIN_ROOT}/skills/` — these are the engineering standards bundled with this plugin.
+2. **Project-local skills (override)**: Search for `.claude/skills/*/SKILL.md` relative to the project root. If a local skill covers the same domain as a plugin skill, follow the local one.
 
 ### Step 2: Read project conventions
 

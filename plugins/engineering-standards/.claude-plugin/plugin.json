@@ -1,8 +1,0 @@
-{
-  "name": "engineering-standards",
-  "version": "2.0.0",
-  "description": "Global engineering standards and best practices — .NET 8, React 19, PostgreSQL, Rust, API design, security/compliance, MQTT, BPMN, CQRS, computational geometry, and code quality conventions for all projects",
-  "author": {
-    "name": "rynha"
-  }
-}

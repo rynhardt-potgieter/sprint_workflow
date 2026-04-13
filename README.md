@@ -8,12 +8,14 @@ A portable [Claude Code](https://docs.anthropic.com/en/docs/claude-code) plugin 
 
 ## What This Is
 
-Sprint Workflow is a pair of Claude Code plugins that turn Claude into a full development team:
+Sprint Workflow is a Claude Code plugin that turns Claude into a full development team:
 
-- **`sprint-workflow`** — 8 specialist agents, 3 sprint commands, automated hooks
-- **`engineering-standards`** — 14 skill files defining patterns for .NET, React, Rust, PostgreSQL, security, and more
+- **8 specialist agents** — backend, frontend, testing, QA, docs, security, DBA, product management
+- **15 engineering skills** — .NET, React, Rust, PostgreSQL, security, MQTT, BPMN, CQRS, and more
+- **3 sprint commands** — start, review, status
+- **Automated hooks** — type-check reminders, push gates, plan update enforcement
 
-Together they enforce a structured development lifecycle: **Plan → Dispatch → Build → QA → Review → Fix → Ship**.
+One install enforces a structured development lifecycle: **Plan → Dispatch → Build → QA → Review → Fix → Ship**.
 
 ### Why
 
@@ -79,13 +81,14 @@ Claude Code is powerful but undirected. Without structure, it writes code howeve
 
 ### Option A: Install from GitHub (recommended)
 
-Add the marketplace and install plugins directly in Claude Code:
+Add the marketplace and install the plugin directly in Claude Code:
 
 ```
 /plugins marketplace add rynhardt-potgieter/sprint_workflow
 /plugins install sprint-workflow
-/plugins install engineering-standards
 ```
+
+One plugin — batteries included. All 8 agents and 15 engineering skills in a single install.
 
 ### Option B: Install from local clone
 
@@ -98,7 +101,6 @@ Then in Claude Code:
 ```
 /plugins marketplace add ./sprint_workflow
 /plugins install sprint-workflow
-/plugins install engineering-standards
 ```
 
 ### 3. Copy CLAUDE.md (optional but recommended)
@@ -117,15 +119,13 @@ Open Claude Code in your workspace and run:
 /sprint-status
 ```
 
-If the plugins are loaded, you'll see the skill discovery output and status report.
+If the plugin is loaded, you'll see the skill discovery output and status report.
 
 ---
 
-## Plugins
+## The Plugin
 
-### `sprint-workflow` — The Orchestrator
-
-#### 8 Specialist Agents
+### 8 Specialist Agents
 
 | Agent | Model | Role |
 |-------|-------|------|
@@ -167,11 +167,9 @@ The `discover-skills.sh` script automatically finds:
 
 This means agents adapt to any project without manual configuration.
 
----
+### 15 Engineering Skills
 
-### `engineering-standards` — The Knowledge Base
-
-14 skill files that define how code should be written. Agents read these before starting any task.
+Bundled skill files that define how code should be written. Agents read these automatically via `${CLAUDE_PLUGIN_ROOT}/skills/`.
 
 #### Full-Stack Standards
 
@@ -295,31 +293,27 @@ sprint_workflow/
 ├── docs/
 │   └── AGENT_ENRICHMENT_PLAN.md           # Research plan for new agents
 └── plugins/
-    ├── sprint-workflow/                   # Orchestration plugin
-    │   ├── .claude-plugin/plugin.json
-    │   ├── agents/                        # 8 specialist agents
-    │   │   ├── backend-dev.md
-    │   │   ├── frontend-dev.md
-    │   │   ├── test-writer.md
-    │   │   ├── qa-agent.md
-    │   │   ├── docs-agent.md
-    │   │   ├── product-manager.md
-    │   │   ├── dba-agent.md
-    │   │   └── security-agent.md
-    │   ├── commands/                      # Sprint lifecycle commands
-    │   │   ├── sprint-start.md
-    │   │   ├── sprint-review.md
-    │   │   └── sprint-status.md
-    │   ├── hooks/                         # Automated quality hooks
-    │   │   ├── hooks.json
-    │   │   └── scripts/
-    │   ├── scripts/
-    │   │   └── discover-skills.sh         # Auto skill discovery
-    │   └── skills/
-    │       └── task-board-ops/             # Task tracking skill
-    └── engineering-standards/             # Standards plugin
+    └── sprint-workflow/                   # Single plugin — batteries included
         ├── .claude-plugin/plugin.json
-        └── skills/                        # 14 engineering skills
+        ├── agents/                        # 8 specialist agents
+        │   ├── backend-dev.md
+        │   ├── frontend-dev.md
+        │   ├── test-writer.md
+        │   ├── qa-agent.md
+        │   ├── docs-agent.md
+        │   ├── product-manager.md
+        │   ├── dba-agent.md
+        │   └── security-agent.md
+        ├── commands/                      # Sprint lifecycle commands
+        │   ├── sprint-start.md
+        │   ├── sprint-review.md
+        │   └── sprint-status.md
+        ├── hooks/                         # Automated quality hooks
+        │   ├── hooks.json
+        │   └── scripts/
+        ├── scripts/
+        │   └── discover-skills.sh         # Auto skill discovery
+        └── skills/                        # 15 engineering skills
             ├── api-design/
             ├── bpmn-workflow/
             ├── cli-agent-patterns/
@@ -333,7 +327,8 @@ sprint_workflow/
             ├── react-typescript/
             ├── rust-cli/
             ├── rust-testing/
-            └── security-compliance/
+            ├── security-compliance/
+            └── task-board-ops/
 ```
 
 ---
