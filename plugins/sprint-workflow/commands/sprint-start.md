@@ -36,7 +36,7 @@ If the plan is missing these, tell the user to run `/sprint-plan` first.
 ### 2. Read Project Context
 
 - Read `CLAUDE.md` if present
-- Read the `git-flow` skill from `${CLAUDE_PLUGIN_ROOT}/skills/git-flow/SKILL.md` — you will use it for commits at the end
+- **Detect version control**: Run `git rev-parse --is-inside-work-tree 2>/dev/null`. If it succeeds, read `${CLAUDE_PLUGIN_ROOT}/skills/git-flow/SKILL.md`. If not, check for TFVC (`tf vc workspaces 2>/dev/null`) and read `${CLAUDE_PLUGIN_ROOT}/skills/tfs-flow/SKILL.md`. You will use the appropriate skill for commits at the end.
 - Identify build/test/lint commands for the project
 
 ### 3. Confirm Execution Plan with User
@@ -65,7 +65,7 @@ Before dispatching ANY agents, present:
 - docs-agent: technical docs, version bumps, READMEs
 
 ### Phase 6: Commit & Push
-- Logical commit units using git-flow conventions
+- Logical commit/checkin units using git-flow or tfs-flow conventions
 
 Proceed? (y/n)
 ```
@@ -154,21 +154,26 @@ Dispatch `docs-agent`:
 
 YOU (the orchestrator) handle commits directly — do NOT dispatch an agent for this.
 
-1. **Read the `git-flow` skill** (already read in Step 2) for commit conventions
-2. **Review all changes** with `git diff --stat`
-3. **Commit in logical units** — NOT one giant commit. Split by:
-   - Each feature/story gets its own commit
-   - Test additions get their own commit
-   - Documentation gets its own commit
-   - Fixes from the review loop get their own commit
-4. **Commit message format** from `code-standards`/`git-flow`:
+1. **Use the version control skill** read in Step 2 (`git-flow` or `tfs-flow`)
+2. **Review all changes**:
+   - Git: `git diff --stat`
+   - TFVC: `tf vc status`
+3. **Commit/checkin in logical units** — NOT one giant changeset. Split by:
+   - Each feature/story gets its own commit/checkin
+   - Test additions get their own commit/checkin
+   - Documentation gets its own commit/checkin
+   - Fixes from the review loop get their own commit/checkin
+4. **Message format** (same for both Git and TFVC):
    - `feat(<scope>): <summary>` for new features
    - `fix(<scope>): <summary>` for bug fixes
    - `test(<scope>): <summary>` for test additions
    - `docs(<scope>): <summary>` for documentation
-5. **Push** to the remote branch
+5. **Push/checkin** to the remote:
+   - Git: `git push`
+   - TFVC: changes are on the server after `tf vc checkin`
 6. **Update the plan document** — mark all stories as `completed`
 7. **Commit the plan update** separately: `chore(pm): update sprint plan — mark stories complete`
+8. **Associate work items** (TFVC): use `/associate` or `/resolve` with checkins
 
 ---
 

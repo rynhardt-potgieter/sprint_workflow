@@ -6,7 +6,7 @@ These rules govern how Claude Code orchestrates development work across any proj
 
 | Plugin | Version | Purpose |
 |--------|---------|---------|
-| `sprint-workflow` | 2.0.0 | 9 specialist agents, 15 engineering skills, 5 commands, hooks, auto skill discovery |
+| `sprint-workflow` | 2.0.0 | 9 specialist agents, 16 engineering skills, 5 commands, hooks, auto skill discovery |
 
 Install via: `/plugins marketplace add rynhardt-potgieter/sprint_workflow` then `/plugins install sprint-workflow`
 
@@ -90,9 +90,9 @@ For each BLOCKING issue from Phase 3:
 Dispatch `docs-agent` for: technical docs, CHANGELOG, README updates, version bumps, ADRs.
 
 #### Phase 6: Commit & Push
-The orchestrator (main session) commits directly using `git-flow` skill:
-1. **Logical commit separation** — one commit per feature, tests separate, docs separate
-2. **Commit format**: `<type>(<scope>): <summary>` (from `code-standards`/`git-flow`)
+The orchestrator (main session) commits directly using `git-flow` or `tfs-flow` skill (auto-detected):
+1. **Logical commit/checkin separation** — one per feature, tests separate, docs separate
+2. **Message format**: `<type>(<scope>): <summary>` (same for both Git and TFVC)
 3. **Update the plan document** — mark all stories `completed`
 4. **Push** — only after all gates pass
 
@@ -162,12 +162,12 @@ After completing every implementation task:
                       ↓ re-validate → loop until clean
                   Phase 5: docs-agent (docs, changelog, version)
                       ↓ update plan
-                  Phase 6: commit (logical units via git-flow) → push
+                  Phase 6: commit/checkin (logical units via git-flow or tfs-flow) → push
 ```
 
 ---
 
-## Bundled Engineering Skills (15)
+## Bundled Engineering Skills (16)
 
 All skills live at `${CLAUDE_PLUGIN_ROOT}/skills/<name>/SKILL.md` inside the plugin.
 
@@ -186,6 +186,7 @@ All skills live at `${CLAUDE_PLUGIN_ROOT}/skills/<name>/SKILL.md` inside the plu
 | `rust-testing` | Rust Tests | insta snapshots, fixtures, integration tests |
 | `computational-geometry` | 2D Math | Bezier, boolean ops, compositing, curve fitting |
 | `git-flow` | Git Workflow | Branching, commits, PRs, releases |
+| `tfs-flow` | TFVC Workflow | Workspaces, checkins, shelvesets, branching, work items |
 | `cli-agent-patterns` | Agent UX | How LLM agents should use CLI tools efficiently |
 | `task-board-ops` | Sprint Ops | Task tracking, status flow, board format |
 

@@ -11,7 +11,7 @@ A portable [Claude Code](https://docs.anthropic.com/en/docs/claude-code) plugin 
 Sprint Workflow is a Claude Code plugin that turns Claude into a full development team:
 
 - **9 specialist agents** — backend, frontend, testing, QA, E2E/Playwright, docs, security, DBA, product management
-- **15 engineering skills** — .NET, React, Rust, PostgreSQL, security, MQTT, BPMN, CQRS, and more
+- **16 engineering skills** — .NET, React, Rust, PostgreSQL, security, MQTT, BPMN, CQRS, and more
 - **5 sprint commands** — plan, enrich, start, review, status
 - **Automated hooks** — type-check reminders, push gates, plan update enforcement
 
@@ -68,7 +68,7 @@ Claude Code is powerful but undirected. Without structure, it writes code howeve
                      │
   ┌──────────────────▼───────────────────┐
   │  Phase 6: Commit & Push              │
-  │  logical units via git-flow skill    │
+  │  logical units via git/tfs-flow      │
   └──────────────────────────────────────┘
 ```
 
@@ -85,7 +85,7 @@ Add the marketplace and install the plugin directly in Claude Code:
 /plugins install sprint-workflow
 ```
 
-One plugin — batteries included. All 8 agents and 15 engineering skills in a single install.
+One plugin — batteries included. All 8 agents and 16 engineering skills in a single install.
 
 ### Option B: Install from local clone
 
@@ -167,7 +167,7 @@ The `discover-skills.sh` script automatically finds:
 
 This means agents adapt to any project without manual configuration.
 
-### 15 Engineering Skills
+### 16 Engineering Skills
 
 Bundled skill files that define how code should be written. Agents read these automatically via `${CLAUDE_PLUGIN_ROOT}/skills/`.
 
@@ -208,6 +208,7 @@ Bundled skill files that define how code should be written. Agents read these au
 |-------|--------|
 | `computational-geometry` | Bezier math, boolean ops (Clipper2), compositing, curve fitting, AABB |
 | `git-flow` | Branch naming, commit format, PR templates, release process |
+| `tfs-flow` | TFVC workspaces, checkins, shelvesets, branching, work item association |
 | `cli-agent-patterns` | How LLM agents should use CLI tools efficiently — decision trees, anti-patterns |
 
 ---
@@ -316,7 +317,7 @@ sprint_workflow/
         │   └── scripts/
         ├── scripts/
         │   └── discover-skills.sh         # Auto skill discovery
-        └── skills/                        # 15 engineering skills
+        └── skills/                        # 16 engineering skills
             ├── api-design/
             ├── bpmn-workflow/
             ├── cli-agent-patterns/
@@ -331,7 +332,8 @@ sprint_workflow/
             ├── rust-cli/
             ├── rust-testing/
             ├── security-compliance/
-            └── task-board-ops/
+            ├── task-board-ops/
+            └── tfs-flow/
 ```
 
 ---

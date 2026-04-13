@@ -93,7 +93,7 @@ Stories in this group depend on Group 1 completing first.
 3. qa-agent + pr-review-toolkit (parallel) → 
 4. Fix loop (agents fix their own issues) → 
 5. docs-agent → 
-6. Commit (logical units via git-flow) → Push
+6. Commit/Checkin (logical units via git-flow or tfs-flow) → Push
 
 ## Dependencies
 [Cross-story dependencies]
