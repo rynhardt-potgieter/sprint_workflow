@@ -9,7 +9,7 @@
     {
       "name": "sprint-workflow",
       "version": "2.0.0",
-      "description": "Sprint workflow orchestration — 9 specialist agents, 15 engineering skills, 3 sprint commands, automated hooks, and auto skill discovery. One plugin, batteries included.",
+      "description": "Sprint workflow orchestration — 9 specialist agents, 15 engineering skills, 5 sprint commands, automated hooks, and auto skill discovery. One plugin, batteries included.",
       "source": "./plugins/sprint-workflow"
     }
   ]

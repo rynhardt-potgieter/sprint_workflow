@@ -6,7 +6,7 @@ These rules govern how Claude Code orchestrates development work across any proj
 
 | Plugin | Version | Purpose |
 |--------|---------|---------|
-| `sprint-workflow` | 2.0.0 | 9 specialist agents, 15 engineering skills, 3 commands, hooks, auto skill discovery |
+| `sprint-workflow` | 2.0.0 | 9 specialist agents, 15 engineering skills, 5 commands, hooks, auto skill discovery |
 
 Install via: `/plugins marketplace add rynhardt-potgieter/sprint_workflow` then `/plugins install sprint-workflow`
 
@@ -16,36 +16,37 @@ All engineering-standards skills are bundled inside the plugin. Agents access th
 
 ## The Sprint Lifecycle
 
-### Phase 1: Plan (Product Manager Agent)
+### `/sprint-plan` — Plan
+
+The orchestrator feeds user context to the `product-manager` agent, which produces a structured sprint plan:
 
 1. **Read the spec** — PRD, design doc, roadmap, or issue list
 2. **Analyze the codebase** — understand what's built vs what's planned
-3. **Write user stories** — "As a [role], I want [feature], so that [value]"
-4. **Define acceptance criteria** — testable, specific, derived from the spec
-5. **Prioritize** — vertical slices, not horizontal layers
-6. **Output** — structured sprint plan document with task list, dependencies, execution order
+3. **Write user stories** (INVEST criteria) with MoSCoW prioritization
+4. **Define acceptance criteria** — testable, specific, Given/When/Then where complex
+5. **Assign agents and skills** to each story
+6. **Group stories** — parallel groups (no dependencies) vs sequential groups
+7. **Output** — structured sprint plan document saved to `docs/SPRINT_PLAN.md`
 
-### Phase 2: Dispatch (Orchestrator — YOU)
+The plan returns to the main session for user review before proceeding.
 
-The orchestrator (main Claude session or `/sprint-start` command) is the sprint lead.
+### `/sprint-enrich` — Enrich (Optional)
 
-**The sprint lead NEVER writes code.** It only:
-- Reads the plan
-- Dispatches specialist agents with detailed prompts
-- Tracks completion
-- Updates the plan document
+Specialist agents review the plan and add domain expertise:
 
-**Agent dispatch rules:**
-1. Each agent prompt MUST include:
-   - **Skill file paths** — full paths to plugin-bundled skills the agent must read
-   - **Verbatim spec sections** — exact text from the design document (never summarize)
-   - **Explicit acceptance criteria** — checklist derived from the spec
-   - **Anti-patterns** — what the agent must NOT do
-   - **Build/lint/test commands** — how to verify work
-2. Launch independent tasks **in parallel** (multiple Agent calls in one message)
-3. Use vertical slices — implement one feature end-to-end before starting the next
+- `dba-agent` — migration safety, index recommendations, PII flags
+- `security-agent` — OWASP concerns, auth gaps, dependency vetting
+- `test-writer` — test cases per story (unit, integration, mocks)
+- `qa-playwright` — E2E scenarios, accessibility checks, visual baselines
+- `backend-dev` / `frontend-dev` — technical risks, anti-patterns, complexity flags
 
-### Phase 3: Build (Specialist Agents)
+Enrichments are consolidated and merged into the plan before execution.
+
+### `/sprint-start` — Execute
+
+The orchestrator dispatches agents in a strict 6-phase flow:
+
+**The sprint lead NEVER writes code.** It only dispatches, tracks, and updates the plan.
 
 | Agent | Role | Model | Skills (Always) | Skills (Conditional) |
 |-------|------|-------|-----------------|---------------------|
@@ -64,45 +65,35 @@ The orchestrator (main Claude session or `/sprint-start` command) is the sprint 
 2. Read project CLAUDE.md
 3. Execute the task
 
-### Phase 4: QA Gate (QA Agent)
+#### Phase 1: Implementation Agents
+Dispatch `backend-dev`, `frontend-dev`, `dba-agent`, etc. per the plan's parallel groups. Launch independent stories in parallel. **Update the plan** after each agent completes.
 
-After implementation agents complete, dispatch the `qa-agent`:
+#### Phase 2: Test Writer
+Dispatch `test-writer` (and `qa-playwright` for E2E) after implementation completes. Include acceptance criteria and test cases from the enrichment. **Update the plan** after tests are written.
 
-1. **Build & type checks** — `dotnet build`, `npx tsc --noEmit`, `cargo check`, etc.
-2. **Linting** — `pnpm lint`, `cargo clippy`, etc.
-3. **Test suites** — run all tests
-4. **Spec compliance** — re-read acceptance criteria, verify every element exists in code
-5. **User-facing label audit** — grep for raw technical strings in UI code
-6. **Consumer breakage** — grep for renamed/removed exports
-7. **Consistency check** — same components show same data the same way
+#### Phase 3: Quality Gates (parallel)
+Dispatch BOTH simultaneously:
+- `qa-agent` — build, lint, test, spec compliance → structured report
+- `pr-review-toolkit:code-reviewer` — code quality, patterns, UX regressions
 
-**QA outputs a structured report** with BLOCKING/WARNING/INFO items and a PASS/FAIL verdict.
+#### Phase 4: Fix Loop
+For each BLOCKING issue from Phase 3:
+1. Re-dispatch the ORIGINAL agent that wrote the code (not a different one)
+2. Include: original acceptance criteria + specific blocking issues
+3. Instruction: "Fix ONLY these issues"
+4. Re-validate with `qa-agent`
+5. Loop until PASS — no task completes with known violations
 
-### Phase 5: Fix Loop (Retry on Failure)
+**Update the plan** with issues found and resolved.
 
-When QA rejects a task:
-1. Re-launch the implementation agent with: (a) original spec, (b) specific failures, (c) "fix ONLY the failures"
-2. QA re-validates the specific failures
-3. Loop until PASS — no task is marked complete with known violations
+#### Phase 5: Documentation
+Dispatch `docs-agent` for: technical docs, CHANGELOG, README updates, version bumps, ADRs.
 
-### Phase 6: Code Review Gate (pr-review-toolkit)
-
-**`pr-review-toolkit:code-reviewer` is the FINAL gate.** It runs AFTER QA passes.
-
-The code reviewer must:
-1. Verify code quality, patterns, and conventions
-2. Cross-reference against spec/acceptance criteria
-3. Flag UX regressions (wrong labels, missing UI elements, wrong interaction flow)
-4. End with a "Patterns & CLAUDE.md suggestions" section
-
-**If review fails**, the sprint lead re-launches the agent with specific failures. Same retry loop as QA.
-
-### Phase 7: Commit & Push
-
-After code review passes:
-1. **Logical commit separation** — split by feature, not one giant commit
-2. **Commit format**: `<type>(<scope>): <summary>` (see `code-standards` skill)
-3. **Update the plan document** — mark completed tasks (`- [x]`)
+#### Phase 6: Commit & Push
+The orchestrator (main session) commits directly using `git-flow` skill:
+1. **Logical commit separation** — one commit per feature, tests separate, docs separate
+2. **Commit format**: `<type>(<scope>): <summary>` (from `code-standards`/`git-flow`)
+3. **Update the plan document** — mark all stories `completed`
 4. **Push** — only after all gates pass
 
 ---
@@ -157,19 +148,21 @@ After completing every implementation task:
 ## Execution Order Summary
 
 ```
-product-manager (plan)
-    ↓
-sprint-lead dispatches agents (parallel where independent)
-    ↓
-specialist agents (backend-dev, frontend-dev, etc.)
-    ↓
-qa-agent (build + lint + test + spec compliance)
-    ↓ fail? → re-launch agent → qa-agent (retry loop)
-    ↓ pass
-pr-review-toolkit:code-reviewer (final gate)
-    ↓ fail? → re-launch agent → code-reviewer (retry loop)
-    ↓ pass
-commit (logical separation) → push
+/sprint-plan    → product-manager creates plan → user reviews
+                                                      ↓
+/sprint-enrich  → specialist agents review plan (optional) → user approves
+                                                      ↓
+/sprint-start   → Phase 1: implementation agents (parallel groups)
+                      ↓ update plan
+                  Phase 2: test-writer + qa-playwright
+                      ↓ update plan
+                  Phase 3: qa-agent + pr-review-toolkit (parallel)
+                      ↓ BLOCKING issues?
+                  Phase 4: fix loop (original agents fix own work)
+                      ↓ re-validate → loop until clean
+                  Phase 5: docs-agent (docs, changelog, version)
+                      ↓ update plan
+                  Phase 6: commit (logical units via git-flow) → push
 ```
 
 ---

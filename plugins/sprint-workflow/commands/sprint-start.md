@@ -1,6 +1,6 @@
 ---
-description: Start a sprint cycle — discovers tasks, creates a plan, and delegates work to specialist agents
-argument-hint: "[sprint/task refs] from [plan-file-path]"
+description: Execute an approved sprint plan — dispatches agents in the defined flow, runs quality gates, fixes issues, documents, and commits
+argument-hint: "[plan-file-path]"
 allowed-tools: Bash, Glob, Grep, Read, Edit, Agent
 ---
 
@@ -13,103 +13,205 @@ Branch: !`git branch --show-current 2>/dev/null || echo "n/a"`
 
 ## Available Skills (auto-discovered)
 
-!`bash "${CLAUDE_PLUGIN_ROOT}/scripts/discover-skills.sh" 2>/dev/null || echo "Skill discovery failed — agents must discover skills manually by searching for .claude/skills/*/SKILL.md (project-local) and ${CLAUDE_PLUGIN_ROOT}/skills/*/SKILL.md (plugin-bundled)."`
+!`bash "${CLAUDE_PLUGIN_ROOT}/scripts/discover-skills.sh" 2>/dev/null || echo "Skill discovery failed — search for .claude/skills/*/SKILL.md (project-local) and ${CLAUDE_PLUGIN_ROOT}/skills/*/SKILL.md (plugin-bundled)"`
 
 ## Your Task
 
-Plan and initiate a sprint cycle for the current project.
+Execute an approved sprint plan. You are the orchestrator. **You NEVER write code yourself** — you dispatch specialist agents and track progress.
 
-### 1. Locate the Project Plan
+### 1. Load the Sprint Plan
 
-If the arguments reference a file path (e.g., "from docs/PROJECT_PLAN.md"), use that as the **source plan document**. Otherwise search for it:
-- `docs/PROJECT_PLAN*.md`, `docs/SPRINT*.md`
-- `PROJECT_PLAN*.md`, `SPRINT*.md`, `TASKS.md`, `TODO.md`
-- `project_management/TASKS/`
+Locate the plan document:
+- If arguments specify a path, use that
+- Otherwise search: `docs/SPRINT_PLAN.md`, `docs/SPRINT*.md`, `SPRINT_PLAN.md`
 
-**Remember this file path — you will update it as tasks complete.**
+Read the full plan. Confirm it contains:
+- Stories with agent assignments
+- Acceptance criteria per story
+- Skill assignments per agent
+- Execution groups (parallel vs sequential)
 
-### 2. Understand the Project
+If the plan is missing these, tell the user to run `/sprint-plan` first.
+
+### 2. Read Project Context
 
 - Read `CLAUDE.md` if present
-- Read the project plan document fully
-- Identify the tech stack from config files
-- Find build/test/lint commands
+- Read the `git-flow` skill from `${CLAUDE_PLUGIN_ROOT}/skills/git-flow/SKILL.md` — you will use it for commits at the end
+- Identify build/test/lint commands for the project
 
-### 3. Build Skill Assignments for Agents
+### 3. Confirm Execution Plan with User
 
-Using the **Available Skills** section above (already resolved), assign skills to each agent:
-
-**Rules:**
-1. **If project-local skills exist (priority = LOCAL or MIXED)**: Assign local skills that match the agent's domain. For a Rust project, `rust-cli` goes to backend-dev, `rust-testing` goes to test-writer, etc.
-2. **Plugin-bundled skills fill gaps**: If no local skill covers a domain needed for the task (e.g., security, API design), assign the relevant bundled skill from `${CLAUDE_PLUGIN_ROOT}/skills/`.
-3. **`code-standards` is always additive**: Include the `code-standards` skill for all agents even when local skills exist — it provides universal conventions (git, logging, naming).
-4. **Only assign relevant skills**: Don't give `react-typescript` to an agent working on a Rust CLI. Match skills to the actual work.
-
-Build a concrete mapping:
-```
-| Agent | Skill Files to Read (full paths) |
-|-------|----------------------------------|
-```
-
-### 4. Select Tasks
-
-If arguments specify a sprint number, task IDs, or descriptions, scope to those. Otherwise pick the next incomplete sprint/phase from the plan.
-
-### 5. Present Sprint Plan
-
-Show the user a plan before executing:
+Before dispatching ANY agents, present:
 
 ```
-## Sprint Plan — [project name]
+## Execution Confirmation
 
-### Source Plan: [file path]
+### Phase 1: Implementation (parallel)
+| Agent | Story | Skills |
+|-------|-------|--------|
 
-### Skills (auto-discovered)
-[paste the skill priority summary from above]
+### Phase 2: Tests
+| Agent | Scope | Skills |
+|-------|-------|--------|
 
-### Selected Tasks (N items)
-| Task | Agent | Priority | Skills to Read |
-|------|-------|----------|----------------|
+### Phase 3: Quality Gates (parallel)
+- qa-agent: build + lint + test + spec compliance
+- pr-review-toolkit:code-reviewer: code quality + patterns
 
-### Execution Order
-1. [Independent tasks — run in parallel]
-2. [Dependent tasks — sequential]
-3. [Final validation with qa-agent]
+### Phase 4: Fix Loop
+- Agents fix their own issues from Phase 3 reviews
 
-### Dependencies
-- Any cross-task dependencies noted
+### Phase 5: Documentation
+- docs-agent: technical docs, version bumps, READMEs
+
+### Phase 6: Commit & Push
+- Logical commit units using git-flow conventions
+
+Proceed? (y/n)
 ```
 
-### 6. Execute (after user approval)
+Wait for user approval.
 
-Once approved, YOU orchestrate directly — do NOT use a sprint-lead agent. You are the orchestrator.
+---
 
-1. **Dispatch specialist agents directly** using the Agent tool:
-   - `frontend-dev` for UI / client work
-   - `backend-dev` for server-side / API work
-   - `test-writer` for writing unit/integration/snapshot tests
-   - `qa-agent` for build verification and quality checks
-   - `qa-playwright` for E2E browser testing, visual regression, and accessibility audits
-   - `docs-agent` for documentation, READMEs, ADRs, and API docs
-   - `product-manager` for requirements analysis, user stories, and acceptance criteria
-   - `dba-agent` for database schema design, migrations, and query optimization
-   - `security-agent` for security audits, auth flows, and vulnerability checks
-2. Launch independent tasks **in parallel** (multiple Agent calls in a single message)
-3. Each agent prompt MUST include:
-   - **Skill file paths to read**: Include the FULL PATHS from the skill assignment table. Example: "Before starting, read these skill files:\n- `${CLAUDE_PLUGIN_ROOT}/skills/code-standards/SKILL.md`\n- `${CLAUDE_PLUGIN_ROOT}/skills/rust-cli/SKILL.md`"
-   - **Verbatim acceptance criteria** from the plan document
-   - Relevant spec sections (design system, architecture docs) — quote them or tell the agent which files to read
-   - Anti-patterns and constraints
-   - File paths for where to create/modify things
-   - Build/lint/test commands to verify their work
-4. After each task completes, **update the plan file** (`- [ ]` → `- [x]`, status fields)
-5. After implementation tasks, dispatch `qa-agent` to validate — include the acceptance criteria AND the skill file paths it should check against
-6. Update the plan document after each completed task
+## Execution Flow
 
-### 7. Sprint Summary
+### Phase 1: Implementation Agents
 
-After all tasks complete:
-1. Verify the plan document is fully updated
-2. Summarize results and note follow-up items
-3. Show the updated verification checklist from the plan
-4. List which skills (local and global) were applied and any violations found
+Dispatch implementation agents (`backend-dev`, `frontend-dev`, `dba-agent`, etc.) according to the plan's parallel groups.
+
+**For each agent prompt, include:**
+- Skill file paths to read (from the plan's skill assignments)
+- Verbatim acceptance criteria from the plan
+- Anti-patterns from the plan (if enriched via `/sprint-enrich`)
+- Build/lint/test commands to verify their work
+- File paths for where to create/modify things
+
+Launch independent stories **in parallel** (multiple Agent calls in one message).
+For sequential groups, wait for the previous group to complete before dispatching.
+
+**After each agent completes:**
+- Update the plan document: mark story status as `in-progress` → `implementation-complete`
+- Note any issues or deviations the agent reported
+
+### Phase 2: Test Writer
+
+After implementation agents complete, dispatch `test-writer`:
+- Include the list of implemented stories and their acceptance criteria
+- Include test cases from the enrichment (if `/sprint-enrich` was run)
+- Include skill file paths for the relevant test frameworks
+- Tell it which files were created/modified in Phase 1
+
+**After test-writer completes:**
+- Update the plan: mark test status for each story
+
+### Phase 3: Quality Gates (parallel)
+
+Dispatch BOTH in parallel:
+
+#### qa-agent
+- Include all acceptance criteria from the plan
+- Include skill file paths for the domains being validated
+- Tell it to run: build, type-check, lint, tests, spec compliance
+- Tell it to produce a structured report with BLOCKING/WARNING/INFO
+
+#### pr-review-toolkit:code-reviewer
+- Include skill file paths
+- Include acceptance criteria
+- Tell it to review all changes since the sprint branch started
+- Tell it to flag UX regressions, spec mismatches, and pattern violations
+
+**After both complete:**
+- Collect BLOCKING issues from both reports
+- If ZERO blocking issues → proceed to Phase 5
+- If ANY blocking issues → proceed to Phase 4
+
+### Phase 4: Fix Loop
+
+For each BLOCKING issue:
+1. Identify which agent's work is affected (backend-dev, frontend-dev, etc.)
+2. Re-dispatch THAT SAME agent with:
+   - The original story + acceptance criteria
+   - The specific BLOCKING issues to fix
+   - Instruction: "Fix ONLY these issues. Do not refactor or add features."
+3. After fixes, re-dispatch qa-agent to validate ONLY the fixed issues
+4. Loop until all BLOCKING issues are resolved
+
+**Update the plan** after each fix: note which issues were found and resolved.
+
+### Phase 5: Documentation
+
+Dispatch `docs-agent`:
+- Update technical documentation for any new features/APIs
+- Update CHANGELOG.md with new entries (if the project uses one)
+- Update README.md if user-facing behavior changed
+- Bump version numbers if applicable
+- Create ADRs for any significant architectural decisions made during the sprint
+
+**Update the plan** after docs complete.
+
+### Phase 6: Commit & Push
+
+YOU (the orchestrator) handle commits directly — do NOT dispatch an agent for this.
+
+1. **Read the `git-flow` skill** (already read in Step 2) for commit conventions
+2. **Review all changes** with `git diff --stat`
+3. **Commit in logical units** — NOT one giant commit. Split by:
+   - Each feature/story gets its own commit
+   - Test additions get their own commit
+   - Documentation gets its own commit
+   - Fixes from the review loop get their own commit
+4. **Commit message format** from `code-standards`/`git-flow`:
+   - `feat(<scope>): <summary>` for new features
+   - `fix(<scope>): <summary>` for bug fixes
+   - `test(<scope>): <summary>` for test additions
+   - `docs(<scope>): <summary>` for documentation
+5. **Push** to the remote branch
+6. **Update the plan document** — mark all stories as `completed`
+7. **Commit the plan update** separately: `chore(pm): update sprint plan — mark stories complete`
+
+---
+
+## Plan Status Tracking
+
+**CRITICAL: Update the plan document after EVERY phase transition.**
+
+The plan is the source of truth. If you get interrupted or the session ends, the next session must be able to pick up where you left off by reading the plan.
+
+Status flow per story:
+```
+not-started → in-progress → implementation-complete → tests-written → review-complete → fixes-applied → documented → committed
+```
+
+After each phase, update the relevant stories in the plan file with their current status.
+
+---
+
+## Sprint Summary
+
+After all phases complete, present:
+
+```
+## Sprint Complete — [project name]
+
+### Stories Delivered
+| Story | Agent | Status | Commit |
+|-------|-------|--------|--------|
+
+### Quality Gate Results
+- QA: PASS/FAIL (N blocking, N warnings)
+- Code Review: PASS/FAIL (N issues)
+- Fix iterations: N
+
+### Tests Added
+- Unit: N | Integration: N | E2E: N
+
+### Documentation Updated
+- [list of files updated]
+
+### Commits
+- [list of commits with hashes]
+
+### Follow-up Items
+- [any warnings, tech debt, or deferred items]
+```

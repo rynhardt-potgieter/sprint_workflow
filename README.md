@@ -12,7 +12,7 @@ Sprint Workflow is a Claude Code plugin that turns Claude into a full developmen
 
 - **9 specialist agents** — backend, frontend, testing, QA, E2E/Playwright, docs, security, DBA, product management
 - **15 engineering skills** — .NET, React, Rust, PostgreSQL, security, MQTT, BPMN, CQRS, and more
-- **3 sprint commands** — start, review, status
+- **5 sprint commands** — plan, enrich, start, review, status
 - **Automated hooks** — type-check reminders, push gates, plan update enforcement
 
 One install enforces a structured development lifecycle: **Plan → Dispatch → Build → QA → Review → Fix → Ship**.
@@ -31,47 +31,45 @@ Claude Code is powerful but undirected. Without structure, it writes code howeve
 ## The Lifecycle
 
 ```
-                    ┌─────────────────────┐
-                    │   Product Manager   │
-                    │  reads specs/PRDs   │
-                    │  writes sprint plan │
-                    └─────────┬───────────┘
-                              │
-                    ┌─────────▼───────────┐
-                    │   Sprint Lead (YOU)  │
-                    │  dispatches agents   │
-                    │  NEVER writes code   │
-                    └─────────┬───────────┘
-                              │
-              ┌───────────────┼───────────────┐
-              │               │               │
-     ┌────────▼──────┐ ┌─────▼──────┐ ┌──────▼───────┐
-     │  backend-dev  │ │ frontend-  │ │  test-writer  │
-     │  (.NET/Rust/  │ │    dev     │ │  + qa-play-  │
-     │   Go/Python)  │ │ (React/TS) │ │   wright     │
-     └────────┬──────┘ └─────┬──────┘ └──────┬───────┘
-              └───────────────┼───────────────┘
-                              │
-                    ┌─────────▼───────────┐
-                    │      QA Agent       │
-                    │  build + lint +     │
-                    │  test + spec check  │
-                    └─────────┬───────────┘
-                              │
-                         fail? ──→ retry loop
-                              │
-                    ┌─────────▼───────────┐
-                    │    Code Reviewer    │
-                    │  (pr-review-toolkit │
-                    │   built-in plugin)  │
-                    └─────────┬───────────┘
-                              │
-                         fail? ──→ retry loop
-                              │
-                    ┌─────────▼───────────┐
-                    │   Commit & Push     │
-                    │  logical separation │
-                    └─────────────────────┘
+  /sprint-plan                /sprint-enrich (optional)
+  ┌──────────────────┐        ┌──────────────────────┐
+  │  Product Manager │        │  dba · security ·    │
+  │  reads specs     │───────▶│  test-writer ·       │
+  │  writes plan     │  plan  │  qa-playwright ·     │
+  │  assigns agents  │        │  backend · frontend  │
+  └────────┬─────────┘        └──────────┬───────────┘
+           │                             │
+           └──────── user reviews ───────┘
+                         │
+  /sprint-start          ▼
+  ┌──────────────────────────────────────┐
+  │  Phase 1: Implementation (parallel)  │
+  │  backend-dev · frontend-dev · dba    │
+  └──────────────────┬───────────────────┘
+                     │
+  ┌──────────────────▼───────────────────┐
+  │  Phase 2: Tests                      │
+  │  test-writer · qa-playwright         │
+  └──────────────────┬───────────────────┘
+                     │
+  ┌──────────────────▼───────────────────┐
+  │  Phase 3: Quality Gates (parallel)   │
+  │  qa-agent + pr-review-toolkit        │
+  └──────────────────┬───────────────────┘
+                     │
+                BLOCKING? ──→ Phase 4: Fix Loop
+                     │        (original agents
+                     │         fix own work)
+                     ▼
+  ┌──────────────────────────────────────┐
+  │  Phase 5: Documentation              │
+  │  docs-agent · changelog · ADRs       │
+  └──────────────────┬───────────────────┘
+                     │
+  ┌──────────────────▼───────────────────┐
+  │  Phase 6: Commit & Push              │
+  │  logical units via git-flow skill    │
+  └──────────────────────────────────────┘
 ```
 
 ---
@@ -143,13 +141,15 @@ Every agent follows a **3-step onboarding**:
 2. Read project CLAUDE.md
 3. Execute the task
 
-#### 3 Sprint Commands
+#### 5 Sprint Commands
 
 | Command | Purpose |
 |---------|---------|
-| `/sprint-start` | Plan a sprint, assign skills to agents, dispatch parallel work |
-| `/sprint-review` | Run quality gates and code review on completed work |
-| `/sprint-status` | Report current sprint progress from plan documents |
+| `/sprint-plan` | Invoke product-manager to create a structured plan with agent assignments and parallel groups |
+| `/sprint-enrich` | Specialist agents review the plan — add gotchas, anti-patterns, test cases, security/DBA concerns |
+| `/sprint-start` | Execute the approved plan through the 6-phase flow (build → test → QA+review → fix → docs → commit) |
+| `/sprint-review` | Run quality gates and code review on completed work (standalone, outside sprint flow) |
+| `/sprint-status` | Report current sprint/task status from plan documents |
 
 #### Automated Hooks
 
@@ -306,6 +306,8 @@ sprint_workflow/
         │   ├── dba-agent.md
         │   └── security-agent.md
         ├── commands/                      # Sprint lifecycle commands
+        │   ├── sprint-plan.md
+        │   ├── sprint-enrich.md
         │   ├── sprint-start.md
         │   ├── sprint-review.md
         │   └── sprint-status.md
