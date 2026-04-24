@@ -15,6 +15,15 @@ Staged changes: !`git diff --cached --stat 2>/dev/null`
 
 !`bash "${CLAUDE_PLUGIN_ROOT}/scripts/discover-skills.sh" 2>/dev/null || echo "Skill discovery failed — discover manually by searching for .claude/skills/*/SKILL.md (project-local) and ${CLAUDE_PLUGIN_ROOT}/skills/*/SKILL.md (plugin-bundled)"`
 
+## Tracking Mode Detection
+
+Detect tracking backend and delegation tools:
+
+1. **Linear check**: Look for available MCP tools matching `mcp__linear__*` or `mcp__claude_ai_Linear__*`. Try `list_teams`. If it succeeds → Linear mode. Read `${CLAUDE_PLUGIN_ROOT}/skills/linear-sprint-planning/SKILL.md`.
+2. **Codex check**: Check if `/codex:rescue` **and** `/codex:adversarial-review` are both available as skills. If both present → Codex available. Read `${CLAUDE_PLUGIN_ROOT}/skills/codex-delegation/SKILL.md`.
+
+Set flags: `TRACKING_MODE` ("linear" / "md") and `CODEX_AVAILABLE` (true / false).
+
 ## Your Task
 
 Review all recent work in the current project.
@@ -69,6 +78,18 @@ If any changes touch auth, user data, API endpoints, or configuration:
 - Check CancellationToken propagation on async calls
 - Review CORS, CSP, and header configurations if applicable
 
+### 5b. Codex Adversarial Review (if Codex available)
+
+If Codex is available, run a cross-model adversarial review in ADDITION to the Claude code review:
+
+1. Read `${CLAUDE_PLUGIN_ROOT}/skills/codex-delegation/SKILL.md` for focus string mapping
+2. Compose focus strings from all skills relevant to the changed files
+3. Invoke: `/codex:adversarial-review --base main "focus: correctness; <composed focus strings>"`
+4. Include Codex findings in the report under a "### Codex Adversarial Review" section
+5. Codex findings follow the same severity classification: CRITICAL → BLOCKING, MAJOR → BLOCKING, MINOR → WARNING
+
+This is ADDITIVE to the pr-review-toolkit code review (Step 6), not a replacement. Sprint-review is a standalone review command, so both Claude and Codex reviews provide independent quality signals.
+
 ### 6. Code Review
 
 Launch `pr-review-toolkit:code-reviewer` to review recent changes. Include in its prompt:
@@ -109,3 +130,11 @@ Launch `pr-review-toolkit:code-reviewer` to review recent changes. Include in it
 ### Follow-up Items
 - Issues or tech debt to address
 ```
+
+### 8. Update Tracking
+
+**MD mode:** If a sprint plan document exists, update it with review findings.
+
+**Linear mode:** If an active sprint milestone exists:
+1. Call `save_comment` on each reviewed Story issue with the review report
+2. If BLOCKING issues were found, update relevant task statuses if appropriate

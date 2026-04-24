@@ -11,9 +11,11 @@ A portable [Claude Code](https://docs.anthropic.com/en/docs/claude-code) plugin 
 Sprint Workflow is a Claude Code plugin that turns Claude into a full development team:
 
 - **9 specialist agents** — backend, frontend, testing, QA, E2E/Playwright, docs, security, DBA, product management
-- **16 engineering skills** — .NET, React, Rust, PostgreSQL, security, MQTT, BPMN, CQRS, and more
+- **18 engineering skills** — .NET, React, Rust, PostgreSQL, security, MQTT, BPMN, CQRS, Linear, Codex, and more
 - **5 sprint commands** — plan, enrich, start, review, status
 - **Automated hooks** — type-check reminders, push gates, plan update enforcement
+- **[Linear](https://linear.app) integration** (opt-in) — single-track sprint management via [Linear MCP](https://linear.app/docs/mcp)
+- **[Codex](https://github.com/openai/codex) delegation** (opt-in) — route eligible tasks to OpenAI Codex for ~4x token savings via the [codex-plugin-cc](https://github.com/openai/codex-plugin-cc)
 
 One install enforces a structured development lifecycle: **Plan → Dispatch → Build → QA → Review → Fix → Ship**.
 
@@ -54,7 +56,7 @@ Claude Code is powerful but undirected. Without structure, it writes code howeve
                      │
   ┌──────────────────▼───────────────────┐
   │  Phase 3: Quality Gates (parallel)   │
-  │  qa-agent + pr-review-toolkit        │
+  │  QA (Codex or Claude) + PR review   │
   └──────────────────┬───────────────────┘
                      │
                 BLOCKING? ──→ Phase 4: Fix Loop
@@ -85,7 +87,7 @@ Add the marketplace and install the plugin directly in Claude Code:
 /plugins install sprint-workflow
 ```
 
-One plugin — batteries included. All 8 agents and 16 engineering skills in a single install.
+One plugin — batteries included. All 9 agents and 18 engineering skills in a single install.
 
 ### Option B: Install from local clone
 
@@ -117,6 +119,86 @@ Open Claude Code in your workspace and run:
 ```
 
 If the plugin is loaded, you'll see the skill discovery output and status report.
+
+### Optional: Linear MCP Setup
+
+[Linear](https://linear.app) integration replaces markdown plan files with Linear issues as the single source of truth. When configured, `/sprint-plan` creates issues directly in Linear, `/sprint-start` tracks status via Linear, and `/sprint-status` queries Linear instead of reading markdown files.
+
+**How it works:** The plugin auto-detects Linear MCP tools at the start of every command. No configuration flag needed — if Linear MCP is available, it's used. If not, markdown tracking works exactly as before.
+
+1. **Add Linear MCP to Claude Code** via [Linear's MCP documentation](https://linear.app/docs/mcp):
+   - In Claude Code settings, add the Linear MCP server
+   - Authenticate with your Linear account
+
+2. **Verify Linear MCP is active:**
+   ```
+   /sprint-status
+   ```
+   The output should show `Tracking: Linear (project: ...)` instead of `Tracking: Markdown`.
+
+3. **How the plugin uses Linear:**
+
+   | Sprint Concept | Linear Mapping |
+   |---------------|---------------|
+   | Sprint | [Milestone](https://linear.app/docs/milestones) (date-based grouping) |
+   | Story | Issue with `Epic` label (top-level feature) |
+   | Task | Sub-issue with `Task` label (agent work item) |
+
+   The plugin creates and manages labels automatically:
+   - **Hierarchy:** Epic (green), Task (orange)
+   - **Type:** Feature (purple), Bug (red), Improvement (blue), QA (yellow), tech-debt (orange), Decision (amber), Deferred (gray)
+
+   Status lifecycle: `Backlog → Todo → In Progress → In Review → Done`
+
+4. **Fallback:** If Linear MCP goes down mid-sprint, the plugin prompts you to approve a markdown fallback for the rest of the session. No data is lost.
+
+### Optional: Codex CLI Setup
+
+[OpenAI Codex](https://github.com/openai/codex) integration conserves Claude tokens by routing eligible tasks to Codex. The plugin uses Codex for two purposes:
+- **Task execution** — well-scoped implementation tasks (CRUD, scaffolds, boilerplate) run on Codex at ~4x token efficiency
+- **QA adversarial review** — cross-model code quality review catches bugs that Claude-reviewing-Claude misses
+
+**How it works:** The plugin auto-detects the [codex-plugin-cc](https://github.com/openai/codex-plugin-cc). If installed, eligible tasks route to Codex. If not, everything runs on Claude as before.
+
+1. **Install the Codex CLI** — follow the [Codex README](https://github.com/openai/codex):
+   ```bash
+   npm install -g @openai/codex
+   ```
+
+2. **Install the Codex plugin for Claude Code:**
+   ```
+   /plugins marketplace add openai/codex-plugin-cc
+   /plugins install codex@openai-codex
+   /codex:setup
+   ```
+
+   > Do NOT run `/codex:setup --enable-review-gate` — this reviews every Claude turn and burns both rate limits fast.
+
+3. **Configure Codex defaults** (optional):
+   ```bash
+   cat > ~/.codex/config.toml <<EOF
+   model = "gpt-5.4-mini"
+   model_reasoning_effort = "high"
+   project_doc_fallback_filenames = ["CLAUDE.md"]
+   EOF
+   ```
+
+4. **How the plugin routes work:**
+
+   During `/sprint-plan`, the product-manager flags each task as `codex-eligible: true/false` based on:
+   - **Codex-eligible:** Well-scoped CRUD, migration scaffolds, boilerplate, test generation, single-concern features
+   - **NOT eligible:** Cross-cutting architecture, design exploration, security-critical code, idiomatic .NET
+
+   During `/sprint-start`:
+   - **Phase 1:** Codex-eligible tasks → `/codex:rescue`. Others → Claude agents.
+   - **Phase 3 QA:** Codex runs adversarial review (`/codex:adversarial-review`). PR review stays Claude.
+   - **Phase 4 fixes:** Surgical fixes (single file, lint, null check) → Codex. Architectural → Claude.
+
+5. **Verify:**
+   ```
+   /sprint-status
+   ```
+   Should show `Codex delegation: Available`.
 
 ---
 
@@ -157,7 +239,7 @@ Every agent follows a **3-step onboarding**:
 |-------|--------|
 | After Edit/Write | Reminds you to run type-checks for the edited language |
 | Before `git push` | Enforces build verification |
-| Before Stop | Checks that sprint plan document is up to date |
+| Before Stop | Checks that sprint tracking is up to date (Linear or markdown) |
 
 #### Auto Skill Discovery
 
@@ -167,7 +249,7 @@ The `discover-skills.sh` script automatically finds:
 
 This means agents adapt to any project without manual configuration.
 
-### 16 Engineering Skills
+### 18 Engineering Skills
 
 Bundled skill files that define how code should be written. Agents read these automatically via `${CLAUDE_PLUGIN_ROOT}/skills/`.
 
@@ -211,6 +293,13 @@ Bundled skill files that define how code should be written. Agents read these au
 | `tfs-flow` | TFVC workspaces, checkins, shelvesets, branching, work item association |
 | `cli-agent-patterns` | How LLM agents should use CLI tools efficiently — decision trees, anti-patterns |
 
+#### Integration Skills
+
+| Skill | Covers |
+|-------|--------|
+| `linear-sprint-planning` | [Linear](https://linear.app) issue taxonomy, Milestone-based sprints, label definitions, status lifecycle, MCP query/creation patterns |
+| `codex-delegation` | [Codex](https://github.com/openai/codex) eligibility criteria, adversarial review focus strings, fix routing, context passing |
+
 ---
 
 ## Key Design Decisions
@@ -229,10 +318,10 @@ Implement one feature end-to-end (backend + frontend + tests) before starting th
 
 ### Two-Gate Quality System
 
-1. **QA Agent** — build, lint, test, spec compliance (catches implementation bugs)
-2. **pr-review-toolkit:code-reviewer** — code quality, patterns, UX regressions (catches design issues)
+1. **QA** — build, lint, test, spec compliance, adversarial code review (catches implementation bugs). Runs on [Codex](https://github.com/openai/codex) when available for cross-model review; falls back to Claude `qa-agent` otherwise.
+2. **pr-review-toolkit:code-reviewer** — code quality, patterns, UX regressions (catches design issues). Always Claude.
 
-Both gates have retry loops. Failed work goes back to the implementation agent with specific failures.
+Both gates have retry loops. Surgical fixes route to Codex; architectural fixes go back to the original Claude agent.
 
 ### Project-Local Skills Override Globals
 
@@ -317,16 +406,18 @@ sprint_workflow/
         │   └── scripts/
         ├── scripts/
         │   └── discover-skills.sh         # Auto skill discovery
-        └── skills/                        # 16 engineering skills
+        └── skills/                        # 18 engineering skills
             ├── api-design/
             ├── bpmn-workflow/
             ├── cli-agent-patterns/
             ├── code-standards/
+            ├── codex-delegation/          # NEW — Codex CLI integration patterns
             ├── computational-geometry/
             ├── cqrs-patterns/
             ├── dotnet-api/
             ├── event-mqtt/
             ├── git-flow/
+            ├── linear-sprint-planning/    # NEW — Linear MCP integration patterns
             ├── postgresql-data/
             ├── react-typescript/
             ├── rust-cli/
@@ -342,13 +433,15 @@ sprint_workflow/
 
 ### Completed
 
-| Agent | Status | What Was Added |
-|-------|--------|----------------|
-| `qa-playwright` | Done | New agent — Playwright E2E, Page Object Model, visual regression, accessibility (axe-core), CI integration |
-| `security-agent` | Done | OWASP Top 10 2025 update, Gitleaks + TruffleHog layered scanning, supply chain security (A03:2025), SBOM |
-| `dba-agent` | Done | Expand-contract pattern, zero-downtime migration checklist, `pg_stat_*` index analysis, pgroll/pg_osc tooling |
-| `product-manager` | Done | INVEST validation, MoSCoW prioritization, Given/When/Then acceptance criteria, tech debt quadrant, Definition of Done |
-| `docs-agent` | Done | MADR ADR format, changelog from conventional commits, OpenAPI derivation, Mermaid architecture diagrams |
+| Feature | Version | What Was Added |
+|---------|---------|----------------|
+| `qa-playwright` | 2.0 | New agent — Playwright E2E, Page Object Model, visual regression, accessibility (axe-core), CI integration |
+| `security-agent` | 2.0 | OWASP Top 10 2025 update, Gitleaks + TruffleHog layered scanning, supply chain security (A03:2025), SBOM |
+| `dba-agent` | 2.0 | Expand-contract pattern, zero-downtime migration checklist, `pg_stat_*` index analysis, pgroll/pg_osc tooling |
+| `product-manager` | 2.0 | INVEST validation, MoSCoW prioritization, Given/When/Then acceptance criteria, tech debt quadrant, Definition of Done |
+| `docs-agent` | 2.0 | MADR ADR format, changelog from conventional commits, OpenAPI derivation, Mermaid architecture diagrams |
+| Linear MCP | 3.0 | Opt-in single-track sprint tracking via [Linear](https://linear.app) — Milestones, Epic/Task labels, status lifecycle, auto-detection |
+| Codex delegation | 3.0 | Opt-in task routing to [OpenAI Codex](https://github.com/openai/codex) — codex-eligible flagging, adversarial QA review, surgical fix routing |
 
 ### Future
 

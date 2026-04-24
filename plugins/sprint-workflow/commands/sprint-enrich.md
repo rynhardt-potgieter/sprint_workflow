@@ -14,6 +14,24 @@ Project: !`basename $(pwd)`
 
 !`bash "${CLAUDE_PLUGIN_ROOT}/scripts/discover-skills.sh" 2>/dev/null || echo "Skill discovery failed — search for .claude/skills/*/SKILL.md (project-local) and ${CLAUDE_PLUGIN_ROOT}/skills/*/SKILL.md (plugin-bundled)"`
 
+## Tracking Mode Detection
+
+Detect tracking backend and delegation tools:
+
+### Linear MCP Check
+1. Look for available MCP tools matching `mcp__linear__*` or `mcp__claude_ai_Linear__*`
+2. Try calling `list_teams` with whichever prefix exists
+3. If it succeeds → **Linear mode**. Read `${CLAUDE_PLUGIN_ROOT}/skills/linear-sprint-planning/SKILL.md`.
+4. If it returns error `-32600` → retry once. If both fail → **MD mode**
+5. If no Linear MCP tools exist → **MD mode** (default)
+
+### Codex CLI Check
+1. Check if `/codex:rescue` and `/codex:adversarial-review` are available as skills
+2. If both present → **Codex available**. Read `${CLAUDE_PLUGIN_ROOT}/skills/codex-delegation/SKILL.md`.
+3. If either missing → **Codex unavailable**
+
+Set flags: `TRACKING_MODE` ("linear" / "md") and `CODEX_AVAILABLE` (true / false).
+
 ## Your Task
 
 You have a sprint plan (from `/sprint-plan`). Your job is to dispatch specialist agents to review and enrich it with domain expertise BEFORE execution begins.
@@ -22,12 +40,21 @@ You have a sprint plan (from `/sprint-plan`). Your job is to dispatch specialist
 
 ### 1. Locate the Sprint Plan
 
+**If MD mode:**
 If arguments specify a file path, use that. Otherwise search for:
 - `docs/SPRINT_PLAN.md`
 - `docs/SPRINT*.md`
 - `SPRINT_PLAN.md`
 
 Read the full plan document.
+
+**If Linear mode:**
+1. Read `${CLAUDE_PLUGIN_ROOT}/skills/linear-sprint-planning/SKILL.md` for query patterns
+2. Discover team/project: call `list_teams` / `list_projects` — ask user to confirm
+3. Find the sprint: call `list_milestones` to find the active sprint milestone
+4. Query Stories: call `list_issues` filtered by `milestoneId` and "Epic" label
+5. For each Story, query Tasks: call `list_issues` with `parentId`
+6. Reconstruct the plan structure from Linear issues (parse structured fields from descriptions)
 
 ### 2. Analyze the Plan for Enrichment Opportunities
 
@@ -128,12 +155,25 @@ When all review agents return, consolidate their feedback into a structured enri
 
 Present the consolidated enrichment to the user. After approval:
 
-1. **Update the plan document** with:
+**Codex eligibility review (if Codex is available):**
+- Review codex-eligible flags on each task based on enrichment findings
+- If enrichment revealed complexity that makes a task no longer codex-eligible (e.g., security agent flagged auth concerns, DBA flagged migration complexity, backend-dev flagged architectural risk), override `codex-eligible` to false
+- If enrichment revealed a task is simpler than initially assessed, override `codex-eligible` to true
+- Present any overrides to the user for confirmation
+
+**If MD mode:**
+1. Update the plan document with:
    - Additional acceptance criteria from specialist reviews
    - Anti-patterns added to relevant stories
    - Test cases listed under each story
    - Migration safety notes on DB stories
    - Security requirements on auth/data stories
-2. **Mark the plan as enriched** (add a header: `Enriched: [date] by dba-agent, security-agent, test-writer, ...`)
+   - Updated codex-eligible flags (if Codex available)
+2. Mark the plan as enriched: add a header `Enriched: [date] by [agent list]`
 
-The enriched plan is now ready for `/sprint-start`.
+**If Linear mode:**
+1. For each Story: call `save_issue` to update the description with enrichment additions (additional ACs, anti-patterns, migration notes, security requirements)
+2. For each enrichment finding: call `save_comment` on the relevant Story with the finding details, attributed to the reviewing agent (e.g., "## Enrichment — security-agent")
+3. Update codex-eligible flags in Task descriptions if overridden
+4. If tasks were descoped: call `save_issue` to set status to "Canceled"
+5. Do **NOT** create or update any markdown plan file — Linear is the source of truth
