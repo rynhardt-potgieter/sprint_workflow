@@ -15,6 +15,32 @@ Branch: !`git branch --show-current 2>/dev/null || echo "n/a"`
 
 !`bash "${CLAUDE_PLUGIN_ROOT}/scripts/discover-skills.sh" 2>/dev/null || echo "Skill discovery failed — search for .claude/skills/*/SKILL.md (project-local) and ${CLAUDE_PLUGIN_ROOT}/skills/*/SKILL.md (plugin-bundled)"`
 
+## Tracking Mode Detection
+
+Before doing anything else, detect which tracking backend and delegation tools are available:
+
+### Linear MCP Check
+1. Look for available MCP tools matching `mcp__linear__*` or `mcp__claude_ai_Linear__*`
+2. Try calling `list_teams` with whichever prefix exists
+3. If it succeeds → **Linear mode**. Read `${CLAUDE_PLUGIN_ROOT}/skills/linear-sprint-planning/SKILL.md` for taxonomy, labels, and creation patterns.
+4. If it returns error `-32600` → retry once. If both fail → **MD mode**
+5. If no Linear MCP tools exist → **MD mode** (default)
+
+### Codex CLI Check
+1. Check if `/codex:rescue` and `/codex:adversarial-review` are available as skills in this session
+2. If both present → **Codex available**. Read `${CLAUDE_PLUGIN_ROOT}/skills/codex-delegation/SKILL.md` for eligibility criteria.
+3. If either missing → **Codex unavailable**
+
+Set two flags for the rest of this command:
+- `TRACKING_MODE`: "linear" or "md"
+- `CODEX_AVAILABLE`: true or false
+
+Report detected mode to the user:
+```
+Tracking: [Linear (project: X) | Markdown]
+Codex delegation: [Available | Unavailable]
+```
+
 ## Your Task
 
 You are the orchestrator. You have context from the user about what they want to build. Your job is to feed that context to the `product-manager` agent and get back a structured sprint plan.
@@ -48,7 +74,11 @@ Launch the `product-manager` agent with a prompt that includes:
    - `dba-agent` — schema design, migrations, index audit
    - `security-agent` — security audit, secret scanning, dependency check
    - `docs-agent` — documentation, changelogs, ADRs
-7. **Output format requirements** — the PM MUST produce:
+7. **Tracking mode**: Tell the PM whether we are in Linear mode or MD mode:
+   - If Linear mode: instruct the PM to read `${CLAUDE_PLUGIN_ROOT}/skills/linear-sprint-planning/SKILL.md` and structure each story description as a self-contained Linear issue (include all ACs, agent assignment, skills, anti-patterns, and codex eligibility as structured markdown fields)
+   - If MD mode: standard plan document format (no change from current behavior)
+8. **Codex eligibility**: If Codex is available, instruct the PM to flag each Task with `codex-eligible: true/false` and a one-line rationale, using the criteria from `${CLAUDE_PLUGIN_ROOT}/skills/codex-delegation/SKILL.md`. If Codex is unavailable, omit these fields.
+9. **Output format requirements** — the PM MUST produce:
 
 ```
 # Sprint Plan — [Sprint Name]
@@ -73,6 +103,8 @@ Stories in this group have NO dependencies on each other and CAN run in parallel
 - **Anti-patterns:** ...
 - **Technical Notes:** ...
 - **Estimate:** [S/M/L]
+- **Codex-eligible:** [true/false — only if Codex is available]
+- **Codex rationale:** [one-line reason — only if Codex is available]
 
 #### US-02: [Title]
 [same format]
@@ -114,8 +146,30 @@ When the PM agent returns, present the complete plan to the user. Do NOT start e
 
 ### 4. Save the Plan
 
-Once approved, write the plan to a file:
-- Default: `docs/SPRINT_PLAN.md` (or the path the user specifies)
-- If a plan file already exists, append as a new sprint section or create a new file
+Once approved:
 
-The plan document is the source of truth for `/sprint-start`.
+**If MD mode (default):**
+- Write the plan to `docs/SPRINT_PLAN.md` (or the path the user specifies)
+- If a plan file already exists, append as a new sprint section or create a new file
+- The plan document is the source of truth for `/sprint-start`
+
+**If Linear mode:**
+1. Read `${CLAUDE_PLUGIN_ROOT}/skills/linear-sprint-planning/SKILL.md` for exact creation patterns
+2. **Discover team/project**: Call `list_teams` and `list_projects` — ask the user which project to use (skip if already known from detection)
+3. **Ensure labels exist**: Call `list_issue_labels` on the team. For each required label (Epic, Task, Feature, Bug, Improvement, QA, tech-debt, Decision, Deferred) that doesn't exist, create it via `create_issue_label` with the hex color from the skill file
+4. **Create Sprint Milestone**: Call `save_milestone` with the sprint name and optional target date
+5. **Create Story issues**: For each Story in the plan, call `save_issue` with:
+   - Title: the story title
+   - Labels: Epic + relevant type label (Feature, Bug, etc.)
+   - milestoneId: the sprint milestone ID
+   - Description: full self-contained description with ACs, agent, skills, codex-eligible fields, anti-patterns, dependencies
+   - Priority and estimate from the plan
+6. **Create Task sub-issues**: For each Task under a Story, call `save_issue` with:
+   - parentId: the Story's issue ID
+   - Labels: Task + relevant type label
+   - Description: agent assignment, skills, codex-eligible flag, ACs, dependencies
+7. **Set dependencies**: For tasks with dependencies, call `save_issue` with `blockedBy` field
+8. **Discover statuses**: Call `list_issue_statuses` on the team to get status name → ID mapping
+9. **Set initial status**: Move all created Stories and Tasks from Backlog to "Todo" — call `save_issue` with the "Todo" status ID for each issue. This marks them as sprint-ready.
+10. **Present results**: Show created issue IDs/URLs to the user
+11. Do **NOT** also create a markdown plan file — Linear IS the source of truth

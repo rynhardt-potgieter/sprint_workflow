@@ -6,11 +6,20 @@ These rules govern how Claude Code orchestrates development work across any proj
 
 | Plugin | Version | Purpose |
 |--------|---------|---------|
-| `sprint-workflow` | 2.0.0 | 9 specialist agents, 16 engineering skills, 5 commands, hooks, auto skill discovery |
+| `sprint-workflow` | 3.0.0 | 9 specialist agents, 18 engineering skills, 5 commands, hooks, auto skill discovery, Linear MCP (opt-in), Codex delegation (opt-in) |
 
 Install via: `/plugins marketplace add rynhardt-potgieter/sprint_workflow` then `/plugins install sprint-workflow`
 
 All engineering-standards skills are bundled inside the plugin. Agents access them via `${CLAUDE_PLUGIN_ROOT}/skills/<name>/SKILL.md`.
+
+### Optional Integrations
+
+| Integration | Detection | Purpose |
+|-------------|-----------|---------|
+| **Linear MCP** | Auto-detected via `mcp__linear__*` or `mcp__claude_ai_Linear__*` tools | Single-track sprint management in Linear (replaces markdown plan files) |
+| **Codex CLI** | Auto-detected via `/codex:rescue` + `/codex:adversarial-review` skills | Token-efficient task execution and cross-model QA |
+
+Both are opt-in. When unavailable, the plugin operates identically to v2.x (markdown tracking, Claude-only agents).
 
 ---
 
@@ -26,7 +35,8 @@ The orchestrator feeds user context to the `product-manager` agent, which produc
 4. **Define acceptance criteria** — testable, specific, Given/When/Then where complex
 5. **Assign agents and skills** to each story
 6. **Group stories** — parallel groups (no dependencies) vs sequential groups
-7. **Output** — structured sprint plan document saved to `docs/SPRINT_PLAN.md`
+7. **Flag codex-eligible tasks** — when Codex is available, each task gets a delegation flag
+8. **Output** — Linear issues (if Linear MCP available) OR `docs/SPRINT_PLAN.md` (default)
 
 The plan returns to the main session for user review before proceeding.
 
@@ -40,7 +50,7 @@ Specialist agents review the plan and add domain expertise:
 - `qa-playwright` — E2E scenarios, accessibility checks, visual baselines
 - `backend-dev` / `frontend-dev` — technical risks, anti-patterns, complexity flags
 
-Enrichments are consolidated and merged into the plan before execution.
+Enrichments are consolidated and merged into the plan before execution. When Codex is available, enrichment also confirms/overrides codex-eligible flags based on complexity findings.
 
 ### `/sprint-start` — Execute
 
@@ -66,25 +76,23 @@ The orchestrator dispatches agents in a strict 6-phase flow:
 3. Execute the task
 
 #### Phase 1: Implementation Agents
-Dispatch `backend-dev`, `frontend-dev`, `dba-agent`, etc. per the plan's parallel groups. Launch independent stories in parallel. **Update the plan** after each agent completes.
+Dispatch agents per the plan's parallel groups. Tasks flagged `codex-eligible` route to `/codex:rescue` (main session invokes directly). Non-eligible tasks dispatch Claude opus agents as before. Launch independent tasks in parallel. **Update tracking** (Linear or MD) after each agent completes.
 
 #### Phase 2: Test Writer
 Dispatch `test-writer` (and `qa-playwright` for E2E) after implementation completes. Include acceptance criteria and test cases from the enrichment. **Update the plan** after tests are written.
 
 #### Phase 3: Quality Gates (parallel)
 Dispatch BOTH simultaneously:
-- `qa-agent` — build, lint, test, spec compliance → structured report
-- `pr-review-toolkit:code-reviewer` — code quality, patterns, UX regressions
+- **QA (Codex-first)**: When Codex available, main session runs build/lint/test + `/codex:adversarial-review` with skill-driven focus strings. When unavailable, dispatches `qa-agent` (Claude sonnet) as fallback.
+- `pr-review-toolkit:code-reviewer` — code quality, patterns, UX regressions (always Claude)
 
 #### Phase 4: Fix Loop
-For each BLOCKING issue from Phase 3:
-1. Re-dispatch the ORIGINAL agent that wrote the code (not a different one)
-2. Include: original acceptance criteria + specific blocking issues
-3. Instruction: "Fix ONLY these issues"
-4. Re-validate with `qa-agent`
-5. Loop until PASS — no task completes with known violations
+For each BLOCKING issue from Phase 3, classify the fix:
+- **Surgical** (single file, lint, null check, test) → `/codex:rescue` (when available)
+- **Architectural** (multi-file, design, interface) → re-dispatch original Claude agent
+Re-validate after each fix. Loop until PASS — no task completes with known violations.
 
-**Update the plan** with issues found and resolved.
+**Update tracking** (Linear or MD) with issues found and resolved.
 
 #### Phase 5: Documentation
 Dispatch `docs-agent` for: technical docs, CHANGELOG, README updates, version bumps, ADRs.
@@ -93,7 +101,7 @@ Dispatch `docs-agent` for: technical docs, CHANGELOG, README updates, version bu
 The orchestrator (main session) commits directly using `git-flow` or `tfs-flow` skill (auto-detected):
 1. **Logical commit/checkin separation** — one per feature, tests separate, docs separate
 2. **Message format**: `<type>(<scope>): <summary>` (same for both Git and TFVC)
-3. **Update the plan document** — mark all stories `completed`
+3. **Finalize tracking** — Linear: set all tasks/stories to "Done". MD: mark all stories `completed` in plan document.
 4. **Push** — only after all gates pass
 
 ---
@@ -148,26 +156,29 @@ After completing every implementation task:
 ## Execution Order Summary
 
 ```
-/sprint-plan    → product-manager creates plan → user reviews
+/sprint-plan    → detect Linear/Codex → product-manager creates plan
+                  (flags codex-eligible tasks) → user reviews
                                                       ↓
-/sprint-enrich  → specialist agents review plan (optional) → user approves
+/sprint-enrich  → specialist agents review plan (optional)
+                  confirm/override codex-eligible flags → user approves
                                                       ↓
-/sprint-start   → Phase 1: implementation agents (parallel groups)
-                      ↓ update plan
+/sprint-start   → load plan from Linear OR markdown
+                  Phase 1: implementation (codex-eligible → Codex, else → Claude agents)
+                      ↓ update tracking (Linear or MD)
                   Phase 2: test-writer + qa-playwright
-                      ↓ update plan
-                  Phase 3: qa-agent + pr-review-toolkit (parallel)
+                      ↓ update tracking
+                  Phase 3: QA (Codex adversarial review) + pr-review-toolkit (Claude)
                       ↓ BLOCKING issues?
-                  Phase 4: fix loop (original agents fix own work)
+                  Phase 4: fix loop (surgical → Codex, architectural → Claude)
                       ↓ re-validate → loop until clean
                   Phase 5: docs-agent (docs, changelog, version)
-                      ↓ update plan
-                  Phase 6: commit/checkin (logical units via git-flow or tfs-flow) → push
+                      ↓ update tracking
+                  Phase 6: commit/checkin → finalize tracking (Linear → Done, MD → completed)
 ```
 
 ---
 
-## Bundled Engineering Skills (16)
+## Bundled Engineering Skills (18)
 
 All skills live at `${CLAUDE_PLUGIN_ROOT}/skills/<name>/SKILL.md` inside the plugin.
 
@@ -189,6 +200,8 @@ All skills live at `${CLAUDE_PLUGIN_ROOT}/skills/<name>/SKILL.md` inside the plu
 | `tfs-flow` | TFVC Workflow | Workspaces, checkins, shelvesets, branching, work items |
 | `cli-agent-patterns` | Agent UX | How LLM agents should use CLI tools efficiently |
 | `task-board-ops` | Sprint Ops | Task tracking, status flow, board format |
+| `linear-sprint-planning` | Linear MCP | Issue taxonomy, Milestones, labels, status lifecycle, query/creation patterns |
+| `codex-delegation` | Codex CLI | Eligibility criteria, adversarial review, fix routing, context passing |
 
 ---
 
@@ -198,9 +211,35 @@ All skills live at `${CLAUDE_PLUGIN_ROOT}/skills/<name>/SKILL.md` inside the plu
 |-------|---------|--------|
 | `PostToolUse` | Edit/Write | Language-specific type-check reminder |
 | `PreToolUse` | Bash (git push) | Build verification gate |
-| `Stop` | Session end | Verify sprint plan document is updated |
+| `Stop` | Session end | Verify sprint tracking is updated (Linear or MD) |
 
 ---
+
+## Linear MCP Integration (v3.0)
+
+When Linear MCP is detected, sprint tracking uses Linear as the **sole source of truth** (no markdown plan files):
+
+| Concept | Linear Mapping | Label |
+|---------|---------------|-------|
+| Sprint | Milestone | — |
+| Story | Issue (top-level) | Epic (#4cb782) |
+| Task | Sub-issue (parentId → Story) | Task (#f2994a) |
+
+- **Single-track**: Either Linear OR markdown, never both
+- **Auto-detected**: presence of `mcp__linear__*` or `mcp__claude_ai_Linear__*` tools
+- **Mid-sprint fallback**: if Linear goes down, prompt user to approve MD fallback
+- **Status lifecycle**: Backlog → Todo → In Progress → In Review → Done / Canceled
+
+## Codex Delegation (v3.0)
+
+When Codex CLI is detected, eligible tasks route to Codex for token conservation:
+
+- **QA is Codex-first**: Main session runs build/lint/test + `/codex:adversarial-review` instead of dispatching Claude qa-agent
+- **PR review stays Claude**: `pr-review-toolkit:code-reviewer` is always Claude
+- **Task delegation**: Sprint-plan flags tasks as `codex-eligible`. Phase 1 routes eligible tasks to `/codex:rescue`
+- **Fix routing**: Surgical fixes (single file, lint, null check) → Codex. Architectural fixes → original Claude agent
+- **Model**: Always best available Codex model unless user overrides
+- **Auto-detected**: presence of `/codex:rescue` + `/codex:adversarial-review` skills
 
 ## Key Principles
 
@@ -210,5 +249,7 @@ All skills live at `${CLAUDE_PLUGIN_ROOT}/skills/<name>/SKILL.md` inside the plu
 - **Spec is truth** — agents implement what the spec says, not what they think is better
 - **Retry until clean** — no task is complete with known violations
 - **Minimal fixes** — prefer targeted fixes over structural redesigns
+- **Single-track tracking** — Linear OR markdown, never both simultaneously
+- **Codex for execution, Claude for review** — conserve tokens by routing scoped work to Codex
 - **Always set `name:` in docker-compose.yml** — prevents container collisions
 - **Update CLAUDE.md** — when establishing new patterns or fixing recurring mistakes

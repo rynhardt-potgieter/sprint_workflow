@@ -18,6 +18,10 @@ Skills are bundled in this plugin at `${CLAUDE_PLUGIN_ROOT}/skills/<name>/SKILL.
 ### Read For Domain Context
 - Project-specific skills in `.claude/skills/*/SKILL.md` relative to the project root — these define project-specific patterns, domain entities, and constraints
 
+### Read When Instructed by Orchestrator
+- `${CLAUDE_PLUGIN_ROOT}/skills/linear-sprint-planning/SKILL.md` — when the orchestrator tells you Linear mode is active. Defines issue taxonomy, label rules, Milestone-based sprint grouping, and description format for Linear issues.
+- `${CLAUDE_PLUGIN_ROOT}/skills/codex-delegation/SKILL.md` — when the orchestrator tells you Codex is available. Defines eligibility criteria for flagging tasks as codex-eligible.
+
 ## Getting Started on Any Project
 
 ### Step 1: Read skill files
@@ -77,6 +81,13 @@ Every story follows this format:
 - [Other stories this depends on, or "None"]
 
 **Estimate:** [S/M/L/XL]
+```
+
+> **Codex fields (conditional):** Only include `Codex-eligible` and `Codex rationale` when the orchestrator has indicated Codex is available. Omit entirely otherwise.
+
+```
+**Codex-eligible:** [true/false]
+**Codex rationale:** [One-line reason: why this task is or isn't suitable for Codex delegation. Reference criteria from the codex-delegation skill.]
 ```
 
 #### INVEST Validation Checklist
@@ -230,6 +241,52 @@ Output a structured sprint plan document:
 ## Out of Scope (Won't Have This Sprint)
 [Features explicitly deferred to future sprints, with brief rationale]
 ```
+
+### 8. Linear Mode Output
+
+When the orchestrator indicates Linear mode is active:
+
+1. **Read `${CLAUDE_PLUGIN_ROOT}/skills/linear-sprint-planning/SKILL.md`** for taxonomy and label rules
+2. **Structure each story description as a self-contained Linear issue**. Since Linear issues are standalone (not part of a larger document), each story description must include everything an agent needs:
+   - The "As a / I want / So that" user story
+   - All acceptance criteria as checkbox items (`- [ ] ...`)
+   - Technical notes and implementation hints
+   - Agent assignment as `**Agent:** <agent-name>`
+   - Skill references as `**Skills:** <skill-1>, <skill-2>`
+   - Codex eligibility as `**Codex-eligible:** true/false` and `**Codex rationale:** <reason>`
+   - Phase/group number as `**Phase:** <N>`
+   - Anti-patterns (if any)
+   - Dependencies (if any)
+3. **Assign labels per the taxonomy:**
+   - Each Story gets the **Epic** label + relevant type label (Feature, Bug, Improvement, etc.)
+   - Each Task gets the **Task** label + relevant type label
+4. **Include priority and estimate** for each story (1=Urgent, 2=High, 3=Normal, 4=Low for priority; story points for estimate)
+5. **Clearly delineate Stories and their Tasks** in your output so the orchestrator can parse them and create Linear issues. Use this structure:
+
+```
+## Story: US-01 — [Title]
+Labels: Epic, Feature
+Priority: 1
+Estimate: 5
+
+[Full story description with all fields above]
+
+### Tasks:
+
+#### Task 1: [Implementation task title]
+Labels: Task, Feature
+Agent: backend-dev
+Codex-eligible: true
+[Task description with ACs]
+
+#### Task 2: [Test task title]
+Labels: Task, QA
+Agent: test-writer
+Codex-eligible: true
+[Task description]
+```
+
+6. **Do NOT output the standard markdown sprint plan format** when in Linear mode — the orchestrator will create Linear issues from your structured output instead of writing a markdown file.
 
 ## Anti-Patterns (What NOT to Do)
 
