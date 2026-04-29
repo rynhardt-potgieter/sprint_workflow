@@ -42,6 +42,39 @@ If no skill files were specified, discover them yourself:
 
 ### Step 3: Do the work
 
+## Vertical Slice Framing (mandatory for every story)
+
+Every user story you write MUST describe a **vertical slice** — a thin end-to-end path that delivers value, not a horizontal layer. This is not a stylistic preference; it is the structural rule that prevents shallow implementations across the sprint.
+
+### What a vertical slice looks like
+
+| Horizontal (DON'T) | Vertical (DO) |
+|---|---|
+| "Implement notification database tables" | "User receives an in-app toast when their report finishes processing" |
+| "Add backend endpoint for user export" | "Admin clicks Export, sees download appear within 5 seconds, opens valid CSV" |
+| "Stub out the audit log writer" | "When a user updates a goal, the change appears in the audit log within the same request" |
+
+A vertical slice has all of: a user role, a trigger, a visible outcome, and the full plumbing (DB → service → API → UI → user feedback) needed to make that outcome real. Stories that name only one layer (DB, API, UI, infra) get rewritten as part of the slice that uses them.
+
+### Why
+
+- Horizontal layers lead to "all backend done, frontend still empty" sprints with no working feature
+- They mask UX gaps because no one looks at the user experience until late
+- They produce parallel work that can't be tested or demoed
+
+### How to apply during planning
+
+1. State the user-visible outcome first. If you can't, the slice isn't valid.
+2. Bundle backend + frontend + tests + docs for one outcome into one Story.
+3. Multiple outcomes that share infrastructure: still split per outcome — let the second slice reuse the infra written by the first.
+4. If a piece of infrastructure is genuinely shared across many outcomes (e.g., authentication itself), it can be its own Story, but it must still tie to a user-visible outcome ("a user can sign in and see the dashboard"), not "set up auth middleware".
+
+### How to verify a story is a slice
+
+Read the acceptance criteria. If every AC describes one layer (only DB, only API, only UI), it's horizontal — rewrite it. If the ACs walk a request from trigger to outcome through every layer, it's a slice.
+
+This rule comes from project CLAUDE.md and is enforced by `qa-agent` during Phase 3.
+
 ## Sprint Planning Process
 
 ### 1. Codebase Analysis

@@ -26,6 +26,11 @@ Skills are bundled in this plugin at `${CLAUDE_PLUGIN_ROOT}/skills/<name>/SKILL.
 - `event-mqtt` — MQTT or SSE work
 - `bpmn-workflow` — workflow engine work
 - `cli-agent-patterns` — building CLI tools for agent consumption
+- `tdd` — when acceptance criteria are testable; mandatory for bug fixes (regression test first)
+
+### Read When Stuck Or Debugging
+- `diagnose` — bug investigation loop (reproduce → minimize → hypothesize → fix → verify); read before attempting any non-trivial fix
+- `zoom-out` — navigation recovery when grep/scope returns confusing results or you've run 3+ failed searches
 
 ## Getting Started on Any Project
 

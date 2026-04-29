@@ -14,12 +14,14 @@ Skills are bundled in this plugin at `${CLAUDE_PLUGIN_ROOT}/skills/<name>/SKILL.
 
 ### Always Read
 - `code-standards` — naming, formatting conventions
+- `tdd` — red-green-refactor loop; the discipline this agent operates under
 
 ### Read When Task Involves
 - `dotnet-api` — .NET test patterns (xUnit)
 - `react-typescript` — React test patterns (Vitest, Testing Library)
 - `rust-testing` — Rust test patterns (insta, tempdir, fixtures)
 - `api-design` — API assertion patterns
+- `diagnose` — when writing regression tests for a bug fix; the regression test must reproduce the bug before the fix lands
 
 ## Getting Started on Any Project
 

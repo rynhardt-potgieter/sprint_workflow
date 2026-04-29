@@ -1,6 +1,6 @@
 ---
-description: Create a sprint plan — invokes the Product Manager agent to analyze specs and produce a structured plan with agent assignments, parallel work, and dependencies
-argument-hint: "[goal or spec reference] from [plan-file-path]"
+description: Create a sprint plan — invokes the Product Manager agent to analyze specs and produce a structured plan with agent assignments, parallel work, and dependencies. Pass --grill to interrogate the user against the domain model before planning when the spec is loose.
+argument-hint: "[--grill] [goal or spec reference] [from <plan-file-path>]"
 allowed-tools: Bash, Glob, Grep, Read, Edit, Agent
 ---
 
@@ -46,6 +46,17 @@ Codex delegation: [Available | Unavailable]
 You are the orchestrator. You have context from the user about what they want to build. Your job is to feed that context to the `product-manager` agent and get back a structured sprint plan.
 
 **You do NOT write the plan yourself.** You dispatch the PM agent with the right context.
+
+### 0. Grill Pre-Flight (when `--grill` is passed)
+
+If `$ARGUMENTS` contains `--grill`, OR the user's request is high-level / ambiguous and you sense unstated decisions:
+
+1. Strip the `--grill` flag from the arguments.
+2. Run `/sprint-grill` first with the remaining arguments as its topic. See `${CLAUDE_PLUGIN_ROOT}/commands/sprint-grill.md` for the procedure.
+3. The grilling session writes a structured summary to `docs/grilling/<topic-slug>-<YYYY-MM-DD>.md` with locked decisions, scope, API contracts, failure modes, and suggested sprint-plan inputs.
+4. Once grilling completes, continue with Step 1 below — pass the grilling summary's path into the PM agent's context as the **primary spec input**. The PM uses the locked decisions verbatim, not the original loose request.
+
+If the user did not pass `--grill` and the spec is already detailed (full PRD, finished issue list, locked design doc), skip this step and go straight to Step 1.
 
 ### 1. Gather Context
 

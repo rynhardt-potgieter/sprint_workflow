@@ -6,7 +6,7 @@ These rules govern how Claude Code orchestrates development work across any proj
 
 | Plugin | Version | Purpose |
 |--------|---------|---------|
-| `sprint-workflow` | 3.0.0 | 9 specialist agents, 18 engineering skills, 5 commands, hooks, auto skill discovery, Linear MCP (opt-in), Codex delegation (opt-in) |
+| `sprint-workflow` | 3.1.0 | 9 specialist agents, 21 engineering skills, 12 commands, hooks, auto skill discovery, Linear MCP (opt-in), Codex delegation (opt-in), recovery commands (continue/resume-task/handoff), bug-triage, grill, retro, rollback |
 
 Install via: `/plugins marketplace add rynhardt-potgieter/sprint_workflow` then `/plugins install sprint-workflow`
 
@@ -22,6 +22,26 @@ All engineering-standards skills are bundled inside the plugin. Agents access th
 Both are opt-in. When unavailable, the plugin operates identically to v2.x (markdown tracking, Claude-only agents).
 
 ---
+
+## Command Surface (12 total)
+
+### Core lifecycle
+- `/sprint-plan` — produce a sprint plan (accepts `--grill` for spec interrogation first)
+- `/sprint-enrich` — specialist enrichment of the plan
+- `/sprint-start` — execute the 6-phase flow
+- `/sprint-review` — quality gates on completed work outside sprint flow
+- `/sprint-status` — current sprint status from Linear or MD
+
+### Recovery & resumption
+- `/sprint-continue` — resume an interrupted sprint, idempotent
+- `/sprint-resume-task <id>` — re-run a single task without re-entering the full flow
+- `/sprint-handoff` — write `docs/SPRINT_HANDOFF.md` snapshot for the next session
+
+### Quality & reflection
+- `/sprint-bug-triage` — multi-agent bug review → user triage → Linear sub-issues OR `docs/BUG_BACKLOG.md`
+- `/sprint-grill` — pre-plan interrogation against the domain model
+- `/sprint-retro` — data-driven retrospective at sprint end
+- `/sprint-rollback` — safety-gated sprint revert
 
 ## The Sprint Lifecycle
 
@@ -178,7 +198,7 @@ After completing every implementation task:
 
 ---
 
-## Bundled Engineering Skills (18)
+## Bundled Engineering Skills (21)
 
 All skills live at `${CLAUDE_PLUGIN_ROOT}/skills/<name>/SKILL.md` inside the plugin.
 
@@ -200,8 +220,11 @@ All skills live at `${CLAUDE_PLUGIN_ROOT}/skills/<name>/SKILL.md` inside the plu
 | `tfs-flow` | TFVC Workflow | Workspaces, checkins, shelvesets, branching, work items |
 | `cli-agent-patterns` | Agent UX | How LLM agents should use CLI tools efficiently |
 | `task-board-ops` | Sprint Ops | Task tracking, status flow, board format |
-| `linear-sprint-planning` | Linear MCP | Issue taxonomy, Milestones, labels, status lifecycle, query/creation patterns |
+| `linear-sprint-planning` | Linear MCP | Issue taxonomy, Milestones, labels, status lifecycle, query/creation patterns, Bug Backlog Epic |
 | `codex-delegation` | Codex CLI | Eligibility criteria, adversarial review, fix routing, context passing |
+| `diagnose` | Engineering discipline | Reproduce → minimize → hypothesize → instrument → fix → verify; required reading for `/sprint-bug-triage` reviewers and Phase 4 fix loop |
+| `tdd` | Engineering discipline | Red-green-refactor; mandatory regression tests for bug fixes; integration with `/sprint-start` Phase 1/2 |
+| `zoom-out` | Engineering discipline | Recovery procedure when 3+ navigation attempts have failed or code is unfamiliar |
 
 ---
 
