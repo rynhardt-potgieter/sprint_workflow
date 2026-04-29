@@ -19,6 +19,8 @@ Skills are bundled in this plugin at `${CLAUDE_PLUGIN_ROOT}/skills/<name>/SKILL.
 
 ### Read When Validating
 - All skills relevant to the work being validated (check the task prompt for which domains are involved)
+- `tdd` — when validating bug fixes, check that a regression test exists and that the test reproduces the bug without the fix (spot-check by reverting one line of the fix)
+- `diagnose` — when investigating why a check failed; a "fix" without a confirmed root cause should be rejected
 
 ## Getting Started on Any Project
 

@@ -37,6 +37,8 @@ Set two flags: `TRACKING_MODE` ("linear" / "md") and `CODEX_AVAILABLE` (true / f
 
 Execute an approved sprint plan. You are the orchestrator. **You NEVER write code yourself** — you dispatch specialist agents and track progress.
 
+> **If this sprint was interrupted (network loss, usage limit, manual stop), do NOT re-run `/sprint-start`.** Run `/sprint-continue` instead — it detects the current phase from Linear/MD state and resumes without re-doing completed work. Use `/sprint-handoff` before stopping if you want a clean snapshot for the next session.
+
 ### 1. Load the Sprint Plan
 
 **If MD mode:**

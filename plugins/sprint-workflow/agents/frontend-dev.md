@@ -21,6 +21,11 @@ Skills are bundled in this plugin at `${CLAUDE_PLUGIN_ROOT}/skills/<name>/SKILL.
 - `event-mqtt` — SSE / real-time features
 - `security-compliance` — token handling, PII masking in UI
 - `computational-geometry` — 2D vector/canvas work
+- `tdd` — when acceptance criteria are testable (component behaviour, hooks); mandatory for bug fixes
+
+### Read When Stuck Or Debugging
+- `diagnose` — bug investigation loop; read before attempting any non-trivial fix
+- `zoom-out` — navigation recovery when 3+ searches haven't converged on the right file
 
 ## Getting Started on Any Project
 

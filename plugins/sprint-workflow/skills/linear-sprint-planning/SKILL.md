@@ -260,6 +260,32 @@ save_issue({
 })
 ```
 
+### Bug Backlog Epic (auto-created by `/sprint-bug-triage`)
+
+When `/sprint-bug-triage` runs without an explicit Epic context, it creates (or reuses) a monthly catch-all Epic so bugs always have a parent:
+
+1. **Reuse first.** Search for an existing Epic with title `Bug Backlog — <YYYY-MM>` in the team:
+   ```
+   list_issues({ team: "<team>", title: "Bug Backlog — <YYYY-MM>", labels: ["Epic"] })
+   ```
+2. **If none exists, create one:**
+   ```
+   save_issue({
+     title: "Bug Backlog — <YYYY-MM>",
+     team: "<team-name>",
+     project: "<project-name>",                  // current active project, if known
+     milestoneId: "<active-sprint-milestone-id>",// optional — only if a sprint is in flight
+     labels: ["Epic", "Bug"],
+     priority: 3,
+     description: "Auto-created by /sprint-bug-triage for bugs without an explicit parent Epic. Bugs filed here can be re-parented to a feature Epic later. Reused for the calendar month."
+   })
+   ```
+3. **Attach the Bug** as a sub-issue with `parentId` set to this Epic.
+
+**Why monthly:** keeps the backlog browsable, prevents one giant Epic, and gives sprint planning a natural cutoff. Older months can be closed out or rolled forward during retro.
+
+**Bug label color (new Linear setups):** `#EB5757` (red) — the standard Type label hex defined in section 3. Existing Linear teams that already have a `Bug` label keep their colour; the `create_issue_label` call only fires when the label is missing on the team.
+
 ---
 
 ## 8. Query Patterns
