@@ -1,7 +1,7 @@
 {
   "name": "sprint-workflow",
-  "version": "3.2.0",
-  "description": "Sprint workflow orchestration — 9 specialist agents, 22 engineering skills (incl. worktree-handoff for safe subagent/Codex integration), 12 sprint commands (plan/enrich/start/continue/resume-task/handoff/bug-triage/grill/retro/rollback/review/status), automated hooks, auto skill discovery, Linear MCP integration (opt-in), and Codex CLI delegation (opt-in). Batteries included.",
+  "version": "3.2.1",
+  "description": "Sprint workflow orchestration — 9 specialist agents, 22 engineering skills (incl. worktree-handoff for safe subagent/Codex integration), 12 sprint commands (plan/enrich/start/continue/resume-task/handoff/bug-triage/grill/retro/rollback/review/status), sentinel-gated Stop hook (no false positives, no loops), auto skill discovery, Linear MCP integration (opt-in), and Codex CLI delegation (opt-in). Batteries included.",
   "author": {
     "name": "rynha"
   }

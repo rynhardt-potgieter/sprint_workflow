@@ -6,7 +6,7 @@ These rules govern how Claude Code orchestrates development work across any proj
 
 | Plugin | Version | Purpose |
 |--------|---------|---------|
-| `sprint-workflow` | 3.2.0 | 9 specialist agents, 22 engineering skills (incl. `worktree-handoff`), 12 commands, hooks, auto skill discovery, Linear MCP (opt-in), Codex delegation (opt-in), recovery commands (continue/resume-task/handoff), bug-triage, grill, retro, rollback |
+| `sprint-workflow` | 3.2.1 | 9 specialist agents, 22 engineering skills (incl. `worktree-handoff`), 12 commands, sentinel-gated Stop hook, auto skill discovery, Linear MCP (opt-in), Codex delegation (opt-in), recovery commands (continue/resume-task/handoff), bug-triage, grill, retro, rollback |
 
 Install via: `/plugins marketplace add rynhardt-potgieter/sprint_workflow` then `/plugins install sprint-workflow`
 

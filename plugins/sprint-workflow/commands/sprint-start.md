@@ -109,6 +109,21 @@ Wait for user approval.
 
 ---
 
+## Sprint Sentinel (write before Phase 1, delete in Phase 6)
+
+After approval and BEFORE dispatching any agent, write the sprint-active sentinel so the Stop hook knows to remind you about tracking:
+
+```bash
+mkdir -p .claude
+# First line: "linear" or "md" — the active tracking source
+# Second line (optional): sprint id / milestone / plan filename for reference
+echo "linear" > .claude/.sprint-active   # or "md"
+```
+
+This sentinel is what activates the Stop hook's tracking reminder. In sessions where it doesn't exist, the hook stays silent. The sentinel MUST be deleted in Phase 6 after final commits land (see "Clear Sprint Sentinel" below).
+
+---
+
 ## Execution Flow
 
 ### Phase 1: Implementation Agents
@@ -293,6 +308,16 @@ YOU (the orchestrator) handle commits directly — do NOT dispatch an agent for 
 - For each completed Story (all tasks Done): call `save_issue` to set status to "Done"
 - Call `save_comment` on each Story with commit hashes and sprint summary
 - Do NOT update any markdown plan file
+
+#### Clear Sprint Sentinel
+
+After tracking is finalized AND commits/checkins have landed, remove the sentinel so future ordinary sessions don't get nagged:
+
+```bash
+rm -f .claude/.sprint-active .claude/.sprint-active.last-nag
+```
+
+Do NOT delete the sentinel earlier — it must survive until tracking is fully reconciled, otherwise an interrupted Phase 6 leaves no signal for the next session.
 
 ---
 
