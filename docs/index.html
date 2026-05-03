@@ -698,6 +698,180 @@
   }
   svg .pulse { animation: pulse 2.4s ease-in-out infinite; }
 
+  /* ── CODEX BADGE ── */
+  .codex-badge {
+    display: inline-flex; align-items: center; gap: 0.25rem;
+    background: linear-gradient(135deg, rgba(16,185,129,0.10), rgba(16,185,129,0.06));
+    color: #047857;
+    border: 1px solid rgba(16,185,129,0.22);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem; font-weight: 600;
+    padding: 0.1rem 0.42rem;
+    border-radius: 4px;
+    line-height: 1.4;
+    text-transform: uppercase; letter-spacing: 0.04em;
+  }
+  .codex-badge::before {
+    content: '⚡'; font-size: 0.85em;
+  }
+
+  /* ── CODEX SECTION ── */
+  .codex-routing {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem;
+    margin: 2.5rem 0 2rem;
+  }
+  @media (max-width: 880px) { .codex-routing { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 480px) { .codex-routing { grid-template-columns: 1fr; } }
+  .codex-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.2rem 1.3rem;
+  }
+  .codex-card-stage {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem; color: var(--text-3);
+    text-transform: uppercase; letter-spacing: 0.07em;
+    margin-bottom: 0.5rem; font-weight: 600;
+  }
+  .codex-card-title {
+    font-size: 0.95rem; font-weight: 600; color: var(--text);
+    margin-bottom: 0.85rem;
+  }
+  .codex-route-row {
+    display: flex; align-items: flex-start; gap: 0.45rem;
+    font-size: 0.82rem; color: var(--text-2);
+    padding: 0.35rem 0;
+    border-top: 1px dashed var(--border);
+    line-height: 1.45;
+  }
+  .codex-route-row:first-of-type { border-top: 0; padding-top: 0; }
+  .codex-route-row .when {
+    color: var(--text-3);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    flex-shrink: 0; min-width: 50px;
+    padding-top: 0.1rem;
+  }
+  .codex-route-row .when.cdx { color: #047857; }
+  .codex-route-row .who { color: var(--text); font-weight: 500; }
+
+  .codex-elig {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem;
+    margin-top: 2rem;
+  }
+  @media (max-width: 720px) { .codex-elig { grid-template-columns: 1fr; } }
+  .codex-elig-col {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.4rem 1.5rem;
+  }
+  .codex-elig-col.yes { border-color: rgba(16,185,129,0.30); background: linear-gradient(180deg, rgba(16,185,129,0.04), transparent 40%); }
+  .codex-elig-col.no  { border-color: rgba(235,87,87,0.20); background: linear-gradient(180deg, rgba(235,87,87,0.04), transparent 40%); }
+  .codex-elig-head {
+    display: flex; align-items: center; gap: 0.55rem;
+    font-weight: 600; font-size: 0.95rem;
+    margin-bottom: 0.85rem;
+  }
+  .codex-elig-head .icon {
+    width: 22px; height: 22px; border-radius: 6px;
+    display: grid; place-items: center;
+    color: white; font-size: 0.78rem; font-weight: 700;
+  }
+  .codex-elig-head .icon.ok  { background: #10b981; }
+  .codex-elig-head .icon.bad { background: #eb5757; }
+  .codex-elig-list {
+    list-style: none; padding: 0;
+  }
+  .codex-elig-list li {
+    font-size: 0.86rem; color: var(--text-2);
+    padding: 0.35rem 0;
+    border-top: 1px dashed var(--border);
+    line-height: 1.45;
+  }
+  .codex-elig-list li:first-child { border-top: 0; }
+  .codex-elig-list li strong { color: var(--text); font-weight: 500; }
+
+  /* SVG hint when wide diagram on narrow screen */
+  .svg-scroll-hint {
+    display: none;
+    font-size: 0.72rem; color: var(--text-3);
+    font-family: 'JetBrains Mono', monospace;
+    text-align: center;
+    margin-top: 0.5rem;
+  }
+  @media (max-width: 720px) {
+    .svg-scroll-hint { display: block; }
+  }
+
+  /* ── COMPREHENSIVE MOBILE ── */
+  @media (max-width: 980px) {
+    section { padding: 4.5rem 0; }
+    .container, .container-narrow { padding: 0 1.5rem; }
+    .diagram-card { padding: 1.5rem 1.25rem; }
+    .diagram-tag { top: 0.85rem; right: 1rem; font-size: 0.65rem; }
+  }
+  @media (max-width: 720px) {
+    section { padding: 3.5rem 0; }
+    .container, .container-narrow { padding: 0 1.1rem; }
+    h1 { font-size: 2.3rem; line-height: 1.1; letter-spacing: -0.025em; }
+    h2 { font-size: 1.65rem; line-height: 1.18; }
+    .hero-sub { font-size: 1.02rem; }
+    .section-intro p { font-size: 1rem; }
+    .section-intro { margin-bottom: 2rem; }
+    p.lead { font-size: 1.05rem; }
+
+    #hero { padding: 6.5rem 0 3rem; min-height: 0; }
+    .hero-cta-row { gap: 0.7rem; margin-bottom: 2.5rem; }
+    .btn { font-size: 0.88rem; padding: 0.65rem 1.1rem; }
+    .hero-stats { margin-bottom: 2.5rem; }
+    .hero-stat { padding: 1.1rem 1rem; }
+    .hero-stat-num { font-size: 1.55rem; }
+    .hero-stat-label { font-size: 0.7rem; }
+    .hero-pipeline-wrap { padding: 1.25rem 1rem; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+    .feature-card, .qs-step { padding: 1.4rem 1.3rem; }
+    .qs-step { grid-template-columns: 38px 1fr; gap: 1rem; }
+    .qs-num { width: 30px; height: 30px; font-size: 0.85rem; }
+
+    .agent-card { padding: 1.05rem 1.15rem; }
+    .agent-avatar { width: 28px; height: 28px; font-size: 0.72rem; }
+    .agent-name { font-size: 0.85rem; }
+
+    .skill-chip { font-size: 0.74rem; padding: 0.4rem 0.6rem; }
+
+    .linear-mock-body { padding: 1.1rem 1.2rem; }
+    .linear-doc-title { font-size: 1.25rem; }
+
+    .tree { padding: 1.1rem 1.2rem; font-size: 0.74rem; line-height: 1.55; }
+
+    .callout { padding: 1.1rem 1.2rem; }
+    .callout p { font-size: 0.9rem; }
+
+    pre { font-size: 0.78rem; padding: 0.85rem 1rem; }
+    code { font-size: 0.85em; }
+
+    /* horizontal scrolling for very wide diagrams */
+    .diagram-svg-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .diagram-svg-wrap svg { min-width: 600px; }
+  }
+  @media (max-width: 480px) {
+    .container, .container-narrow { padding: 0 0.95rem; }
+    nav { padding: 0.65rem 0.95rem; }
+    .logo-version { display: none; }
+    h1 { font-size: 2rem; }
+    h2 { font-size: 1.45rem; }
+    .hero-cta-row { flex-direction: column; align-items: stretch; }
+    .btn { justify-content: center; }
+    .hero-stats { grid-template-columns: 1fr; }
+    .hero-stat { border-right: 0; border-bottom: 1px solid var(--border); }
+    .hero-stat:last-child { border-bottom: 0; }
+    .feature-card, .agent-card, .qs-step { padding: 1.2rem 1.1rem; }
+    .qs-step { grid-template-columns: 1fr; gap: 0.85rem; }
+    .feature-icon { width: 34px; height: 34px; }
+  }
+
   /* prefers-reduced-motion */
   @media (prefers-reduced-motion: reduce) {
     svg .pulse, html { animation: none !important; scroll-behavior: auto !important; }
@@ -716,6 +890,7 @@
   <ul class="nav-links">
     <li><a href="#orchestration">Orchestration</a></li>
     <li><a href="#linear">Linear</a></li>
+    <li><a href="#codex">Codex</a></li>
     <li><a href="#agents">Agents</a></li>
     <li><a href="#skills">Skills</a></li>
     <li><a href="#quickstart">Install</a></li>
@@ -768,115 +943,111 @@
       </div>
     </div>
 
-    <!-- ── Hero pipeline SVG ── -->
+    <!-- ── Hero pipeline SVG (redesigned: 3 macro stages + phase strip) ── -->
     <div class="hero-pipeline-wrap">
-      <div class="hero-pipeline-label">Sprint lifecycle &mdash; from blank context to shipped code</div>
+      <div class="hero-pipeline-label">From blank context to shipped code</div>
       <div class="diagram-svg-wrap">
-      <svg viewBox="0 0 1080 360" width="100%" style="max-width: 1080px; height: auto;" role="img" aria-label="Sprint command pipeline">
-        <!-- Top row: command pipeline -->
-        <g>
-          <!-- /sprint-architect -->
-          <rect x="20" y="40" width="180" height="56" rx="8" class="node-bg-active"/>
-          <text x="110" y="65" text-anchor="middle" class="mono" font-size="13" font-weight="600" fill="#5e6ad2">/sprint-architect</text>
-          <text x="110" y="83" text-anchor="middle" class="label">Linear Project + Doc + Epics</text>
-
-          <!-- arrow -->
-          <path d="M 200 68 L 240 68" class="edge" marker-end="url(#arrow)"/>
-
-          <!-- /sprint-plan -->
-          <rect x="240" y="40" width="160" height="56" rx="8" class="node-bg"/>
-          <text x="320" y="65" text-anchor="middle" class="mono" font-size="13" font-weight="600">/sprint-plan</text>
-          <text x="320" y="83" text-anchor="middle" class="label">Epic &rarr; Tasks</text>
-
-          <path d="M 400 68 L 440 68" class="edge" marker-end="url(#arrow)"/>
-
-          <!-- /sprint-enrich -->
-          <rect x="440" y="40" width="160" height="56" rx="8" class="node-bg"/>
-          <text x="520" y="65" text-anchor="middle" class="mono" font-size="13" font-weight="600">/sprint-enrich</text>
-          <text x="520" y="83" text-anchor="middle" class="label">Specialist review</text>
-
-          <path d="M 600 68 L 640 68" class="edge" marker-end="url(#arrow)"/>
-
-          <!-- /sprint-start -->
-          <rect x="640" y="40" width="180" height="56" rx="8" class="node-bg" stroke="#5e6ad2" stroke-width="1.5"/>
-          <text x="730" y="65" text-anchor="middle" class="mono" font-size="13" font-weight="600">/sprint-start</text>
-          <text x="730" y="83" text-anchor="middle" class="label">Execute &mdash; 6 phases</text>
-
-          <path d="M 820 68 L 860 68" class="edge edge-dashed"/>
-
-          <!-- ship -->
-          <rect x="860" y="40" width="200" height="56" rx="8" fill="#08090a"/>
-          <text x="960" y="65" text-anchor="middle" class="mono on-dark" font-size="13" font-weight="600">Shipped</text>
-          <text x="960" y="83" text-anchor="middle" font-size="11" fill="#a8a8b0">commits + Linear Done</text>
-        </g>
-
-        <!-- Connector down to phases -->
-        <path d="M 730 96 L 730 140" class="edge"/>
-        <circle cx="730" cy="140" r="3" fill="#5e6ad2" class="pulse"/>
-
-        <!-- 6 Phase boxes -->
-        <g transform="translate(120, 170)">
-          <!-- Phase 1 -->
-          <rect x="0" y="0" width="140" height="68" rx="8" class="node-bg"/>
-          <text x="70" y="22" text-anchor="middle" class="mono" font-size="11" fill="#5e6ad2" font-weight="600">PHASE 1</text>
-          <text x="70" y="40" text-anchor="middle" font-size="12" font-weight="600">Implementation</text>
-          <text x="70" y="55" text-anchor="middle" class="label" font-size="10">backend · frontend · dba</text>
-
-          <!-- Phase 2 -->
-          <rect x="160" y="0" width="140" height="68" rx="8" class="node-bg"/>
-          <text x="230" y="22" text-anchor="middle" class="mono" font-size="11" fill="#5e6ad2" font-weight="600">PHASE 2</text>
-          <text x="230" y="40" text-anchor="middle" font-size="12" font-weight="600">Tests</text>
-          <text x="230" y="55" text-anchor="middle" class="label" font-size="10">test-writer · qa-playwright</text>
-
-          <!-- Phase 3 -->
-          <rect x="320" y="0" width="140" height="68" rx="8" class="node-bg"/>
-          <text x="390" y="22" text-anchor="middle" class="mono" font-size="11" fill="#5e6ad2" font-weight="600">PHASE 3</text>
-          <text x="390" y="40" text-anchor="middle" font-size="12" font-weight="600">QA + Review</text>
-          <text x="390" y="55" text-anchor="middle" class="label" font-size="10">+ drift check</text>
-
-          <!-- Phase 4 -->
-          <rect x="480" y="0" width="140" height="68" rx="8" class="node-bg"/>
-          <text x="550" y="22" text-anchor="middle" class="mono" font-size="11" fill="#5e6ad2" font-weight="600">PHASE 4</text>
-          <text x="550" y="40" text-anchor="middle" font-size="12" font-weight="600">Fix loop</text>
-          <text x="550" y="55" text-anchor="middle" class="label" font-size="10">surgical &rarr; codex</text>
-
-          <!-- Phase 5 -->
-          <rect x="640" y="0" width="140" height="68" rx="8" class="node-bg"/>
-          <text x="710" y="22" text-anchor="middle" class="mono" font-size="11" fill="#5e6ad2" font-weight="600">PHASE 5</text>
-          <text x="710" y="40" text-anchor="middle" font-size="12" font-weight="600">Docs</text>
-          <text x="710" y="55" text-anchor="middle" class="label" font-size="10">docs-agent · changelog</text>
-
-          <!-- Phase 6 -->
-          <rect x="800" y="0" width="140" height="68" rx="8" class="node-bg-dark"/>
-          <text x="870" y="22" text-anchor="middle" class="mono on-dark" font-size="11" font-weight="600">PHASE 6</text>
-          <text x="870" y="40" text-anchor="middle" font-size="12" font-weight="600" fill="white">Ship</text>
-          <text x="870" y="55" text-anchor="middle" font-size="10" fill="#a8a8b0">git/tfs · finalize Linear</text>
-        </g>
-
-        <!-- Connector arrows between phases -->
-        <g stroke="#d4d4d7" stroke-width="1" fill="none">
-          <path d="M 260 204 L 280 204"/>
-          <path d="M 420 204 L 440 204"/>
-          <path d="M 580 204 L 600 204"/>
-          <path d="M 740 204 L 760 204"/>
-          <path d="M 900 204 L 920 204"/>
-        </g>
-
-        <!-- Fix-loop arrow back -->
-        <path d="M 670 240 Q 540 290 410 290 Q 380 290 380 250 L 380 240" class="edge-dashed" stroke="#eb5757" marker-end="url(#arrow-red)"/>
-        <text x="540" y="305" text-anchor="middle" class="mono" font-size="10" fill="#eb5757">retry until clean</text>
-
-        <!-- defs -->
+      <svg viewBox="0 0 900 360" width="100%" style="max-width: 900px; height: auto; display: block;" role="img" aria-label="Sprint lifecycle: architect, plan, execute">
         <defs>
-          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
-            <path d="M 0 0 L 10 5 L 0 10 z" fill="#d4d4d7"/>
+          <marker id="hero-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#5e6ad2"/>
           </marker>
-          <marker id="arrow-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+          <marker id="hero-arrow-grey" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#c7c7cc"/>
+          </marker>
+        </defs>
+
+        <!-- Three macro stage cards -->
+        <!-- ARCHITECT -->
+        <g transform="translate(30, 40)">
+          <rect width="240" height="120" rx="14" fill="#fafafa" stroke="#e6e6e8" stroke-width="1"/>
+          <rect x="0" y="0" width="240" height="4" rx="14" fill="#5e6ad2"/>
+          <text x="20" y="32" font-size="10" fill="#5e6ad2" font-weight="600" letter-spacing="0.06em" font-family="JetBrains Mono, monospace">STAGE 1</text>
+          <text x="20" y="58" font-size="20" font-weight="700" fill="#08090a" letter-spacing="-0.015em">Architect</text>
+          <text x="20" y="82" font-size="12" fill="#5d5e66" font-family="JetBrains Mono, monospace">/sprint-architect</text>
+          <text x="20" y="105" font-size="11.5" fill="#5d5e66">Linear Project + Doc + Epics</text>
+        </g>
+
+        <!-- arrow 1 -->
+        <line x1="278" y1="100" x2="312" y2="100" stroke="#5e6ad2" stroke-width="2" marker-end="url(#hero-arrow)"/>
+
+        <!-- PLAN -->
+        <g transform="translate(320, 40)">
+          <rect width="240" height="120" rx="14" fill="#fafafa" stroke="#e6e6e8" stroke-width="1"/>
+          <rect x="0" y="0" width="240" height="4" rx="14" fill="#5e6ad2"/>
+          <text x="20" y="32" font-size="10" fill="#5e6ad2" font-weight="600" letter-spacing="0.06em" font-family="JetBrains Mono, monospace">STAGE 2</text>
+          <text x="20" y="58" font-size="20" font-weight="700" fill="#08090a" letter-spacing="-0.015em">Plan &amp; Enrich</text>
+          <text x="20" y="82" font-size="12" fill="#5d5e66" font-family="JetBrains Mono, monospace">/sprint-plan + enrich</text>
+          <text x="20" y="105" font-size="11.5" fill="#5d5e66">Epic → Tasks · drift self-check</text>
+        </g>
+
+        <!-- arrow 2 -->
+        <line x1="568" y1="100" x2="602" y2="100" stroke="#5e6ad2" stroke-width="2" marker-end="url(#hero-arrow)"/>
+
+        <!-- EXECUTE -->
+        <g transform="translate(610, 40)">
+          <rect width="260" height="120" rx="14" fill="#0f1014" stroke="#0f1014"/>
+          <rect x="0" y="0" width="260" height="4" rx="14" fill="#7170ff"/>
+          <text x="20" y="32" font-size="10" fill="#7170ff" font-weight="600" letter-spacing="0.06em" font-family="JetBrains Mono, monospace">STAGE 3</text>
+          <text x="20" y="58" font-size="20" font-weight="700" fill="white" letter-spacing="-0.015em">Execute &amp; Ship</text>
+          <text x="20" y="82" font-size="12" fill="#a8a8b0" font-family="JetBrains Mono, monospace">/sprint-start</text>
+          <text x="20" y="105" font-size="11.5" fill="#a8a8b0">6 phases → commits → Linear Done</text>
+        </g>
+
+        <!-- "unfolds into" connector down to phase strip -->
+        <line x1="740" y1="166" x2="740" y2="200" stroke="#7170ff" stroke-width="2" stroke-dasharray="3 3" marker-end="url(#hero-arrow)"/>
+
+        <!-- Phase strip below -->
+        <g transform="translate(50, 220)">
+          <text x="0" y="0" font-size="10" fill="#8c8c92" font-weight="600" letter-spacing="0.06em" font-family="JetBrains Mono, monospace">/SPRINT-START — 6 PHASES</text>
+
+          <!-- 6 phases as compact pills -->
+          <g transform="translate(0, 18)">
+            <rect x="0"   y="0" width="125" height="48" rx="8" fill="#fafafa" stroke="#e6e6e8"/>
+            <text x="62" y="20" text-anchor="middle" font-size="10" fill="#5e6ad2" font-weight="600" font-family="JetBrains Mono, monospace">PHASE 1</text>
+            <text x="62" y="36" text-anchor="middle" font-size="12" fill="#08090a" font-weight="500">Implement</text>
+
+            <rect x="135" y="0" width="125" height="48" rx="8" fill="#fafafa" stroke="#e6e6e8"/>
+            <text x="197" y="20" text-anchor="middle" font-size="10" fill="#5e6ad2" font-weight="600" font-family="JetBrains Mono, monospace">PHASE 2</text>
+            <text x="197" y="36" text-anchor="middle" font-size="12" fill="#08090a" font-weight="500">Tests</text>
+
+            <rect x="270" y="0" width="125" height="48" rx="8" fill="#fafafa" stroke="#e6e6e8"/>
+            <text x="332" y="20" text-anchor="middle" font-size="10" fill="#5e6ad2" font-weight="600" font-family="JetBrains Mono, monospace">PHASE 3</text>
+            <text x="332" y="36" text-anchor="middle" font-size="12" fill="#08090a" font-weight="500">QA + Review</text>
+
+            <rect x="405" y="0" width="125" height="48" rx="8" fill="#fafafa" stroke="#e6e6e8"/>
+            <text x="467" y="20" text-anchor="middle" font-size="10" fill="#5e6ad2" font-weight="600" font-family="JetBrains Mono, monospace">PHASE 4</text>
+            <text x="467" y="36" text-anchor="middle" font-size="12" fill="#08090a" font-weight="500">Fix loop</text>
+
+            <rect x="540" y="0" width="125" height="48" rx="8" fill="#fafafa" stroke="#e6e6e8"/>
+            <text x="602" y="20" text-anchor="middle" font-size="10" fill="#5e6ad2" font-weight="600" font-family="JetBrains Mono, monospace">PHASE 5</text>
+            <text x="602" y="36" text-anchor="middle" font-size="12" fill="#08090a" font-weight="500">Docs</text>
+
+            <rect x="675" y="0" width="125" height="48" rx="8" fill="#0f1014"/>
+            <text x="737" y="20" text-anchor="middle" font-size="10" fill="#7170ff" font-weight="600" font-family="JetBrains Mono, monospace">PHASE 6</text>
+            <text x="737" y="36" text-anchor="middle" font-size="12" fill="white" font-weight="500">Ship</text>
+
+            <!-- connectors between phases -->
+            <line x1="125" y1="24" x2="135" y2="24" stroke="#c7c7cc" stroke-width="1.5" marker-end="url(#hero-arrow-grey)"/>
+            <line x1="260" y1="24" x2="270" y2="24" stroke="#c7c7cc" stroke-width="1.5" marker-end="url(#hero-arrow-grey)"/>
+            <line x1="395" y1="24" x2="405" y2="24" stroke="#c7c7cc" stroke-width="1.5" marker-end="url(#hero-arrow-grey)"/>
+            <line x1="530" y1="24" x2="540" y2="24" stroke="#c7c7cc" stroke-width="1.5" marker-end="url(#hero-arrow-grey)"/>
+            <line x1="665" y1="24" x2="675" y2="24" stroke="#c7c7cc" stroke-width="1.5" marker-end="url(#hero-arrow-grey)"/>
+          </g>
+
+          <!-- fix-loop arrow back from Phase 4 to Phase 1 -->
+          <path d="M 467 290 Q 280 320 87 290" stroke="#eb5757" stroke-width="1.5" stroke-dasharray="4 3" fill="none" marker-end="url(#hero-arrow-red)"/>
+          <text x="280" y="318" text-anchor="middle" font-size="11" fill="#eb5757" font-family="JetBrains Mono, monospace">retry until clean</text>
+        </g>
+
+        <defs>
+          <marker id="hero-arrow-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
             <path d="M 0 0 L 10 5 L 0 10 z" fill="#eb5757"/>
           </marker>
         </defs>
       </svg>
       </div>
+      <div class="svg-scroll-hint">↔ scroll horizontally to see the full diagram</div>
     </div>
   </div>
 </section>
@@ -927,111 +1098,163 @@
     <div class="diagram-card">
       <span class="diagram-tag">agent-orchestration.svg</span>
       <div class="diagram-svg-wrap">
-      <svg viewBox="0 0 800 500" width="100%" style="max-width: 800px; height: auto;" role="img" aria-label="Agent orchestration diagram">
+      <svg viewBox="0 0 880 540" width="100%" style="max-width: 880px; height: auto; display: block;" role="img" aria-label="Sprint lead orchestrates 9 specialist agents across planning, implementation, and verification">
         <defs>
-          <marker id="arrow2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
-            <path d="M 0 0 L 10 5 L 0 10 z" fill="#d4d4d7"/>
-          </marker>
-          <marker id="arrow2-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <marker id="ao-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
             <path d="M 0 0 L 10 5 L 0 10 z" fill="#5e6ad2"/>
           </marker>
         </defs>
 
-        <!-- Center: Sprint Lead -->
-        <circle cx="400" cy="250" r="78" fill="#0f1014" stroke="#5e6ad2" stroke-width="1.5"/>
-        <text x="400" y="240" text-anchor="middle" font-size="14" font-weight="600" fill="white">Sprint Lead</text>
-        <text x="400" y="258" text-anchor="middle" font-size="10" fill="#a8a8b0" class="mono">orchestrator</text>
-        <text x="400" y="277" text-anchor="middle" font-size="10" fill="#a8a8b0">never writes code</text>
-
-        <!-- 9 agents around -->
-        <!-- Top: backend-dev -->
-        <g transform="translate(330, 60)">
-          <rect width="140" height="56" rx="8" class="node-bg"/>
-          <circle cx="14" cy="28" r="6" fill="#22c55e"/>
-          <text x="28" y="26" font-size="12" font-weight="600">backend-dev</text>
-          <text x="28" y="42" font-size="10" class="mono" fill="#8c8c92">opus</text>
-        </g>
-        <!-- Top right: frontend-dev -->
-        <g transform="translate(560, 110)">
-          <rect width="140" height="56" rx="8" class="node-bg"/>
-          <circle cx="14" cy="28" r="6" fill="#3b82f6"/>
-          <text x="28" y="26" font-size="12" font-weight="600">frontend-dev</text>
-          <text x="28" y="42" font-size="10" class="mono" fill="#8c8c92">opus</text>
-        </g>
-        <!-- Right: dba-agent -->
-        <g transform="translate(640, 222)">
-          <rect width="140" height="56" rx="8" class="node-bg"/>
-          <circle cx="14" cy="28" r="6" fill="#a855f7"/>
-          <text x="28" y="26" font-size="12" font-weight="600">dba-agent</text>
-          <text x="28" y="42" font-size="10" class="mono" fill="#8c8c92">opus</text>
-        </g>
-        <!-- Bottom right: security-agent -->
-        <g transform="translate(560, 334)">
-          <rect width="140" height="56" rx="8" class="node-bg"/>
-          <circle cx="14" cy="28" r="6" fill="#ef4444"/>
-          <text x="28" y="26" font-size="12" font-weight="600">security-agent</text>
-          <text x="28" y="42" font-size="10" class="mono" fill="#8c8c92">opus</text>
-        </g>
-        <!-- Bottom: test-writer -->
-        <g transform="translate(330, 384)">
-          <rect width="140" height="56" rx="8" class="node-bg"/>
-          <circle cx="14" cy="28" r="6" fill="#f59e0b"/>
-          <text x="28" y="26" font-size="12" font-weight="600">test-writer</text>
-          <text x="28" y="42" font-size="10" class="mono" fill="#8c8c92">sonnet</text>
-        </g>
-        <!-- Bottom left: qa-agent -->
-        <g transform="translate(100, 334)">
-          <rect width="140" height="56" rx="8" class="node-bg"/>
-          <circle cx="14" cy="28" r="6" fill="#06b6d4"/>
-          <text x="28" y="26" font-size="12" font-weight="600">qa-agent</text>
-          <text x="28" y="42" font-size="10" class="mono" fill="#8c8c92">sonnet</text>
-        </g>
-        <!-- Left: qa-playwright -->
-        <g transform="translate(20, 222)">
-          <rect width="140" height="56" rx="8" class="node-bg"/>
-          <circle cx="14" cy="28" r="6" fill="#14b8a6"/>
-          <text x="28" y="26" font-size="12" font-weight="600">qa-playwright</text>
-          <text x="28" y="42" font-size="10" class="mono" fill="#8c8c92">sonnet</text>
-        </g>
-        <!-- Top left: docs-agent -->
-        <g transform="translate(100, 110)">
-          <rect width="140" height="56" rx="8" class="node-bg"/>
-          <circle cx="14" cy="28" r="6" fill="#ec4899"/>
-          <text x="28" y="26" font-size="12" font-weight="600">docs-agent</text>
-          <text x="28" y="42" font-size="10" class="mono" fill="#8c8c92">sonnet</text>
-        </g>
-        <!-- Far left: product-manager -->
-        <g transform="translate(20, 60)">
-          <rect width="140" height="56" rx="8" class="node-bg-active"/>
-          <circle cx="14" cy="28" r="6" fill="#5e6ad2"/>
-          <text x="28" y="26" font-size="12" font-weight="600">product-manager</text>
-          <text x="28" y="42" font-size="10" class="mono" fill="#5e6ad2">opus</text>
+        <!-- Sprint Lead — full width, dark -->
+        <g transform="translate(60, 30)">
+          <rect width="760" height="74" rx="14" fill="#0f1014"/>
+          <rect x="0" y="0" width="760" height="4" rx="14" fill="#5e6ad2"/>
+          <text x="32" y="36" font-size="11" fill="#7170ff" font-weight="600" letter-spacing="0.06em" font-family="JetBrains Mono, monospace">ORCHESTRATOR</text>
+          <text x="32" y="62" font-size="20" font-weight="700" fill="white" letter-spacing="-0.015em">Sprint Lead</text>
+          <text x="160" y="62" font-size="13" fill="#a8a8b0">— dispatches, tracks, retries. Never writes code.</text>
         </g>
 
-        <!-- Dispatch lines (subtle) -->
-        <g class="edge">
-          <line x1="400" y1="172" x2="400" y2="116"/>
-          <line x1="471" y1="195" x2="565" y2="138"/>
-          <line x1="478" y1="250" x2="640" y2="250"/>
-          <line x1="475" y1="305" x2="565" y2="362"/>
-          <line x1="400" y1="328" x2="400" y2="384"/>
-          <line x1="325" y1="305" x2="240" y2="362"/>
-          <line x1="322" y1="250" x2="160" y2="250"/>
-          <line x1="325" y1="195" x2="240" y2="138"/>
-          <line x1="324" y1="195" x2="160" y2="92" stroke="#5e6ad2"/>
+        <!-- Three connecting lines down -->
+        <line x1="200" y1="116" x2="200" y2="148" stroke="#c7c7cc" stroke-width="1.5" marker-end="url(#ao-arrow)"/>
+        <line x1="440" y1="116" x2="440" y2="148" stroke="#c7c7cc" stroke-width="1.5" marker-end="url(#ao-arrow)"/>
+        <line x1="680" y1="116" x2="680" y2="148" stroke="#c7c7cc" stroke-width="1.5" marker-end="url(#ao-arrow)"/>
+
+        <!-- Three columns: Planning / Implement / Verify -->
+
+        <!-- PLANNING column -->
+        <g transform="translate(60, 160)">
+          <rect width="220" height="320" rx="12" fill="#fafafa" stroke="#e6e6e8"/>
+          <rect x="0" y="0" width="220" height="3" rx="12" fill="#5e6ad2"/>
+          <text x="20" y="32" font-size="10" fill="#5e6ad2" font-weight="600" letter-spacing="0.06em" font-family="JetBrains Mono, monospace">PLANNING</text>
+          <text x="20" y="52" font-size="11" fill="#8c8c92">Phase 0 — pre-flight</text>
+
+          <!-- agent: product-manager -->
+          <g transform="translate(16, 76)">
+            <rect width="188" height="48" rx="8" fill="white" stroke="#e6e6e8"/>
+            <circle cx="16" cy="24" r="6" fill="#5e6ad2"/>
+            <text x="32" y="22" font-size="12" font-weight="600" fill="#08090a">product-manager</text>
+            <text x="32" y="38" font-size="10" font-family="JetBrains Mono, monospace" fill="#5d5e66">opus · architecture mode</text>
+          </g>
+
+          <!-- description text -->
+          <text x="20" y="160" font-size="11" fill="#5d5e66">Reads specs, writes user</text>
+          <text x="20" y="176" font-size="11" fill="#5d5e66">stories with INVEST + AC,</text>
+          <text x="20" y="192" font-size="11" fill="#5d5e66">runs drift self-check,</text>
+          <text x="20" y="208" font-size="11" fill="#5d5e66">groups into parallel/seq.</text>
+
+          <text x="20" y="252" font-size="10" font-family="JetBrains Mono, monospace" fill="#8c8c92" font-weight="600">RUNS IN</text>
+          <text x="20" y="270" font-size="11" fill="#08090a" font-family="JetBrains Mono, monospace">/sprint-architect</text>
+          <text x="20" y="286" font-size="11" fill="#08090a" font-family="JetBrains Mono, monospace">/sprint-plan</text>
+          <text x="20" y="302" font-size="11" fill="#08090a" font-family="JetBrains Mono, monospace">/sprint-grill · /sprint-retro</text>
         </g>
 
-        <!-- legend bottom -->
-        <g transform="translate(20, 460)">
-          <text x="0" y="12" font-size="11" class="mono" fill="#8c8c92">DISPATCH</text>
-          <line x1="80" y1="8" x2="120" y2="8" class="edge"/>
-          <text x="135" y="12" font-size="11" fill="#5d5e66">parallel where possible</text>
-          <text x="320" y="12" font-size="11" class="mono" fill="#8c8c92">RETRY</text>
-          <line x1="370" y1="8" x2="410" y2="8" class="edge-dashed" stroke="#eb5757"/>
-          <text x="425" y="12" font-size="11" fill="#5d5e66">on BLOCKING findings</text>
+        <!-- IMPLEMENT column -->
+        <g transform="translate(300, 160)">
+          <rect width="280" height="320" rx="12" fill="#fafafa" stroke="#e6e6e8"/>
+          <rect x="0" y="0" width="280" height="3" rx="12" fill="#5e6ad2"/>
+          <text x="20" y="32" font-size="10" fill="#5e6ad2" font-weight="600" letter-spacing="0.06em" font-family="JetBrains Mono, monospace">IMPLEMENT</text>
+          <text x="20" y="52" font-size="11" fill="#8c8c92">Phases 1–2</text>
+
+          <!-- 6 agents in 2 cols × 3 rows -->
+          <g transform="translate(16, 76)">
+            <!-- backend-dev -->
+            <rect width="120" height="44" rx="7" fill="white" stroke="#e6e6e8"/>
+            <circle cx="14" cy="22" r="5" fill="#22c55e"/>
+            <text x="26" y="20" font-size="11" font-weight="600" fill="#08090a">backend-dev</text>
+            <text x="26" y="34" font-size="9" font-family="JetBrains Mono, monospace" fill="#047857" font-weight="600">⚡ codex-elig</text>
+
+            <!-- frontend-dev -->
+            <g transform="translate(128, 0)">
+              <rect width="120" height="44" rx="7" fill="white" stroke="#e6e6e8"/>
+              <circle cx="14" cy="22" r="5" fill="#3b82f6"/>
+              <text x="26" y="20" font-size="11" font-weight="600" fill="#08090a">frontend-dev</text>
+              <text x="26" y="34" font-size="9" font-family="JetBrains Mono, monospace" fill="#047857" font-weight="600">⚡ codex-elig</text>
+            </g>
+
+            <!-- dba-agent -->
+            <g transform="translate(0, 52)">
+              <rect width="120" height="44" rx="7" fill="white" stroke="#e6e6e8"/>
+              <circle cx="14" cy="22" r="5" fill="#a855f7"/>
+              <text x="26" y="20" font-size="11" font-weight="600" fill="#08090a">dba-agent</text>
+              <text x="26" y="34" font-size="9" font-family="JetBrains Mono, monospace" fill="#8c8c92">claude opus</text>
+            </g>
+
+            <!-- security-agent -->
+            <g transform="translate(128, 52)">
+              <rect width="120" height="44" rx="7" fill="white" stroke="#e6e6e8"/>
+              <circle cx="14" cy="22" r="5" fill="#ef4444"/>
+              <text x="26" y="20" font-size="11" font-weight="600" fill="#08090a">security-agent</text>
+              <text x="26" y="34" font-size="9" font-family="JetBrains Mono, monospace" fill="#8c8c92">claude opus</text>
+            </g>
+
+            <!-- test-writer -->
+            <g transform="translate(0, 104)">
+              <rect width="120" height="44" rx="7" fill="white" stroke="#e6e6e8"/>
+              <circle cx="14" cy="22" r="5" fill="#f59e0b"/>
+              <text x="26" y="20" font-size="11" font-weight="600" fill="#08090a">test-writer</text>
+              <text x="26" y="34" font-size="9" font-family="JetBrains Mono, monospace" fill="#047857" font-weight="600">⚡ codex-elig</text>
+            </g>
+
+            <!-- docs-agent -->
+            <g transform="translate(128, 104)">
+              <rect width="120" height="44" rx="7" fill="white" stroke="#e6e6e8"/>
+              <circle cx="14" cy="22" r="5" fill="#ec4899"/>
+              <text x="26" y="20" font-size="11" font-weight="600" fill="#08090a">docs-agent</text>
+              <text x="26" y="34" font-size="9" font-family="JetBrains Mono, monospace" fill="#8c8c92">claude sonnet</text>
+            </g>
+          </g>
+
+          <text x="20" y="262" font-size="10" font-family="JetBrains Mono, monospace" fill="#8c8c92" font-weight="600">PARALLEL WHERE POSSIBLE</text>
+          <text x="20" y="282" font-size="11" fill="#5d5e66">Sprint lead dispatches per plan's</text>
+          <text x="20" y="298" font-size="11" fill="#5d5e66">parallel groups. Codex-eligible</text>
+          <text x="20" y="314" font-size="11" fill="#5d5e66">tasks route to /codex:rescue.</text>
+        </g>
+
+        <!-- VERIFY column -->
+        <g transform="translate(600, 160)">
+          <rect width="220" height="320" rx="12" fill="#fafafa" stroke="#e6e6e8"/>
+          <rect x="0" y="0" width="220" height="3" rx="12" fill="#5e6ad2"/>
+          <text x="20" y="32" font-size="10" fill="#5e6ad2" font-weight="600" letter-spacing="0.06em" font-family="JetBrains Mono, monospace">VERIFY</text>
+          <text x="20" y="52" font-size="11" fill="#8c8c92">Phase 3 — quality gates</text>
+
+          <!-- 3 agents stacked -->
+          <g transform="translate(16, 76)">
+            <rect width="188" height="44" rx="7" fill="white" stroke="#e6e6e8"/>
+            <circle cx="14" cy="22" r="5" fill="#06b6d4"/>
+            <text x="26" y="20" font-size="11" font-weight="600" fill="#08090a">qa-agent</text>
+            <text x="26" y="34" font-size="9" font-family="JetBrains Mono, monospace" fill="#047857" font-weight="600">⚡ replaced by Codex when opted</text>
+          </g>
+          <g transform="translate(16, 128)">
+            <rect width="188" height="44" rx="7" fill="white" stroke="#e6e6e8"/>
+            <circle cx="14" cy="22" r="5" fill="#14b8a6"/>
+            <text x="26" y="20" font-size="11" font-weight="600" fill="#08090a">qa-playwright</text>
+            <text x="26" y="34" font-size="9" font-family="JetBrains Mono, monospace" fill="#8c8c92">claude sonnet · E2E only</text>
+          </g>
+          <g transform="translate(16, 180)">
+            <rect width="188" height="44" rx="7" fill="white" stroke="#e6e6e8"/>
+            <circle cx="14" cy="22" r="5" fill="#5e6ad2"/>
+            <text x="26" y="20" font-size="11" font-weight="600" fill="#08090a">code-reviewer</text>
+            <text x="26" y="34" font-size="9" font-family="JetBrains Mono, monospace" fill="#8c8c92">always claude</text>
+          </g>
+
+          <text x="20" y="252" font-size="10" font-family="JetBrains Mono, monospace" fill="#8c8c92" font-weight="600">FIX ROUTING</text>
+          <text x="20" y="270" font-size="11" fill="#5d5e66">surgical (1 file)</text>
+          <text x="20" y="286" font-size="11" font-family="JetBrains Mono, monospace" fill="#047857">→ /codex:rescue</text>
+          <text x="20" y="304" font-size="11" fill="#5d5e66">architectural</text>
+          <text x="20" y="320" font-size="11" font-family="JetBrains Mono, monospace" fill="#5e6ad2">→ original Claude agent</text>
+        </g>
+
+        <!-- Legend -->
+        <g transform="translate(60, 510)">
+          <rect width="14" height="14" rx="3" fill="rgba(16,185,129,0.10)" stroke="rgba(16,185,129,0.30)"/>
+          <text x="22" y="11" font-size="11" fill="#047857" font-family="JetBrains Mono, monospace" font-weight="600">⚡</text>
+          <text x="42" y="11" font-size="11" fill="#5d5e66">Codex-eligible when opted in</text>
+          <text x="280" y="11" font-size="11" fill="#5d5e66">·</text>
+          <text x="295" y="11" font-size="11" fill="#5d5e66">all other agents always run on Claude</text>
         </g>
       </svg>
       </div>
+      <div class="svg-scroll-hint">↔ scroll horizontally to see the full diagram</div>
     </div>
 
     <div class="callout">
@@ -1053,127 +1276,134 @@
     <div class="diagram-card">
       <span class="diagram-tag">linear-hierarchy.svg</span>
       <div class="diagram-svg-wrap">
-      <svg viewBox="0 0 920 480" width="100%" style="max-width: 920px; height: auto;" role="img" aria-label="Linear hierarchy">
+      <svg viewBox="0 0 880 460" width="100%" style="max-width: 880px; height: auto; display: block;" role="img" aria-label="Linear hierarchy: Project, Document, Epics, Tasks">
         <defs>
-          <marker id="arrow3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
-            <path d="M 0 0 L 10 5 L 0 10 z" fill="#d4d4d7"/>
-          </marker>
-          <marker id="arrow3-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
-            <path d="M 0 0 L 10 5 L 0 10 z" fill="#5e6ad2"/>
+          <marker id="lh-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#c7c7cc"/>
           </marker>
         </defs>
 
-        <!-- Project (root) -->
-        <g transform="translate(380, 20)">
-          <rect width="160" height="62" rx="9" class="node-bg-active"/>
-          <text x="80" y="24" text-anchor="middle" font-size="11" class="mono" fill="#5e6ad2" font-weight="600">LINEAR PROJECT</text>
-          <text x="80" y="44" text-anchor="middle" font-size="13" font-weight="600">Order rewrite</text>
-          <text x="80" y="57" text-anchor="middle" font-size="10" fill="#8c8c92">initiative container</text>
+        <!-- Level 1: Project -->
+        <g transform="translate(310, 30)">
+          <rect width="260" height="74" rx="12" fill="#fafafa" stroke="#e6e6e8"/>
+          <rect x="0" y="0" width="260" height="3" rx="12" fill="#5e6ad2"/>
+          <text x="20" y="28" font-size="10" fill="#5e6ad2" font-weight="600" letter-spacing="0.06em" font-family="JetBrains Mono, monospace">LINEAR PROJECT</text>
+          <text x="20" y="52" font-size="17" font-weight="700" fill="#08090a" letter-spacing="-0.015em">Order rewrite</text>
+          <text x="20" y="68" font-size="11" fill="#5d5e66">initiative container · spans 4 phases</text>
         </g>
 
-        <!-- Doc -->
-        <g transform="translate(140, 130)">
-          <rect width="220" height="78" rx="9" class="node-bg" stroke="#5e6ad2" stroke-width="1.5"/>
-          <text x="110" y="22" text-anchor="middle" font-size="11" class="mono" fill="#5e6ad2" font-weight="600">PROJECT DOCUMENT</text>
-          <text x="110" y="42" text-anchor="middle" font-size="13" font-weight="600">Architecture &amp; Roadmap</text>
-          <text x="110" y="58" text-anchor="middle" font-size="10" fill="#5d5e66">C4 · ADR · arc42</text>
-          <text x="110" y="71" text-anchor="middle" font-size="10" fill="#8c8c92" class="mono">7 sections, versioned</text>
-        </g>
+        <!-- Connector down to level 2 -->
+        <line x1="440" y1="104" x2="440" y2="138" stroke="#c7c7cc" stroke-width="1.5"/>
+        <!-- Horizontal split line at level 2 -->
+        <line x1="180" y1="138" x2="700" y2="138" stroke="#c7c7cc" stroke-width="1.5"/>
+        <!-- Vertical drops at each child -->
+        <line x1="180" y1="138" x2="180" y2="160" stroke="#c7c7cc" stroke-width="1.5" marker-end="url(#lh-arrow)"/>
+        <line x1="370" y1="138" x2="370" y2="160" stroke="#c7c7cc" stroke-width="1.5" marker-end="url(#lh-arrow)"/>
+        <line x1="510" y1="138" x2="510" y2="160" stroke="#c7c7cc" stroke-width="1.5" marker-end="url(#lh-arrow)"/>
+        <line x1="650" y1="138" x2="650" y2="160" stroke="#c7c7cc" stroke-width="1.5" marker-end="url(#lh-arrow)"/>
 
-        <!-- 4 Epics -->
-        <g transform="translate(440, 130)">
-          <!-- Epic 1 -->
-          <g>
-            <rect width="160" height="58" rx="9" class="node-bg"/>
-            <circle cx="14" cy="29" r="6" fill="#4cb782"/>
-            <text x="28" y="24" font-size="11" font-weight="600">Phase 1: Catalog</text>
-            <text x="28" y="40" font-size="10" fill="#8c8c92" class="mono">EPIC · 8 tasks</text>
+        <!-- Level 2: Project Document + 4 Epics -->
+        <!-- Document (highlighted) -->
+        <g transform="translate(60, 168)">
+          <rect width="240" height="92" rx="11" fill="#f4f4ff" stroke="#5e6ad2" stroke-width="1.5"/>
+          <g transform="translate(16, 16)">
+            <rect width="22" height="26" rx="2" fill="white" stroke="#5e6ad2" stroke-width="1.2"/>
+            <line x1="6" y1="13" x2="16" y2="13" stroke="#5e6ad2" stroke-width="1.2"/>
+            <line x1="6" y1="18" x2="16" y2="18" stroke="#5e6ad2" stroke-width="1.2"/>
+            <line x1="6" y1="23" x2="14" y2="23" stroke="#5e6ad2" stroke-width="1.2"/>
           </g>
-          <!-- Epic 2 -->
-          <g transform="translate(180, 0)">
-            <rect width="160" height="58" rx="9" class="node-bg"/>
-            <circle cx="14" cy="29" r="6" fill="#4cb782"/>
-            <text x="28" y="24" font-size="11" font-weight="600">Phase 2: Capture</text>
-            <text x="28" y="40" font-size="10" fill="#8c8c92" class="mono">EPIC · 12 tasks</text>
-          </g>
-          <!-- Epic 3 -->
-          <g transform="translate(0, 78)">
-            <rect width="160" height="58" rx="9" class="node-bg"/>
-            <circle cx="14" cy="29" r="6" fill="#4cb782"/>
-            <text x="28" y="24" font-size="11" font-weight="600">Phase 3: Fulfill</text>
-            <text x="28" y="40" font-size="10" fill="#8c8c92" class="mono">EPIC · 9 tasks</text>
-          </g>
-          <!-- Epic 4 -->
-          <g transform="translate(180, 78)">
-            <rect width="160" height="58" rx="9" class="node-bg"/>
-            <circle cx="14" cy="29" r="6" fill="#4cb782"/>
-            <text x="28" y="24" font-size="11" font-weight="600">Phase 4: Returns</text>
-            <text x="28" y="40" font-size="10" fill="#8c8c92" class="mono">EPIC · 6 tasks</text>
-          </g>
+          <text x="48" y="32" font-size="10" fill="#5e6ad2" font-weight="600" letter-spacing="0.06em" font-family="JetBrains Mono, monospace">PROJECT DOCUMENT</text>
+          <text x="48" y="52" font-size="14" font-weight="700" fill="#08090a">Architecture &amp; Roadmap</text>
+          <text x="20" y="74" font-size="11" fill="#5d5e66">C4 · ADR · arc42 hybrid</text>
+          <text x="20" y="86" font-size="10" fill="#8c8c92" font-family="JetBrains Mono, monospace">7 sections · versioned</text>
         </g>
 
-        <!-- Tasks under Epic 1 -->
-        <g transform="translate(70, 290)">
-          <rect width="180" height="42" rx="6" class="node-bg"/>
-          <circle cx="12" cy="21" r="5" fill="#f2994a"/>
-          <text x="22" y="20" font-size="10" font-weight="600">Catalog ingestion API</text>
-          <text x="22" y="33" font-size="9" fill="#8c8c92" class="mono">TASK · backend-dev · codex-ok</text>
-        </g>
-        <g transform="translate(70, 342)">
-          <rect width="180" height="42" rx="6" class="node-bg"/>
-          <circle cx="12" cy="21" r="5" fill="#f2994a"/>
-          <text x="22" y="20" font-size="10" font-weight="600">Migration: catalog table</text>
-          <text x="22" y="33" font-size="9" fill="#8c8c92" class="mono">TASK · dba-agent</text>
-        </g>
-        <g transform="translate(70, 394)">
-          <rect width="180" height="42" rx="6" class="node-bg"/>
-          <circle cx="12" cy="21" r="5" fill="#f5ec20"/>
-          <text x="22" y="20" font-size="10" font-weight="600">Catalog page (FE)</text>
-          <text x="22" y="33" font-size="9" fill="#8c8c92" class="mono">TASK · frontend-dev</text>
+        <!-- Epic 1 -->
+        <g transform="translate(310, 168)">
+          <rect width="120" height="92" rx="9" fill="white" stroke="#e6e6e8"/>
+          <circle cx="14" cy="20" r="5" fill="#4cb782"/>
+          <text x="26" y="24" font-size="9" fill="#2e8456" font-weight="600" font-family="JetBrains Mono, monospace">EPIC</text>
+          <text x="14" y="50" font-size="12" font-weight="600" fill="#08090a">Phase 1</text>
+          <text x="14" y="64" font-size="11" fill="#5d5e66">Catalog</text>
+          <text x="14" y="82" font-size="9" fill="#8c8c92" font-family="JetBrains Mono, monospace">8 tasks</text>
         </g>
 
-        <!-- "..." for other Epics -->
-        <text x="540" y="320" font-size="20" fill="#8c8c92">...</text>
-        <text x="700" y="320" font-size="20" fill="#8c8c92">...</text>
-
-        <!-- Edges -->
-        <g class="edge">
-          <!-- Project to Doc -->
-          <path d="M 460 82 Q 460 110 250 130"/>
-          <!-- Project to Epics -->
-          <path d="M 460 82 Q 460 110 520 130"/>
-          <path d="M 460 82 Q 460 110 700 130"/>
-          <path d="M 460 82 Q 600 110 520 208"/>
-          <path d="M 460 82 Q 600 110 700 208"/>
-          <!-- Epic 1 to Tasks -->
-          <path d="M 460 188 Q 200 240 160 290"/>
-          <path d="M 460 188 Q 200 280 160 342"/>
-          <path d="M 460 188 Q 200 320 160 394"/>
+        <!-- Epic 2 -->
+        <g transform="translate(450, 168)">
+          <rect width="120" height="92" rx="9" fill="white" stroke="#e6e6e8"/>
+          <circle cx="14" cy="20" r="5" fill="#4cb782"/>
+          <text x="26" y="24" font-size="9" fill="#2e8456" font-weight="600" font-family="JetBrains Mono, monospace">EPIC</text>
+          <text x="14" y="50" font-size="12" font-weight="600" fill="#08090a">Phase 2</text>
+          <text x="14" y="64" font-size="11" fill="#5d5e66">Capture</text>
+          <text x="14" y="82" font-size="9" fill="#8c8c92" font-family="JetBrains Mono, monospace">12 tasks</text>
         </g>
 
-        <!-- Architecture-context arrow (purple, dashed) -->
-        <path d="M 250 332 Q 80 250 220 195" stroke="#5e6ad2" stroke-width="1.5" stroke-dasharray="4 4" fill="none" marker-end="url(#arrow3-purple)"/>
-        <text x="20" y="280" font-size="11" class="mono" fill="#5e6ad2" font-weight="600">/sprint-plan</text>
-        <text x="20" y="294" font-size="10" class="mono" fill="#5e6ad2">auto-fetches doc</text>
-        <text x="20" y="308" font-size="10" class="mono" fill="#5e6ad2">when given an Epic</text>
+        <!-- Epic 3 -->
+        <g transform="translate(590, 168)">
+          <rect width="120" height="92" rx="9" fill="white" stroke="#e6e6e8"/>
+          <circle cx="14" cy="20" r="5" fill="#4cb782"/>
+          <text x="26" y="24" font-size="9" fill="#2e8456" font-weight="600" font-family="JetBrains Mono, monospace">EPIC</text>
+          <text x="14" y="50" font-size="12" font-weight="600" fill="#08090a">Phase 3</text>
+          <text x="14" y="64" font-size="11" fill="#5d5e66">Fulfill</text>
+          <text x="14" y="82" font-size="9" fill="#8c8c92" font-family="JetBrains Mono, monospace">9 tasks</text>
+        </g>
 
-        <!-- Drift-check arrow (red dashed, from tasks back up to ADRs) -->
-        <path d="M 250 312 Q 380 250 360 175" stroke="#eb5757" stroke-width="1.5" stroke-dasharray="4 4" fill="none" marker-end="url(#arrow3-purple)"/>
-        <text x="290" y="240" font-size="10" class="mono" fill="#eb5757">drift check</text>
+        <!-- Epic 4 (smaller / "..." vibe) -->
+        <g transform="translate(730, 196)">
+          <text x="0" y="0" font-size="20" fill="#c7c7cc">···</text>
+          <text x="0" y="20" font-size="10" fill="#8c8c92" font-family="JetBrains Mono, monospace">+1 more</text>
+        </g>
 
-        <!-- Bottom legend -->
-        <g transform="translate(420, 440)">
-          <rect width="14" height="14" rx="3" class="node-bg-active"/>
-          <text x="22" y="11" font-size="11" fill="#5d5e66">Project Document</text>
-          <circle cx="180" cy="7" r="5" fill="#4cb782"/>
-          <text x="192" y="11" font-size="11" fill="#5d5e66">Epic</text>
-          <circle cx="240" cy="7" r="5" fill="#f2994a"/>
-          <text x="252" y="11" font-size="11" fill="#5d5e66">Task</text>
-          <circle cx="290" cy="7" r="5" fill="#f5ec20"/>
-          <text x="302" y="11" font-size="11" fill="#5d5e66">Task &middot; QA</text>
+        <!-- Connector from Epic 1 down to Tasks -->
+        <line x1="370" y1="260" x2="370" y2="290" stroke="#c7c7cc" stroke-width="1.5"/>
+        <line x1="170" y1="290" x2="570" y2="290" stroke="#c7c7cc" stroke-width="1.5"/>
+        <line x1="170" y1="290" x2="170" y2="312" stroke="#c7c7cc" stroke-width="1.5" marker-end="url(#lh-arrow)"/>
+        <line x1="370" y1="290" x2="370" y2="312" stroke="#c7c7cc" stroke-width="1.5" marker-end="url(#lh-arrow)"/>
+        <line x1="570" y1="290" x2="570" y2="312" stroke="#c7c7cc" stroke-width="1.5" marker-end="url(#lh-arrow)"/>
+
+        <!-- Level 3: Tasks under Epic 1 -->
+        <g transform="translate(80, 320)">
+          <rect width="180" height="62" rx="8" fill="white" stroke="#e6e6e8"/>
+          <circle cx="13" cy="18" r="4.5" fill="#f2994a"/>
+          <text x="25" y="22" font-size="9" fill="#b56727" font-weight="600" font-family="JetBrains Mono, monospace">TASK</text>
+          <text x="13" y="42" font-size="11" font-weight="600" fill="#08090a">Catalog ingestion API</text>
+          <text x="13" y="55" font-size="9" fill="#8c8c92" font-family="JetBrains Mono, monospace">backend-dev · ⚡ codex-ok</text>
+        </g>
+        <g transform="translate(280, 320)">
+          <rect width="180" height="62" rx="8" fill="white" stroke="#e6e6e8"/>
+          <circle cx="13" cy="18" r="4.5" fill="#f2994a"/>
+          <text x="25" y="22" font-size="9" fill="#b56727" font-weight="600" font-family="JetBrains Mono, monospace">TASK</text>
+          <text x="13" y="42" font-size="11" font-weight="600" fill="#08090a">Migration: catalog</text>
+          <text x="13" y="55" font-size="9" fill="#8c8c92" font-family="JetBrains Mono, monospace">dba-agent</text>
+        </g>
+        <g transform="translate(480, 320)">
+          <rect width="180" height="62" rx="8" fill="white" stroke="#e6e6e8"/>
+          <circle cx="13" cy="18" r="4.5" fill="#f5ec20"/>
+          <text x="25" y="22" font-size="9" fill="#b56727" font-weight="600" font-family="JetBrains Mono, monospace">TASK · QA</text>
+          <text x="13" y="42" font-size="11" font-weight="600" fill="#08090a">Catalog page tests</text>
+          <text x="13" y="55" font-size="9" fill="#8c8c92" font-family="JetBrains Mono, monospace">test-writer · ⚡ codex-ok</text>
+        </g>
+
+        <!-- Side note: every task can resolve back to Doc -->
+        <g transform="translate(80, 410)">
+          <text x="0" y="0" font-size="11" fill="#5e6ad2" font-family="JetBrains Mono, monospace" font-weight="600">→</text>
+          <text x="14" y="0" font-size="11" fill="#5d5e66">Every Task can resolve up to the Project Document via</text>
+          <text x="14" y="16" font-size="11" font-family="JetBrains Mono, monospace" fill="#08090a">parent &amp; project</text>
+          <text x="118" y="16" font-size="11" fill="#5d5e66"> relations — that's how agents fetch architecture context.</text>
+        </g>
+
+        <!-- Right side legend -->
+        <g transform="translate(670, 410)">
+          <circle cx="0" cy="-3" r="5" fill="#4cb782"/>
+          <text x="10" y="0" font-size="11" fill="#5d5e66">Epic</text>
+          <circle cx="50" cy="-3" r="5" fill="#f2994a"/>
+          <text x="60" y="0" font-size="11" fill="#5d5e66">Task</text>
+          <circle cx="100" cy="-3" r="5" fill="#f5ec20"/>
+          <text x="110" y="0" font-size="11" fill="#5d5e66">QA</text>
         </g>
       </svg>
       </div>
+      <div class="svg-scroll-hint">↔ scroll horizontally to see the full diagram</div>
     </div>
 
     <div class="callout">
@@ -1183,8 +1413,105 @@
   </div>
 </section>
 
+<!-- ════════════════ CODEX DELEGATION ════════════════ -->
+<section id="codex">
+  <div class="container">
+    <div class="section-intro">
+      <span class="eyebrow">Codex delegation · opt-in</span>
+      <h2>Conserve tokens. Get a second pair of eyes.</h2>
+      <p>When the <code>codex-plugin-cc</code> is installed, sprint-workflow auto-detects it and routes scoped execution to OpenAI Codex (~4&times; more token-efficient for well-bounded work) while Claude handles planning, architectural decisions, and code review. The result is faster sprints <em>and</em> cross-model verification &mdash; Codex catches issues Claude-reviewing-Claude would rationalize away.</p>
+    </div>
+
+    <!-- 4-stage routing (replaces a flow diagram with a clearer side-by-side comparison) -->
+    <div class="codex-routing">
+      <div class="codex-card">
+        <div class="codex-card-stage">PHASE 1 — TASK</div>
+        <div class="codex-card-title">Task assignment</div>
+        <div class="codex-route-row">
+          <span class="when cdx">⚡ codex</span>
+          <span><span class="who">/codex:rescue</span> &mdash; tasks flagged <code>codex-eligible</code> at planning time</span>
+        </div>
+        <div class="codex-route-row">
+          <span class="when">claude</span>
+          <span>Original opus agent &mdash; everything else</span>
+        </div>
+      </div>
+
+      <div class="codex-card">
+        <div class="codex-card-stage">PHASE 3 — QA</div>
+        <div class="codex-card-title">QA gate</div>
+        <div class="codex-route-row">
+          <span class="when cdx">⚡ codex</span>
+          <span><span class="who">/codex:adversarial-review</span> &mdash; replaces the qa-agent entirely when opted in</span>
+        </div>
+        <div class="codex-route-row">
+          <span class="when">claude</span>
+          <span><span class="who">qa-agent (sonnet)</span> &mdash; fallback when Codex unavailable</span>
+        </div>
+      </div>
+
+      <div class="codex-card">
+        <div class="codex-card-stage">PHASE 3 — REVIEW</div>
+        <div class="codex-card-title">Code review</div>
+        <div class="codex-route-row">
+          <span class="when">always</span>
+          <span><span class="who">pr-review-toolkit:code-reviewer</span> on Claude &mdash; never Codex. Claude's idiomatic pattern recognition is superior for review.</span>
+        </div>
+      </div>
+
+      <div class="codex-card">
+        <div class="codex-card-stage">PHASE 4 — FIX</div>
+        <div class="codex-card-title">Fix routing</div>
+        <div class="codex-route-row">
+          <span class="when cdx">⚡ codex</span>
+          <span>Surgical fixes &mdash; single file, mechanical (lint, null check, missing import, typo)</span>
+        </div>
+        <div class="codex-route-row">
+          <span class="when">claude</span>
+          <span>Architectural fixes &mdash; multi-file, interface change, design decision needed</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Eligibility two-column compare -->
+    <div class="codex-elig">
+      <div class="codex-elig-col yes">
+        <div class="codex-elig-head">
+          <span class="icon ok">✓</span>
+          Codex-eligible
+        </div>
+        <ul class="codex-elig-list">
+          <li><strong>Well-scoped CRUD</strong> &mdash; "Create REST endpoint for listing orders with pagination"</li>
+          <li><strong>Migration scaffolds</strong> &mdash; "Add migration for new <code>audit_logs</code> table with 5 columns"</li>
+          <li><strong>Boilerplate generation</strong> &mdash; controllers + services + repositories</li>
+          <li><strong>Test generation</strong> &mdash; against existing implementation, straightforward assertions</li>
+          <li><strong>Single-concern features</strong> &mdash; clear acceptance criteria, no ambiguity, no local services</li>
+        </ul>
+      </div>
+      <div class="codex-elig-col no">
+        <div class="codex-elig-head">
+          <span class="icon bad">✗</span>
+          Not Codex-eligible
+        </div>
+        <ul class="codex-elig-list">
+          <li><strong>Cross-cutting architecture</strong> &mdash; "Redesign middleware pipeline for multi-tenancy"</li>
+          <li><strong>Design exploration</strong> &mdash; multiple approaches to compare</li>
+          <li><strong>Local services needed</strong> &mdash; running PostgreSQL with seed data, Docker, VPN</li>
+          <li><strong>Security-critical</strong> &mdash; OAuth2 PKCE flows, token rotation, audit-trail design</li>
+          <li><strong>Heavy iteration expected</strong> &mdash; UX exploration, complex state management</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="callout">
+      <div class="callout-eyebrow">Auto-detection &middot; no flags needed</div>
+      <p>Sprint-workflow detects Codex availability by checking for <code>/codex:rescue</code> + <code>/codex:adversarial-review</code> at the start of every sprint command. If both are present, Codex mode activates and the product-manager agent flags eligible tasks during planning. If either is missing, every task routes to Claude and the qa-agent runs as the QA gate. Same orchestration either way &mdash; Codex is purely additive.</p>
+    </div>
+  </div>
+</section>
+
 <!-- ════════════════ KANBAN ════════════════ -->
-<section id="kanban">
+<section id="kanban" class="alt">
   <div class="container">
     <div class="section-intro">
       <span class="eyebrow">Status lifecycle</span>
@@ -1310,7 +1637,7 @@
 </section>
 
 <!-- ════════════════ AGENTS ════════════════ -->
-<section id="agents" class="alt">
+<section id="agents">
   <div class="container">
     <div class="section-intro">
       <span class="eyebrow">Nine personas</span>
@@ -1323,7 +1650,7 @@
         <div class="agent-head">
           <div class="agent-avatar" style="background: linear-gradient(135deg,#22c55e,#16a34a);">B</div>
           <div>
-            <div class="agent-name">backend-dev</div>
+            <div class="agent-name">backend-dev <span class="codex-badge">codex-elig</span></div>
             <div class="agent-model">opus &middot; green</div>
           </div>
         </div>
@@ -1333,7 +1660,7 @@
         <div class="agent-head">
           <div class="agent-avatar" style="background: linear-gradient(135deg,#3b82f6,#2563eb);">F</div>
           <div>
-            <div class="agent-name">frontend-dev</div>
+            <div class="agent-name">frontend-dev <span class="codex-badge">codex-elig</span></div>
             <div class="agent-model">opus &middot; blue</div>
           </div>
         </div>
@@ -1363,7 +1690,7 @@
         <div class="agent-head">
           <div class="agent-avatar" style="background: linear-gradient(135deg,#f59e0b,#d97706);">T</div>
           <div>
-            <div class="agent-name">test-writer</div>
+            <div class="agent-name">test-writer <span class="codex-badge">codex-elig</span></div>
             <div class="agent-model">sonnet &middot; amber</div>
           </div>
         </div>
@@ -1373,11 +1700,11 @@
         <div class="agent-head">
           <div class="agent-avatar" style="background: linear-gradient(135deg,#06b6d4,#0891b2);">Q</div>
           <div>
-            <div class="agent-name">qa-agent</div>
+            <div class="agent-name">qa-agent <span class="codex-badge">codex-replaces</span></div>
             <div class="agent-model">sonnet &middot; cyan</div>
           </div>
         </div>
-        <p>Build, lint, type-check, test runs. Spec-compliance audits. Architecture drift checks during Phase 3.</p>
+        <p>Build, lint, type-check, test runs. Spec-compliance audits. Architecture drift checks during Phase 3. <em>When Codex is opted in, replaced entirely by <code>/codex:adversarial-review</code>.</em></p>
       </div>
       <div class="agent-card">
         <div class="agent-head">
@@ -1693,6 +2020,7 @@
         <ul>
           <li><a href="#orchestration">Orchestration</a></li>
           <li><a href="#linear">Linear</a></li>
+          <li><a href="#codex">Codex delegation</a></li>
           <li><a href="#agents">Agents</a></li>
           <li><a href="#skills">Skills</a></li>
         </ul>
@@ -1742,7 +2070,7 @@
   });
 
   // Scroll-spy on nav (highlight current section)
-  const sections = ['orchestration','linear','agents','skills','quickstart'].map(id => document.getElementById(id)).filter(Boolean);
+  const sections = ['orchestration','linear','codex','agents','skills','quickstart'].map(id => document.getElementById(id)).filter(Boolean);
   const navLinks = Array.from(document.querySelectorAll('.nav-links a'));
   function spy() {
     const y = window.scrollY + 120;
