@@ -347,28 +347,28 @@ Every agent follows a **3-step onboarding**:
 
 | Command | Purpose |
 |---------|---------|
-| `/sprint-plan` | Invoke product-manager to create a structured plan with agent assignments and parallel groups. Pass `--grill` to interrogate the spec first. **v3.3**: when given a Linear Epic ID, auto-loads the Architecture & Roadmap doc from the Epic's parent Project and runs a drift self-check. |
-| `/sprint-enrich` | Specialist agents review the plan — add gotchas, anti-patterns, test cases, security/DBA concerns. **v3.3**: each specialist also flags domain-specific drift against the Architecture & Roadmap doc. |
-| `/sprint-start` | Execute the approved plan through the 6-phase flow (build → test → QA+review → fix → docs → commit). **v3.3**: Phase 3 QA + code review run the architecture drift check; erosion is BLOCKING, drift is WARNING. |
-| `/sprint-review` | Run quality gates and code review on completed work (standalone, outside sprint flow) |
-| `/sprint-status` | Report current sprint/task status from Linear or plan documents |
+| `/sprint-plan` | `[--grill] <epic-id>` (Linear) or `[--grill] <spec-path>` (MD). Invokes product-manager to break an Epic into Tasks with agent assignments and parallel groups. Auto-loads the Architecture & Roadmap doc from the Epic's parent Project and runs a drift self-check. |
+| `/sprint-enrich` | `[<epic-id>]` or `[<plan-path>]` — defaults to in-progress epic. Specialist agents review the plan and add gotchas, anti-patterns, test cases, security/DBA concerns, plus domain-specific drift against the Architecture & Roadmap. |
+| `/sprint-start` | `<epic-id>` (Linear) or `<plan-path>` (MD) — required. Executes the approved plan through the 6-phase flow (build → test → QA + review → fix → docs → commit). Phase 3 runs the architecture drift check; erosion is BLOCKING, drift is WARNING. |
+| `/sprint-review` | `[<epic-id>]` — defaults to most-recently-touched in-progress epic. Runs quality gates and code review on completed work (standalone, outside sprint flow). |
+| `/sprint-status` | `[<epic-id>]` or `[<milestone-id>]` — defaults to most recently active sprint. Reports current task status from Linear or the plan document. |
 
 ##### Recovery & Resumption
 
 | Command | Purpose |
 |---------|---------|
-| `/sprint-continue` | Resume an interrupted sprint — auto-detects current phase from Linear/MD state, continues without re-doing completed work. Idempotent. |
-| `/sprint-resume-task` | Re-run a single failed or stuck task by ID with the same agent + spec section, without re-entering the full sprint flow |
-| `/sprint-handoff` | Generate `docs/SPRINT_HANDOFF.md` snapshot — current phase, in-flight tasks, blockers, next action — so a fresh session can resume cleanly |
+| `/sprint-continue` | `[<epic-id>]` — defaults to the most-recently-touched in-progress Epic. Auto-detects the current phase and resumes without re-doing completed work. Idempotent. |
+| `/sprint-resume-task` | `<task-id>` — re-runs a single failed or stuck task with the same agent + spec section, without re-entering the full sprint flow. |
+| `/sprint-handoff` | `[<output-path>]` — defaults to `docs/SPRINT_HANDOFF.md`. Generates a snapshot of current phase, in-flight tasks, blockers, and next action so a fresh session can resume cleanly. |
 
 ##### Quality & Reflection
 
 | Command | Purpose |
 |---------|---------|
-| `/sprint-bug-triage` | Multi-agent bug review (code-reviewer + security-agent + qa-agent + Codex adversarial). Dedups, presents to user, files Linear sub-issues under an Epic OR appends to `docs/BUG_BACKLOG.md` |
-| `/sprint-grill` | Pre-planning interrogation — `product-manager` grills the user against the domain model until sprint inputs are unambiguous. Adapts a pattern from [mattpocock/skills](https://github.com/mattpocock/skills). |
-| `/sprint-retro` | Generate a sprint retrospective — analyzes commits, QA cycles, fix-loop counts, codex-vs-claude split. **v3.3**: emits an Architecture Drift Summary; recommends `/sprint-architect --update` if findings have piled up. Emits `docs/retros/<epic>_<date>/<sprint>_retro.md` plus suggested CLAUDE.md updates |
-| `/sprint-rollback` | Safety-gated revert of a sprint's commits + Linear/MD status reset. Never force-pushes, always uses revert branches. |
+| `/sprint-bug-triage` | `[<target-paths>]` with optional `--branch` or `--epic <epic-id>`. Multi-agent bug review (code-reviewer + security-agent + qa-agent + Codex adversarial). Dedups, presents to user, files Linear sub-issues under an Epic OR appends to `docs/BUG_BACKLOG.md`. |
+| `/sprint-grill` | `<topic>` or `<spec-path>` — the product-manager agent grills the user against the project's domain model until sprint inputs are unambiguous. Adapts a pattern from [mattpocock/skills](https://github.com/mattpocock/skills). |
+| `/sprint-retro` | `[<milestone-id>]` or `[<epic-id>]` — defaults to most recently completed sprint. Data-driven retro: analyses commits, QA cycles, fix-loop counts, codex-vs-claude split, drift findings. Emits a retro doc + Architecture Drift Summary; recommends `/sprint-architect --update` when needed. |
+| `/sprint-rollback` | `<milestone-id>` or `<epic-id>` — safety-gated revert of a sprint's commits + Linear/MD status reset. Never force-pushes, always uses revert branches. |
 
 #### Automated Hooks
 
@@ -631,6 +631,7 @@ sprint_workflow/
 | Worktree handoff | 3.2 | `worktree-handoff` skill + agent contract for safe subagent/Codex worktree integration |
 | Sentinel-gated Stop hook | 3.2.1 | Replaced prompt-type Stop hook with sentinel-gated bash hook — no false positives in non-sprint sessions, cannot loop |
 | Architecture-first workflow | 3.3 | `/sprint-architect` (Linear-backed C4+ADR architecture & roadmap), `architecture-drift-check` skill, drift detection wired into `/sprint-plan`, `/sprint-enrich`, Phase 3 QA, code review, and `/sprint-retro` |
+| Consistent argument convention | 3.4 | All 13 commands now use a unified `<epic-id>` / `<milestone-id>` / `<task-id>` / `<project-id>` argument scheme. `/sprint-start` requires an explicit `<epic-id>`; `/sprint-continue`, `/sprint-review`, `/sprint-status` accept it optionally and auto-detect the most-recently-touched in-progress Epic. Lets users run multiple sprints in parallel by scoping every command. |
 
 ### Future
 

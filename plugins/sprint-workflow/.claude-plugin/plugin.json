@@ -1,6 +1,6 @@
 {
   "name": "sprint-workflow",
-  "version": "3.3.0",
+  "version": "3.4.0",
   "description": "Sprint workflow orchestration — 9 specialist agents, 23 engineering skills, 13 sprint commands. v3.3 adds /sprint-architect (Linear-backed C4+ADR architecture & roadmap with clarifying questions and 'Choose for me' delegation) and architecture drift detection across plan/enrich/QA/review/retro using reflexion modeling. Includes worktree-handoff for safe subagent/Codex integration, sentinel-gated Stop hook, auto skill discovery, Linear MCP integration (opt-in for sprints, required for /sprint-architect), and Codex CLI delegation (opt-in).",
   "author": {
     "name": "rynha"

@@ -1,6 +1,6 @@
 ---
 description: Resume an interrupted sprint — detects current phase from Linear/MD state, re-enters the correct phase logic from /sprint-start, and continues without re-doing completed work
-argument-hint: "[plan-file-path | linear-milestone-id]"
+argument-hint: "[<epic-id>] — defaults to most-recently-touched in-progress epic"
 allowed-tools: Bash, Glob, Grep, Read, Edit, Agent
 ---
 
@@ -39,22 +39,38 @@ Resume an interrupted sprint. You are the orchestrator — you NEVER write code 
 
 This command is **idempotent**: running it on a clean sprint reports "nothing to resume" and exits. Tasks already `In Review` / `Done` are NEVER re-dispatched. Only re-validation runs against them.
 
-### 1. Load Sprint State
+### 1. Resolve Which Sprint To Resume
 
 **If a handoff document exists** at `docs/SPRINT_HANDOFF.md`, read it first. It tells you the current phase, in-flight tasks, blockers, and any session-specific notes. Treat it as a hint — verify against the live tracking source before acting.
 
+**`$ARGUMENTS` resolution:**
+
+| `$ARGUMENTS` value | Behaviour |
+|---|---|
+| Linear Epic ID (e.g. `PROJ-122`) | Resume that Epic |
+| Path to a plan file (`.md`) | Resume that plan (MD mode) |
+| Empty | Auto-detect — most-recently-touched Epic with at least one task in `In Progress` or `In Review` |
+
+**Auto-detect logic (when `$ARGUMENTS` is empty):**
+
+- **Linear mode:** `list_issues({ label: "Epic", state: ["In Progress", "In Review"] })`. If multiple, sort by `updatedAt` desc and pick the first. Confirm with the user before resuming. If none match, fall back to the most recent Epic with any non-Done tasks.
+- **MD mode:** find the most recently modified plan file in `docs/` matching `SPRINT*.md` or `PROJECT_PLAN*.md`. If multiple, list and ask.
+
+State the resolved Epic at the top of your output so the user sees what's being resumed.
+
+### 1a. Load Sprint State
+
 **Linear mode:**
-1. Discover team/project. If `$ARGUMENTS` includes a milestone ID, use it. Otherwise call `list_milestones` and pick the most recent active milestone (most `In Progress` issues). Confirm with the user if ambiguous.
-2. Query Stories: `list_issues` by `milestoneId` + `Epic` label.
-3. For each Story, query Tasks: `list_issues` with `parentId`.
-4. Parse structured fields from descriptions per `linear-sprint-planning` skill (`Agent`, `Skills`, `Codex-eligible`, `Phase`).
-5. Capture each issue's current status.
+1. `get_issue({id: <resolved-epic-id>, includeRelations: true})`
+2. Query Tasks: `list_issues({ parentId: <epic-id> })`
+3. Parse structured fields from descriptions per `linear-sprint-planning` skill (`Agent`, `Skills`, `Codex-eligible`, `Phase`).
+4. Capture each issue's current status.
 
 **MD mode:**
-1. Locate plan document — `$ARGUMENTS` path takes precedence, else `docs/SPRINT_PLAN.md`, `docs/SPRINT*.md`, `SPRINT_PLAN.md`.
+1. Read the resolved plan document.
 2. Parse stories, tasks, statuses, and the per-task fields.
 
-If no plan can be found in either mode → tell the user to run `/sprint-plan` and exit.
+If reconstruction fails → tell the user to run `/sprint-plan` and exit.
 
 ### 1b. Re-Assert Sprint Sentinel
 

@@ -1,5 +1,6 @@
 ---
-description: Review completed work in the current project — runs builds, tests, and code review against discovered skills
+description: Review completed work in the current project — runs builds, tests, and code review against discovered skills. Pass an epic-id to scope the review to a specific Epic; omit to review whatever's most recently been worked on.
+argument-hint: "[<epic-id>] — defaults to most-recently-touched in-progress epic"
 allowed-tools: Bash, Glob, Grep, Read, Agent
 ---
 
@@ -26,7 +27,17 @@ Set flags: `TRACKING_MODE` ("linear" / "md") and `CODEX_AVAILABLE` (true / false
 
 ## Your Task
 
-Review all recent work in the current project.
+Review work in the current project. If `$ARGUMENTS` contains an Epic ID (e.g. `PROJ-122`, or a Linear issue URL), scope the review to that Epic and the tasks under it. Otherwise, auto-detect the most-recently-touched in-progress Epic (heuristic: most recent Epic with at least one task in `In Progress` or `In Review` status) and review that.
+
+### 0. Resolve Scope
+
+If `$ARGUMENTS` is empty:
+- Linear mode: `list_issues({ label: "Epic", state: ["In Progress", "In Review"] })`, sort by `updatedAt` desc, pick the first. Confirm with the user before proceeding.
+- MD mode: read the most recently modified plan file in `docs/`. If multiple sprints, list them and ask the user which to review.
+
+If `$ARGUMENTS` looks like an Epic ID or URL → fetch that Epic and its tasks. Confirm with the user.
+
+State the resolved Epic at the top of the report so the user knows which sprint was reviewed.
 
 ### 1. Read Relevant Skills
 

@@ -1,6 +1,6 @@
 ---
 description: Generate a sprint retrospective — analyzes commits, QA cycles, fix-loop counts, codex vs claude split, and emits a retro doc plus suggested CLAUDE.md updates. Run after /sprint-start completes
-argument-hint: "[milestone-id | sprint-name]"
+argument-hint: "[<milestone-id>] | [<epic-id>] — defaults to most recently completed sprint"
 allowed-tools: Bash, Glob, Grep, Read, Write, Agent
 ---
 

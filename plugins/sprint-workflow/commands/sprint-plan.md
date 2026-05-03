@@ -1,6 +1,6 @@
 ---
 description: Create a sprint plan — invokes the Product Manager agent to analyze specs and produce a structured plan with agent assignments, parallel work, and dependencies. Pass --grill to interrogate the user against the domain model before planning when the spec is loose.
-argument-hint: "[--grill] [goal or spec reference] [from <plan-file-path>]"
+argument-hint: "[--grill] <epic-id> | [--grill] <spec-path>"
 allowed-tools: Bash, Glob, Grep, Read, Edit, Agent
 ---
 

@@ -1,6 +1,6 @@
 ---
 description: Revert the last sprint's commits and reset Linear/MD task statuses. Safety-gated — never force-pushes, never destroys work, always uses revert branches over reset --hard
-argument-hint: "[milestone-id | sprint-name]"
+argument-hint: "<milestone-id> | <epic-id>"
 allowed-tools: Bash, Glob, Grep, Read, Edit, Agent
 ---
 

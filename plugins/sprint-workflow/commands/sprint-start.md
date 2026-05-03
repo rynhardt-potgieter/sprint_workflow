@@ -1,6 +1,6 @@
 ---
 description: Execute an approved sprint plan — dispatches agents in the defined flow, runs quality gates, fixes issues, documents, and commits
-argument-hint: "[plan-file-path]"
+argument-hint: "<epic-id> | <plan-path>"
 allowed-tools: Bash, Glob, Grep, Read, Edit, Agent
 ---
 
@@ -41,28 +41,27 @@ Execute an approved sprint plan. You are the orchestrator. **You NEVER write cod
 
 ### 1. Load the Sprint Plan
 
-**If MD mode:**
-Locate the plan document:
-- If arguments specify a path, use that
-- Otherwise search: `docs/SPRINT_PLAN.md`, `docs/SPRINT*.md`, `SPRINT_PLAN.md`
+`$ARGUMENTS` is **required** — pass either an Epic ID (Linear mode) or a plan-file path (MD mode). If empty, refuse and tell the user to specify which Epic to execute.
 
-Read the full plan. Confirm it contains stories with agent assignments, acceptance criteria, skill assignments, and execution groups.
-
-If the plan is missing these, tell the user to run `/sprint-plan` first.
-
-**If Linear mode:**
+**If `$ARGUMENTS` looks like a Linear Epic ID** (e.g., `PROJ-122`, or a Linear issue URL):
 1. Read `${CLAUDE_PLUGIN_ROOT}/skills/linear-sprint-planning/SKILL.md` for query patterns
-2. Discover team/project: call `list_teams` / `list_projects` — ask user to confirm (or reuse from sprint-plan session)
-3. Find the sprint: call `list_milestones` to find the active sprint milestone (or ask user which milestone)
-4. Query Stories: call `list_issues` filtered by `milestoneId` and "Epic" label
-5. For each Story, query Tasks: call `list_issues` with `parentId`
-6. Reconstruct the sprint plan structure from Linear issues:
+2. `get_issue({id, includeRelations: true})` → confirm it has the `Epic` label and `parentId === null`
+3. Query Tasks: `list_issues({ parentId: <epic-id> })`
+4. Reconstruct the sprint plan structure from these tasks:
    - Parse structured fields from descriptions: `**Agent:**`, `**Skills:**`, `**Codex-eligible:**`, `**Phase:**`
    - Parse acceptance criteria (checkbox items)
    - Parse anti-patterns
-   - Check current status of each task — skip tasks already Done
-7. If any tasks are already "In Progress" or "Done", note them as resumed/completed
-8. If reconstruction fails (missing fields, parse errors), warn the user and ask whether to proceed or fix the issues first
+   - Check current status of each task — skip tasks already `Done`
+5. If any tasks are already `In Progress` or `Done`, note them as resumed/completed
+6. If reconstruction fails (missing fields, parse errors), warn the user and ask whether to proceed
+
+**If `$ARGUMENTS` looks like a path** (ends in `.md`, exists on disk):
+- Read the file. Confirm it contains stories with agent assignments, acceptance criteria, skill assignments, and execution groups.
+- If the plan is missing these, tell the user to run `/sprint-plan` first.
+
+**If `$ARGUMENTS` is empty:**
+- In Linear mode, list active Epics (`list_issues({ label: "Epic", state: ["In Progress", "Todo"] })`) and ask the user which one to start. Do not auto-pick — `/sprint-start` is a destructive operation, the user must confirm.
+- In MD mode, refuse and ask for a path.
 
 ### 2. Read Project Context
 
