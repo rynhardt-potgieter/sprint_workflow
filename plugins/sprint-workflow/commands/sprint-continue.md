@@ -56,6 +56,17 @@ This command is **idempotent**: running it on a clean sprint reports "nothing to
 
 If no plan can be found in either mode → tell the user to run `/sprint-plan` and exit.
 
+### 1b. Re-Assert Sprint Sentinel
+
+A sprint is being resumed → ensure the Stop hook will remind about tracking. Re-create the sentinel if missing (idempotent — does nothing if already there):
+
+```bash
+mkdir -p .claude
+[ -f .claude/.sprint-active ] || echo "<linear|md>" > .claude/.sprint-active
+```
+
+(First line should be `linear` or `md` matching the active tracking mode detected above.)
+
 ### 2. Determine Current Phase
 
 Map the status distribution to the 6-phase model. Same table as `/sprint-handoff`:

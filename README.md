@@ -27,7 +27,7 @@ A portable [Claude Code](https://docs.anthropic.com/en/docs/claude-code) plugin 
 Sprint Workflow is a Claude Code plugin that turns Claude into a full development team:
 
 - **9 specialist agents** — backend, frontend, testing, QA, E2E/Playwright, docs, security, DBA, product management
-- **21 engineering skills** — .NET, React, Rust, PostgreSQL, security, MQTT, BPMN, CQRS, Linear, Codex, plus diagnose/tdd/zoom-out
+- **22 engineering skills** — .NET, React, Rust, PostgreSQL, security, MQTT, BPMN, CQRS, Linear, Codex, plus diagnose/tdd/zoom-out
 - **12 sprint commands** — plan, enrich, start, continue, resume-task, handoff, bug-triage, grill, retro, rollback, review, status
 - **Automated hooks** — type-check reminders, push gates, plan update enforcement
 - **[Linear](https://linear.app) integration** (opt-in) — single-track sprint management via [Linear MCP](https://linear.app/docs/mcp)
@@ -137,7 +137,7 @@ Add the marketplace and install the plugin directly in Claude Code:
 /plugins install sprint-workflow
 ```
 
-One plugin — batteries included. All 9 agents and 21 engineering skills in a single install.
+One plugin — batteries included. All 9 agents and 22 engineering skills in a single install.
 
 ### Option B: Install from local clone
 
@@ -304,11 +304,31 @@ Every agent follows a **3-step onboarding**:
 
 #### Automated Hooks
 
-| Event | Action |
-|-------|--------|
-| After Edit/Write | Reminds you to run type-checks for the edited language |
-| Before `git push` | Enforces build verification |
-| Before Stop | Checks that sprint tracking is up to date (Linear or markdown) |
+| Event | Action | Cost |
+|-------|--------|------|
+| After Edit/Write | Reminds you to run type-checks for the edited language (matched by extension) | <50ms bash, silent for unmatched files |
+| Before `git push` | Reminds you to verify builds before pushing | <50ms bash, silent for non-push Bash calls |
+| Before Stop | If a sprint is active, reminds you to update Linear/markdown tracking | <50ms bash, silent in non-sprint sessions |
+
+##### Stop hook: how it works (v3.2.1+)
+
+The Stop hook is **gated on a sentinel file** (`.claude/.sprint-active`) so it cannot fire in ordinary sessions and cannot loop:
+
+- **Activated** by `/sprint-start` after user approval, before Phase 1 dispatch. Sentinel records the active tracking source (`linear` or `md`).
+- **Re-asserted** by `/sprint-continue` when resuming an interrupted sprint.
+- **Cleared** by `/sprint-start` Phase 6 (after final commits and tracking finalized) and by `/sprint-rollback` step 7b.
+- **Left in place** by `/sprint-handoff` — the sprint is paused, not done; the next session's Stop hook should still nag.
+
+When the sentinel is present, the hook emits a one-shot `systemMessage` reminder. It also writes `.claude/.sprint-active.last-nag` with the current `session_id` so it nags **once per session** — subsequent Stop events in the same session are silent. A new Claude Code session re-arms the reminder.
+
+When the sentinel is absent (the common case for ad-hoc work, exploration, debugging, or any project where you use this plugin only for the skills/agents), the hook is silent and exits in milliseconds.
+
+This design replaced the v3.1.x prompt-type Stop hook, which fired on every session in every project, ran a 15s LLM evaluation each time, and could loop indefinitely if its `block` response triggered more file edits that re-triggered the heuristic.
+
+If you find a stale sentinel from a sprint that was never finalized:
+```bash
+rm -f .claude/.sprint-active .claude/.sprint-active.last-nag
+```
 
 #### Auto Skill Discovery
 
@@ -318,7 +338,7 @@ The `discover-skills.sh` script automatically finds:
 
 This means agents adapt to any project without manual configuration.
 
-### 21 Engineering Skills
+### 22 Engineering Skills
 
 Bundled skill files that define how code should be written. Agents read these automatically via `${CLAUDE_PLUGIN_ROOT}/skills/`.
 
@@ -369,6 +389,7 @@ Bundled skill files that define how code should be written. Agents read these au
 | `diagnose` | Disciplined bug-investigation loop — reproduce → minimize → hypothesize → instrument → fix → verify. Required reading for every reviewer in `/sprint-bug-triage` and every fix in Phase 4 |
 | `tdd` | Red-green-refactor loop, when to TDD vs not, mandatory regression tests for bug fixes |
 | `zoom-out` | Recovery procedure when an agent is stuck — when grep/scope returns confusing results, when 3+ navigation attempts have failed |
+| `worktree-handoff` | Subagent + orchestrator contract for getting code OUT of an isolated worktree (Claude `isolation: worktree` or Codex Handoff) without losing work or copying files by hand. Defines the mandatory exit-time HANDOFF block and the orchestrator's fetch/merge/cleanup sequence (added v3.2.0) |
 
 #### Integration Skills
 
@@ -490,7 +511,7 @@ sprint_workflow/
         │   └── scripts/
         ├── scripts/
         │   └── discover-skills.sh         # Auto skill discovery
-        └── skills/                        # 21 engineering skills
+        └── skills/                        # 22 engineering skills
             ├── api-design/
             ├── bpmn-workflow/
             ├── cli-agent-patterns/

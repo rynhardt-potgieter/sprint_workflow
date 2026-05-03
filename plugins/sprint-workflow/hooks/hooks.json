@@ -17,9 +17,9 @@
         "matcher": "*",
         "hooks": [
           {
-            "type": "prompt",
-            "prompt": "Before stopping, check: If any sprint tasks were worked on during this session, verify tracking is up to date.\n\n1. **Markdown plan check**: Look for PROJECT_PLAN*.md, SPRINT*.md, TASKS.md, or similar files. If found and sprint tasks were worked on, verify checklists (- [x] vs - [ ]) and status fields are updated.\n\n2. **Linear check**: If Linear MCP tools are available (mcp__linear__* or mcp__claude_ai_Linear__*), try calling list_issues to check for any tasks in the current project that were moved to 'In Progress' during this session. Verify they have been transitioned to the appropriate next status (In Review, Done, etc.).\n\nReturn 'approve' if:\n- No sprint tasks were worked on during this session, OR\n- All tracking (markdown OR Linear, whichever is in use) is up to date\n\nReturn 'block' with a reminder listing which tasks need their status updated and in which system (markdown file path or Linear issue ID).",
-            "timeout": 15
+            "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/scripts/stop-sprint-tracking.sh",
+            "timeout": 5
           }
         ]
       }

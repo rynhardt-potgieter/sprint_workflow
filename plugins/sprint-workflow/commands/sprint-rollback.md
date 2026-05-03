@@ -173,6 +173,14 @@ In the plan document:
 - Mark all stories' status fields back to `not-started`
 - Append a `## Rollback History` section if not present, with an entry: timestamp, reason, revert branch.
 
+### 7b. Clear Sprint Sentinel
+
+Remove the Stop-hook sentinel so subsequent ordinary sessions are not nagged about a sprint that no longer exists:
+
+```bash
+rm -f .claude/.sprint-active .claude/.sprint-active.last-nag
+```
+
 ### 8. Final Report
 
 ```

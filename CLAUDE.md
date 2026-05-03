@@ -6,7 +6,7 @@ These rules govern how Claude Code orchestrates development work across any proj
 
 | Plugin | Version | Purpose |
 |--------|---------|---------|
-| `sprint-workflow` | 3.1.0 | 9 specialist agents, 21 engineering skills, 12 commands, hooks, auto skill discovery, Linear MCP (opt-in), Codex delegation (opt-in), recovery commands (continue/resume-task/handoff), bug-triage, grill, retro, rollback |
+| `sprint-workflow` | 3.2.1 | 9 specialist agents, 22 engineering skills (incl. `worktree-handoff`), 12 commands, sentinel-gated Stop hook, auto skill discovery, Linear MCP (opt-in), Codex delegation (opt-in), recovery commands (continue/resume-task/handoff), bug-triage, grill, retro, rollback |
 
 Install via: `/plugins marketplace add rynhardt-potgieter/sprint_workflow` then `/plugins install sprint-workflow`
 
@@ -198,7 +198,7 @@ After completing every implementation task:
 
 ---
 
-## Bundled Engineering Skills (21)
+## Bundled Engineering Skills (22)
 
 All skills live at `${CLAUDE_PLUGIN_ROOT}/skills/<name>/SKILL.md` inside the plugin.
 
@@ -225,6 +225,7 @@ All skills live at `${CLAUDE_PLUGIN_ROOT}/skills/<name>/SKILL.md` inside the plu
 | `diagnose` | Engineering discipline | Reproduce → minimize → hypothesize → instrument → fix → verify; required reading for `/sprint-bug-triage` reviewers and Phase 4 fix loop |
 | `tdd` | Engineering discipline | Red-green-refactor; mandatory regression tests for bug fixes; integration with `/sprint-start` Phase 1/2 |
 | `zoom-out` | Engineering discipline | Recovery procedure when 3+ navigation attempts have failed or code is unfamiliar |
+| `worktree-handoff` | Engineering discipline | Subagent + orchestrator contract for getting code out of an isolated worktree (Claude or Codex) without losing work or copying files by hand |
 
 ---
 
@@ -234,7 +235,7 @@ All skills live at `${CLAUDE_PLUGIN_ROOT}/skills/<name>/SKILL.md` inside the plu
 |-------|---------|--------|
 | `PostToolUse` | Edit/Write | Language-specific type-check reminder |
 | `PreToolUse` | Bash (git push) | Build verification gate |
-| `Stop` | Session end | Verify sprint tracking is updated (Linear or MD) |
+| `Stop` | Session end | If `.claude/.sprint-active` sentinel exists, emit a one-shot reminder to update tracking. Silent in non-sprint sessions. Cannot loop (command-type hook, not prompt-type). |
 
 ---
 
