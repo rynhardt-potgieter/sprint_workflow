@@ -1,5 +1,6 @@
 ---
-description: Show current sprint/task status for the current project
+description: Show current sprint/task status for the current project. Pass an epic-id or milestone-id to scope to a specific Epic or sprint; omit to show the most recently active.
+argument-hint: "[<epic-id>] | [<milestone-id>] — defaults to most recently active sprint"
 allowed-tools: Bash, Glob, Grep, Read
 ---
 
@@ -33,7 +34,18 @@ Set flags: `TRACKING_MODE` ("linear" / "md") and `CODEX_AVAILABLE` (true / false
 
 ## Your Task
 
-Find and report the current task/sprint status for this project. **Read the project plan document directly — do NOT review code to determine status.**
+Resolve which sprint/epic to report on, then read its status directly from the source of truth — Linear in Linear mode, or the markdown plan in MD mode. **Do NOT review code to determine status.**
+
+### 0. Resolve Scope
+
+If `$ARGUMENTS` is empty (default):
+- Linear mode: find the most recently active sprint — `list_milestones({ team })` filtered by status active. If multiple, pick the one with the most recently updated tasks. Confirm with user.
+- MD mode: pick the most recently modified plan file. If multiple, list and ask.
+
+If `$ARGUMENTS` is an Epic ID (issue ID with Epic label) → scope to that Epic + its tasks.
+If `$ARGUMENTS` is a Milestone ID → scope to that whole sprint.
+
+State the resolved scope at the top of the report.
 
 ### 1. Find the Project Plan
 

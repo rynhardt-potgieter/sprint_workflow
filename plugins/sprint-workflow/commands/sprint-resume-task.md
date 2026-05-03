@@ -1,6 +1,6 @@
 ---
 description: Re-run a single failed or stuck task by ID using the same agent and the original spec section. Use when only one task needs re-dispatching — not the whole sprint.
-argument-hint: "<task-id-or-title>"
+argument-hint: "<task-id>"
 allowed-tools: Bash, Glob, Grep, Read, Edit, Agent
 ---
 

@@ -1,6 +1,6 @@
 ---
 description: Enrich a sprint plan — invokes specialist agents to review the plan and add critical details, gotchas, anti-patterns, and test cases
-argument-hint: "[plan-file-path]"
+argument-hint: "[<epic-id>] | [<plan-path>]"
 allowed-tools: Bash, Glob, Grep, Read, Edit, Agent
 ---
 

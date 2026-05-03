@@ -1703,7 +1703,7 @@ footer a:hover { color: var(--accent); }
     <a class="brand" href="#hero">
       <span class="brand-mark"></span>
       <span class="brand-name">sprint-workflow</span>
-      <span class="brand-ver">v3.3.0</span>
+      <span class="brand-ver">v3.4.0</span>
     </a>
     <ul class="nav-links">
       <li><a href="#what" data-spy="what">What it does</a></li>
@@ -1734,7 +1734,7 @@ footer a:hover { color: var(--accent); }
       <div>
         <div class="hero-tag">
           <span class="pulse"></span>
-          <span>Claude Code plugin · v3.3.0 · MIT</span>
+          <span>Claude Code plugin · v3.4.0 · MIT</span>
         </div>
 
         <h1 class="hero">
@@ -2188,13 +2188,13 @@ footer a:hover { color: var(--accent); }
           <span class="pipe-num">STAGE 03 &middot; OPTIONAL</span>
           <h4>Enrich</h4>
           <p>A separate command. Dispatches specialist agents (dba, security, test-writer, backend, frontend, qa-playwright) to review the plan <em>before sprint starts</em> and add: missing acceptance criteria, anti-patterns to avoid, gotchas the PM missed, security and migration concerns, test cases per story.</p>
-          <span class="pipe-cmd">/sprint-enrich</span>
+          <span class="pipe-cmd">/sprint-enrich [&lt;epic-id&gt;]</span>
         </div>
         <div class="pipe-stage terminal">
           <span class="pipe-num">STAGE 04</span>
           <h4>Execute &amp; Ship</h4>
           <p>The sprint lead runs the six phases below: build → test → QA + review → fix → docs → ship. Failures loop back. Linear stays current throughout.</p>
-          <span class="pipe-cmd">/sprint-start</span>
+          <span class="pipe-cmd">/sprint-start &lt;epic-id&gt;</span>
         </div>
       </div>
 
@@ -2557,6 +2557,10 @@ footer a:hover { color: var(--accent); }
       <p>Every command sprint-workflow ships with, grouped by purpose. All commands work whether or not Linear and Codex are installed; the relevant ones auto-detect both.</p>
     </div>
 
+    <p style="font-family: var(--mono); font-size: 0.78rem; color: var(--ink-3); margin-bottom: 1.5rem; line-height: 1.6;">
+      Identifier convention used throughout: <code>&lt;epic-id&gt;</code> · <code>&lt;milestone-id&gt;</code> · <code>&lt;task-id&gt;</code> · <code>&lt;project-id&gt;</code>. Angle brackets <code>&lt;&gt;</code> = required argument. Square brackets <code>[ ]</code> = optional, command auto-detects when omitted.
+    </p>
+
     <div class="cmd-group">
       <div class="cmd-group-head">
         <div class="cmd-group-num">i &middot; CORE LIFECYCLE</div>
@@ -2569,7 +2573,7 @@ footer a:hover { color: var(--accent); }
           <div class="cmd-args">
             <span class="cmd-flag">--update &lt;project-id&gt;</span>
             <span class="cmd-flag">--from-conversation</span>
-            <br><span class="lbl">args</span><code>[path-to-spec | URL]</code> — defaults to current conversation
+            <br><span class="lbl">args</span><code>[&lt;spec-path&gt; | &lt;url&gt;]</code> — defaults to current conversation
           </div>
         </div>
         <div class="cmd">
@@ -2577,35 +2581,35 @@ footer a:hover { color: var(--accent); }
           <div class="cmd-desc">Break an Epic into tasks with agent assignments, acceptance criteria, dependencies, and estimates. Auto-loads the Architecture &amp; Roadmap when given an Epic ID.</div>
           <div class="cmd-args">
             <span class="cmd-flag">--grill</span>
-            <br><span class="lbl">args</span><code>&lt;epic-id&gt; | &lt;goal&gt; | from &lt;path&gt;</code>
+            <br><span class="lbl">args</span><code>&lt;epic-id&gt;</code> (Linear) <span style="color: var(--ink-4);">or</span> <code>&lt;spec-path&gt;</code> (MD)
           </div>
         </div>
         <div class="cmd">
           <div class="cmd-name">/sprint-enrich</div>
           <div class="cmd-desc">Specialist agents (dba, security, test-writer, backend, frontend, qa-playwright) review the plan and add missing acceptance criteria, anti-patterns, gotchas, security/migration concerns, test cases.</div>
           <div class="cmd-args">
-            <span class="lbl">args</span><code>[plan-file-path]</code> — auto-detects in Linear mode
+            <span class="lbl">args</span><code>[&lt;epic-id&gt;]</code> <span style="color: var(--ink-4);">or</span> <code>[&lt;plan-path&gt;]</code> — defaults to in-progress epic
           </div>
         </div>
         <div class="cmd">
           <div class="cmd-name">/sprint-start</div>
           <div class="cmd-desc">Execute the approved plan through 6 phases: implement → test → QA + review → fix loop → docs → ship. Failures bounce back automatically. Linear stays current throughout.</div>
           <div class="cmd-args">
-            <span class="cmd-noargs">no args — reads from Linear / plan file</span>
+            <span class="lbl">args</span><code>&lt;epic-id&gt;</code> (Linear) <span style="color: var(--ink-4);">or</span> <code>&lt;plan-path&gt;</code> (MD) — required
           </div>
         </div>
         <div class="cmd">
           <div class="cmd-name">/sprint-review</div>
           <div class="cmd-desc">Run quality gates (build, lint, type-check, tests, spec compliance, drift check) and code review on completed work. Standalone — outside the sprint flow.</div>
           <div class="cmd-args">
-            <span class="cmd-noargs">no args</span>
+            <span class="lbl">args</span><code>[&lt;epic-id&gt;]</code> — defaults to most-recently-touched in-progress epic
           </div>
         </div>
         <div class="cmd">
           <div class="cmd-name">/sprint-status</div>
           <div class="cmd-desc">Report current sprint and task status from Linear (or the plan file). Shows phase, in-flight tasks, blockers, and the next action.</div>
           <div class="cmd-args">
-            <span class="cmd-noargs">no args</span>
+            <span class="lbl">args</span><code>[&lt;epic-id&gt;]</code> <span style="color: var(--ink-4);">or</span> <code>[&lt;milestone-id&gt;]</code> — defaults to most recently active sprint
           </div>
         </div>
       </div>
@@ -2619,9 +2623,9 @@ footer a:hover { color: var(--accent); }
       <div class="cmd-grid">
         <div class="cmd recovery">
           <div class="cmd-name">/sprint-continue</div>
-          <div class="cmd-desc">Resume an interrupted sprint. Auto-detects the current phase from Linear or plan-file state and picks up without re-doing completed work. Idempotent — safe to call repeatedly.</div>
+          <div class="cmd-desc">Resume an interrupted sprint. Auto-detects the most-recently-touched in-progress Epic when no argument is given. Picks up without re-doing completed work. Idempotent — safe to call repeatedly.</div>
           <div class="cmd-args">
-            <span class="cmd-noargs">no args — auto-detects state</span>
+            <span class="lbl">args</span><code>[&lt;epic-id&gt;]</code> — defaults to most-recently-touched in-progress epic
           </div>
         </div>
         <div class="cmd recovery">
@@ -2635,7 +2639,7 @@ footer a:hover { color: var(--accent); }
           <div class="cmd-name">/sprint-handoff</div>
           <div class="cmd-desc">Generate <code>docs/SPRINT_HANDOFF.md</code> — a snapshot of current phase, in-flight tasks, blockers, and next action. So a fresh session can pick up cleanly.</div>
           <div class="cmd-args">
-            <span class="cmd-noargs">no args</span>
+            <span class="lbl">args</span><code>[&lt;output-path&gt;]</code> — defaults to <code>docs/SPRINT_HANDOFF.md</code>
           </div>
         </div>
       </div>
@@ -2651,28 +2655,30 @@ footer a:hover { color: var(--accent); }
           <div class="cmd-name">/sprint-grill</div>
           <div class="cmd-desc">Pre-planning interrogation. The product-manager agent grills you against the project's domain model until sprint inputs are unambiguous. Run before <code>/sprint-plan</code> when the spec is loose.</div>
           <div class="cmd-args">
-            <span class="lbl">args</span><code>&lt;topic&gt;</code>
+            <span class="lbl">args</span><code>&lt;topic&gt;</code> <span style="color: var(--ink-4);">or</span> <code>&lt;spec-path&gt;</code>
           </div>
         </div>
         <div class="cmd quality">
           <div class="cmd-name">/sprint-bug-triage</div>
           <div class="cmd-desc">Multi-agent bug review (code-reviewer + security + qa + Codex adversarial). Dedups findings, presents to user, files Linear sub-issues under an Epic OR appends to <code>docs/BUG_BACKLOG.md</code>.</div>
           <div class="cmd-args">
-            <span class="lbl">args</span><code>&lt;target file or area&gt;</code>
+            <span class="cmd-flag">--branch</span>
+            <span class="cmd-flag">--epic &lt;epic-id&gt;</span>
+            <br><span class="lbl">args</span><code>[&lt;target-paths&gt;]</code>
           </div>
         </div>
         <div class="cmd quality">
           <div class="cmd-name">/sprint-retro</div>
           <div class="cmd-desc">Data-driven retrospective. Analyses commits, QA cycles, fix-loop counts, codex-vs-claude split, drift findings. Emits a retro doc plus suggested CLAUDE.md updates.</div>
           <div class="cmd-args">
-            <span class="lbl">args</span><code>[milestone-id | sprint-name]</code>
+            <span class="lbl">args</span><code>[&lt;milestone-id&gt;]</code> <span style="color: var(--ink-4);">or</span> <code>[&lt;epic-id&gt;]</code> — defaults to most recently completed sprint
           </div>
         </div>
         <div class="cmd quality">
           <div class="cmd-name">/sprint-rollback</div>
           <div class="cmd-desc">Safety-gated revert of a sprint's commits and Linear/MD task statuses. Never force-pushes. Always uses revert branches over hard resets. Requires you to type the sprint name to confirm.</div>
           <div class="cmd-args">
-            <span class="lbl">args</span><code>&lt;sprint-name | milestone-id&gt;</code>
+            <span class="lbl">args</span><code>&lt;milestone-id&gt;</code> <span style="color: var(--ink-4);">or</span> <code>&lt;epic-id&gt;</code>
           </div>
         </div>
       </div>
@@ -2797,7 +2803,7 @@ footer a:hover { color: var(--accent); }
 <span class="pr">$</span> /sprint-plan PROJ-122
 <span class="cm"># Auto-loads Architecture &amp; Roadmap, breaks the Epic into Tasks</span>
 
-<span class="pr">$</span> /sprint-start
+<span class="pr">$</span> /sprint-start PROJ-122
 <span class="cm"># Phases 1–6 — implement, test, QA + review, fix, docs, ship</span></pre>
         </div>
       </div>
@@ -2849,7 +2855,7 @@ footer a:hover { color: var(--accent); }
       </div>
     </div>
     <div class="foot-meta">
-      <span>sprint-workflow · v3.3.0</span>
+      <span>sprint-workflow · v3.4.0</span>
       <span>MIT</span>
       <span>built with Claude Code</span>
       <span style="margin-left: auto;">© 2026</span>
