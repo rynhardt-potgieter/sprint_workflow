@@ -1490,6 +1490,91 @@ h1.hero em {
   font-style: italic;
 }
 
+/* ─── HOOKS REFERENCE ────────────────────────────────────────────────────── */
+.hook-grid {
+  display: grid;
+  gap: 0.85rem;
+  grid-template-columns: 1fr;
+}
+@media (min-width: 1024px) { .hook-grid { grid-template-columns: repeat(3, 1fr); gap: 1rem; } }
+
+.hook {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 1.4rem 1.5rem;
+  display: flex; flex-direction: column;
+  gap: 0.85rem;
+  transition: border-color 160ms;
+}
+.hook:hover { border-color: var(--ink-3); }
+
+.hook-head {
+  display: flex; align-items: center; gap: 0.55rem; flex-wrap: wrap;
+}
+.hook-event {
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  font-weight: 700;
+  color: var(--accent);
+  background: var(--accent-soft);
+  border: 1px solid var(--accent-line);
+  padding: 0.18rem 0.5rem;
+  border-radius: 4px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.hook-cost {
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  color: var(--ink-3);
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  padding: 0.18rem 0.5rem;
+  border-radius: 4px;
+  letter-spacing: -0.005em;
+  margin-left: auto;
+}
+.hook-name {
+  font-family: var(--mono);
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+}
+.hook-desc {
+  font-size: 0.88rem;
+  color: var(--ink-2);
+  line-height: 1.55;
+}
+.hook-desc strong { color: var(--ink); font-weight: 600; }
+.hook-desc code {
+  font-family: var(--mono);
+  font-size: 0.84em;
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  color: var(--ink);
+  padding: 0.05rem 0.32rem;
+  border-radius: 3px;
+}
+.hook-detail {
+  font-family: var(--mono);
+  font-size: 0.74rem;
+  color: var(--ink-3);
+  padding-top: 0.7rem;
+  border-top: 1px dashed var(--line);
+  letter-spacing: -0.005em;
+  line-height: 1.55;
+}
+.hook-detail .lbl {
+  font-weight: 600;
+  color: var(--ink-2);
+  text-transform: uppercase;
+  font-size: 0.66rem;
+  letter-spacing: 0.05em;
+  margin-right: 0.35rem;
+}
+
 /* ─── INSTALL ────────────────────────────────────────────────────────────── */
 .install {
   display: grid;
@@ -1628,6 +1713,7 @@ footer a:hover { color: var(--accent); }
       <li><a href="#codex" data-spy="codex">Codex</a></li>
       <li><a href="#stack" data-spy="stack">Optional</a></li>
       <li><a href="#commands" data-spy="commands">Commands</a></li>
+      <li><a href="#hooks" data-spy="hooks">Hooks</a></li>
       <li><a href="#install" data-spy="install">Install</a></li>
     </ul>
     <a href="https://github.com/rynhardt-potgieter/sprint_workflow" class="btn btn-primary">
@@ -2564,11 +2650,64 @@ footer a:hover { color: var(--accent); }
   </div>
 </section>
 
+<!-- ─── HOOKS ─────────────────────────────────────────────────────────────── -->
+<section id="hooks">
+  <div class="shell">
+    <div class="section-head">
+      <div class="eyebrow">10 · automated hooks</div>
+      <h2>Three quiet helpers running<br><em>in the background</em>.</h2>
+      <p>Hooks are scripts Claude Code runs automatically on tool events. The plugin ships three of them &mdash; all silent unless they have something useful to say. They cost roughly nothing per call and never block your work.</p>
+    </div>
+
+    <div class="hook-grid">
+      <div class="hook">
+        <div class="hook-head">
+          <span class="hook-event">PostToolUse</span>
+          <span class="hook-cost">~50ms</span>
+        </div>
+        <div class="hook-name">post-edit-lint.sh</div>
+        <div class="hook-desc">After every <code>Edit</code> or <code>Write</code>, detects the file extension and reminds you of the relevant type-check command. <strong>C#</strong> → <code>dotnet build</code>, <strong>TS/TSX</strong> → <code>npx tsc --noEmit</code>, <strong>Python</strong> → type checker + tests, <strong>Go</strong> → <code>go build ./...</code>, <strong>Rust</strong> → <code>cargo check</code>.</div>
+        <div class="hook-detail">
+          <span class="lbl">Triggers on</span><code>Edit | Write</code>
+          <br><span class="lbl">Silent for</span>file types it doesn't recognise
+        </div>
+      </div>
+
+      <div class="hook">
+        <div class="hook-head">
+          <span class="hook-event">PreToolUse</span>
+          <span class="hook-cost">~50ms</span>
+        </div>
+        <div class="hook-name">pre-push-build-check.sh</div>
+        <div class="hook-desc">Inspects every <code>Bash</code> call. If the command contains <code>git push</code>, emits a one-line reminder: <em>"Before pushing, ensure all builds and type-checks pass."</em> Designed to catch the moment between "it works in my session" and "it's on the remote." Silent for every other Bash call.</div>
+        <div class="hook-detail">
+          <span class="lbl">Triggers on</span><code>Bash</code>
+          <br><span class="lbl">Fires for</span>git push commands only
+        </div>
+      </div>
+
+      <div class="hook">
+        <div class="hook-head">
+          <span class="hook-event">Stop</span>
+          <span class="hook-cost">~50ms</span>
+        </div>
+        <div class="hook-name">stop-sprint-tracking.sh</div>
+        <div class="hook-desc">Before the session ends, checks for a <code>.claude/.sprint-active</code> sentinel file. <strong>No sentinel → silent</strong> (the common case for any non-sprint work). <strong>Sentinel present → one reminder per session</strong>, tailored to whether the active sprint is tracked in Linear or markdown. Cannot loop, cannot false-fire.</div>
+        <div class="hook-detail">
+          <span class="lbl">Triggers on</span>session stop
+          <br><span class="lbl">Sentinel</span><code>.claude/.sprint-active</code>
+          <br><span class="lbl">Once per</span>session_id
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- ─── INSTALL ───────────────────────────────────────────────────────────── -->
 <section id="install">
   <div class="shell">
     <div class="section-head">
-      <div class="eyebrow">10 · install</div>
+      <div class="eyebrow">11 · install</div>
       <h2>Up and running<br>in <em>under a minute</em>.</h2>
       <p>Two commands to install. Two more to wire up the optional integrations when you're ready.</p>
     </div>
@@ -2656,6 +2795,7 @@ footer a:hover { color: var(--accent); }
           <li><a href="#codex">Codex</a></li>
           <li><a href="#stack">What's optional</a></li>
           <li><a href="#commands">All commands</a></li>
+          <li><a href="#hooks">Hooks</a></li>
           <li><a href="#install">Install</a></li>
         </ul>
       </div>
