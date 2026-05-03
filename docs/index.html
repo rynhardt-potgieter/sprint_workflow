@@ -767,6 +767,75 @@ h1.hero em {
   color: var(--ink-2);
 }
 
+/* ─── SKILLS GRID ────────────────────────────────────────────────────────── */
+.skill-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 1fr;
+}
+@media (min-width: 720px)  { .skill-grid { grid-template-columns: 1fr 1fr; gap: 1rem; } }
+@media (min-width: 1024px) { .skill-grid { grid-template-columns: repeat(3, 1fr); } }
+
+.skill-cat {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 1.25rem 1.4rem;
+  display: grid;
+  gap: 0.55rem;
+  grid-template-columns: 24px 1fr;
+  grid-template-areas:
+    "num name"
+    "chips chips";
+  align-items: center;
+  transition: border-color 160ms;
+}
+.skill-cat:hover { border-color: var(--ink-3); }
+.skill-cat-num {
+  grid-area: num;
+  font-family: var(--mono);
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: -0.005em;
+}
+.skill-cat-name {
+  grid-area: name;
+  font-family: var(--sans);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--ink);
+  letter-spacing: -0.012em;
+}
+.skill-chips {
+  grid-area: chips;
+  display: flex; flex-wrap: wrap; gap: 0.35rem;
+  margin-top: 0.55rem;
+  padding-top: 0.85rem;
+  border-top: 1px dashed var(--line);
+}
+.skill-chip {
+  display: inline-flex; align-items: center; gap: 0.32rem;
+  font-family: var(--mono);
+  font-size: 0.74rem;
+  font-weight: 500;
+  background: var(--bg-2);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  padding: 0.32rem 0.55rem;
+  border-radius: 4px;
+  letter-spacing: -0.005em;
+  transition: border-color 120ms, background 120ms;
+}
+.skill-chip:hover { border-color: var(--accent-line); background: var(--accent-soft); }
+.skill-chip::before {
+  content: '';
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--accent);
+  flex-shrink: 0;
+}
+
 /* ─── LIFECYCLE PIPELINE ─────────────────────────────────────────────────── */
 .pipe {
   background: var(--card);
@@ -1425,10 +1494,11 @@ footer a:hover { color: var(--accent); }
     </a>
     <ul class="nav-links">
       <li><a href="#what" data-spy="what">What it does</a></li>
-      <li><a href="#team" data-spy="team">The team</a></li>
+      <li><a href="#team" data-spy="team">Team</a></li>
+      <li><a href="#skills" data-spy="skills">Skills</a></li>
       <li><a href="#linear" data-spy="linear">Linear</a></li>
       <li><a href="#codex" data-spy="codex">Codex</a></li>
-      <li><a href="#stack" data-spy="stack">What's optional</a></li>
+      <li><a href="#stack" data-spy="stack">Optional</a></li>
       <li><a href="#install" data-spy="install">Install</a></li>
     </ul>
     <a href="https://github.com/rynhardt-potgieter/sprint_workflow" class="btn btn-primary">
@@ -1570,40 +1640,42 @@ footer a:hover { color: var(--accent); }
   <div class="shell">
     <div class="section-head">
       <div class="eyebrow">01 · what it actually does</div>
-      <h2>Claude Code is one developer.<br>This makes it <em>a team</em>.</h2>
+      <h2>Claude already dispatches subagents.<br>This gives you <em>somewhere to watch them</em>.</h2>
       <p>
-        Out of the box, an AI coding assistant is one person who tries to do
-        everything in one shot. That works for a snippet. It falls apart on
-        anything multi-file, multi-day, or multi-feature. sprint-workflow
-        introduces structure: planning, role specialisation, parallel
-        execution, gates, and a shared place for the work to live.
+        Claude Code can already plan, delegate to subagents, and break work into steps.
+        It just does it all <em>in the chat context, in temp files, or in a sprint
+        plan markdown</em> &mdash; surfaces nobody on your team actually opens. You
+        re-prompt; you don't review. sprint-workflow doesn't add delegation. It adds
+        a second surface &mdash; Linear &mdash; where every dispatch, every status
+        change, every agent comment becomes something you can see, comment on,
+        reject, or override.
       </p>
     </div>
 
     <div class="ba-grid">
       <div class="ba before">
         <div class="ba-tag">Without sprint-workflow</div>
-        <h3>One generalist, one shot</h3>
-        <p>You ask Claude to "build the catalog feature." It produces a wall of code, possibly working, probably with the patterns it felt like using today.</p>
+        <h3>Subagents in the dark</h3>
+        <p>Claude <em>does</em> delegate. The plan, the dispatch, the sub-results — all of it lives in the chat context, in temp files, or in a <code>SPRINT_PLAN.md</code> nobody opens after week one.</p>
         <ul>
-          <li>One agent, no specialisation</li>
-          <li>No persistent plan &mdash; nothing to come back to next session</li>
-          <li>No second pair of eyes on the output</li>
-          <li>Architectural decisions disappear into the chat history</li>
-          <li>You audit by re-reading the diff</li>
+          <li>Planning happens. You can't see it as it happens.</li>
+          <li>Subagents run. You can't comment on what they're doing.</li>
+          <li>If you want to redirect, your only verb is "re-prompt"</li>
+          <li>Architectural decisions vanish into chat history</li>
+          <li>To audit, you re-read the transcript</li>
         </ul>
       </div>
 
       <div class="ba after">
         <div class="ba-tag">With sprint-workflow</div>
-        <h3>A coordinated team</h3>
-        <p>You run <code>/sprint-architect</code>, then <code>/sprint-plan</code>, then <code>/sprint-start</code>. Nine specialist agents run in parallel under a sprint lead. Every step is tracked.</p>
+        <h3>The same agents, on a surface you can grab</h3>
+        <p>Same planning, same delegation. <em>But every step lands in Linear</em> — the same board your team already uses for tickets. You participate; you don't just spectate.</p>
         <ul>
-          <li>Specialist agents per domain &mdash; backend, frontend, tests, DBA, security, docs</li>
-          <li>Plans, tasks, decisions live in Linear &mdash; not in chat history</li>
-          <li>QA + code review run automatically before anything ships</li>
-          <li>Architectural drift is caught and labelled before merge</li>
-          <li>You audit by reading a board, not a transcript</li>
+          <li>Each dispatch posts a comment on the issue, attributed to the agent</li>
+          <li>You drag a card back across the board — orchestrator picks it up next turn</li>
+          <li>Decisions live as ADRs in the Project Document</li>
+          <li>Drift between code and architecture gets flagged before merge</li>
+          <li>To audit, you read a board. To intervene, you leave a comment.</li>
         </ul>
       </div>
     </div>
@@ -1774,11 +1846,96 @@ footer a:hover { color: var(--accent); }
   </div>
 </section>
 
+<!-- ─── SKILLS ───────────────────────────────────────────────────────────── -->
+<section id="skills">
+  <div class="shell">
+    <div class="section-head">
+      <div class="eyebrow">03 · twenty-three engineering skills</div>
+      <h2>Standards every agent reads<br><em>before writing a line of code</em>.</h2>
+      <p>Skills are the patterns &mdash; naming conventions, async rules, security checklists, migration safety, framework idioms. Each is a focused <code>SKILL.md</code> file. Agents auto-discover project-local skills first (override) and fall back to plugin-bundled ones. Drop your own in <code>.claude/skills/</code> and they get picked up automatically.</p>
+    </div>
+
+    <div class="skill-grid">
+      <div class="skill-cat">
+        <div class="skill-cat-num">i</div>
+        <div class="skill-cat-name">Full-stack standards</div>
+        <div class="skill-chips">
+          <span class="skill-chip">code-standards</span>
+          <span class="skill-chip">dotnet-api</span>
+          <span class="skill-chip">react-typescript</span>
+          <span class="skill-chip">postgresql-data</span>
+          <span class="skill-chip">api-design</span>
+        </div>
+      </div>
+      <div class="skill-cat">
+        <div class="skill-cat-num">ii</div>
+        <div class="skill-cat-name">Security &amp; compliance</div>
+        <div class="skill-chips">
+          <span class="skill-chip">security-compliance</span>
+        </div>
+      </div>
+      <div class="skill-cat">
+        <div class="skill-cat-num">iii</div>
+        <div class="skill-cat-name">Architecture patterns</div>
+        <div class="skill-chips">
+          <span class="skill-chip">cqrs-patterns</span>
+          <span class="skill-chip">event-mqtt</span>
+          <span class="skill-chip">bpmn-workflow</span>
+        </div>
+      </div>
+      <div class="skill-cat">
+        <div class="skill-cat-num">iv</div>
+        <div class="skill-cat-name">Rust ecosystem</div>
+        <div class="skill-chips">
+          <span class="skill-chip">rust-cli</span>
+          <span class="skill-chip">rust-testing</span>
+        </div>
+      </div>
+      <div class="skill-cat">
+        <div class="skill-cat-num">v</div>
+        <div class="skill-cat-name">Specialised domains</div>
+        <div class="skill-chips">
+          <span class="skill-chip">computational-geometry</span>
+          <span class="skill-chip">cli-agent-patterns</span>
+          <span class="skill-chip">task-board-ops</span>
+        </div>
+      </div>
+      <div class="skill-cat">
+        <div class="skill-cat-num">vi</div>
+        <div class="skill-cat-name">Engineering discipline</div>
+        <div class="skill-chips">
+          <span class="skill-chip">diagnose</span>
+          <span class="skill-chip">tdd</span>
+          <span class="skill-chip">zoom-out</span>
+          <span class="skill-chip">worktree-handoff</span>
+        </div>
+      </div>
+      <div class="skill-cat">
+        <div class="skill-cat-num">vii</div>
+        <div class="skill-cat-name">Version control</div>
+        <div class="skill-chips">
+          <span class="skill-chip">git-flow</span>
+          <span class="skill-chip">tfs-flow</span>
+        </div>
+      </div>
+      <div class="skill-cat">
+        <div class="skill-cat-name">Architecture governance &amp; integration</div>
+        <div class="skill-cat-num">viii</div>
+        <div class="skill-chips">
+          <span class="skill-chip">architecture-drift-check</span>
+          <span class="skill-chip">linear-sprint-planning</span>
+          <span class="skill-chip">codex-delegation</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- ─── LIFECYCLE ─────────────────────────────────────────────────────────── -->
 <section id="lifecycle">
   <div class="shell">
     <div class="section-head">
-      <div class="eyebrow">03 · the lifecycle</div>
+      <div class="eyebrow">04 · the lifecycle</div>
       <h2>Three commands.<br>Six phases. <em>One source of truth</em>.</h2>
       <p>You drive the workflow with three commands. Each one expands into a defined sequence of steps, dispatches, and gates. The sprint lead handles the rest.</p>
     </div>
@@ -1824,7 +1981,7 @@ footer a:hover { color: var(--accent); }
 <section id="linear">
   <div class="shell">
     <div class="section-head">
-      <div class="eyebrow">04 · where the work lives</div>
+      <div class="eyebrow">05 · where the work lives</div>
       <h2>The plan and the architecture<br>live in <em>Linear</em>.</h2>
       <p>
         <strong>Linear</strong> is the project-management tool a lot of engineering teams already use &mdash; like Jira, but built for fast-moving software teams. sprint-workflow integrates with it so the architecture, the sprint plan, and every status change live where the team already looks &mdash; not in a markdown file in the repo that nobody opens.
@@ -1943,7 +2100,7 @@ footer a:hover { color: var(--accent); }
 <section id="codex">
   <div class="shell">
     <div class="section-head">
-      <div class="eyebrow">05 · codex routing &middot; optional</div>
+      <div class="eyebrow">06 · codex routing &middot; optional</div>
       <h2>Cheaper execution.<br><em>Cross-model</em> verification.</h2>
       <p>
         <strong>Codex</strong> is OpenAI's command-line coding agent. When you have it installed, sprint-workflow auto-detects it and routes scoped tasks to Codex instead of Claude &mdash; roughly four times more token-efficient for well-bounded work, and the model swap means quality reviews happen across two model families instead of one.
@@ -1986,7 +2143,7 @@ footer a:hover { color: var(--accent); }
 <section id="visibility">
   <div class="shell">
     <div class="section-head">
-      <div class="eyebrow">06 · visibility &amp; control</div>
+      <div class="eyebrow">07 · visibility &amp; control</div>
       <h2>Watch agents work.<br>Override <em>any of it</em>, anytime.</h2>
       <p>Every dispatch, every status change, every fix lands as a comment on the relevant Linear issue &mdash; attributed to the agent that did it. You can drag a card back across the board, leave a comment, and the orchestrator picks it up on the next turn.</p>
     </div>
@@ -2087,7 +2244,7 @@ footer a:hover { color: var(--accent); }
 <section id="stack">
   <div class="shell">
     <div class="section-head">
-      <div class="eyebrow">07 · what's required, what's optional</div>
+      <div class="eyebrow">08 · what's required, what's optional</div>
       <h2>One thing required.<br>Two <em>powerful add-ons</em>.</h2>
       <p>The plugin works on its own. Linear and Codex are opt-in &mdash; install them when you're ready and sprint-workflow auto-detects them. You don't change any config; the plugin notices and switches behaviour.</p>
     </div>
@@ -2144,7 +2301,7 @@ footer a:hover { color: var(--accent); }
 <section id="install">
   <div class="shell">
     <div class="section-head">
-      <div class="eyebrow">08 · install</div>
+      <div class="eyebrow">09 · install</div>
       <h2>Up and running<br>in <em>under a minute</em>.</h2>
       <p>Two commands to install. Two more to wire up the optional integrations when you're ready.</p>
     </div>
@@ -2219,6 +2376,7 @@ footer a:hover { color: var(--accent); }
         <ul>
           <li><a href="#what">What it does</a></li>
           <li><a href="#team">The team</a></li>
+          <li><a href="#skills">Engineering skills</a></li>
           <li><a href="#lifecycle">Lifecycle</a></li>
           <li><a href="#visibility">Visibility &amp; control</a></li>
         </ul>
