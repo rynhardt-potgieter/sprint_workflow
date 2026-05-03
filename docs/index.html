@@ -3,1260 +3,1435 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#F7F4ED">
-<title>sprint-workflow — a Claude Code plugin for orchestrated software development</title>
-<meta name="description" content="An editorial manual for sprint-workflow: 9 specialist agents, 23 engineering skills, 13 commands, architecture-first via Linear, opt-in Codex delegation, drift detection across the lifecycle.">
+<meta name="theme-color" content="#FAFAF8">
+<title>sprint-workflow — an AI engineering team in your terminal</title>
+<meta name="description" content="A Claude Code plugin that turns one AI assistant into a coordinated team: 9 specialist agents, a sprint lead orchestrating them, plans tracked in Linear, optional Codex routing for cheaper execution. One install.">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 
 <style>
-/* ════════════════════════════════════════════════════════════════════════════
-   sprint-workflow — landing page
-   Aesthetic: editorial-engineering manual. Warm paper, deep ink, vermillion
-   accent used sparingly. Serif display (Instrument Serif), tight grotesque
-   body (Inter Tight), monospace for labels and code (JetBrains Mono).
-   Mobile-first CSS: base styles for ~360px and up, scale at 720, 1024, 1320.
-   ════════════════════════════════════════════════════════════════════════════ */
-
+/* ─── tokens ─────────────────────────────────────────────────────────────── */
 :root {
-  /* paper & ink */
-  --paper:        #F7F4ED;
-  --paper-soft:   #F1ECE2;
-  --paper-deep:   #EAE3D5;
-  --paper-card:   #FBF9F4;
-  --ink:          #1A1A1C;
-  --ink-soft:     #4A4A50;
-  --ink-mute:     #7A7A82;
-  --ink-faint:    #A6A39B;
-  --rule:         #D9D2C2;
-  --rule-soft:    #E5DFD0;
+  /* surfaces — light, modern */
+  --bg:           #FAFAF8;
+  --bg-2:         #F4F4F1;
+  --bg-3:         #ECECE7;
+  --card:         #FFFFFF;
+  --card-2:       #FBFBF9;
+  --line:         #E4E4DF;
+  --line-2:       #D4D4CF;
+  --line-strong:  #A6A6A0;
 
-  /* accents — used sparingly */
-  --vermillion:   #B83227;
-  --vermillion-2: #962818;
-  --moss:         #3A5A40;
-  --sky:          #2C5F8E;
-  --ochre:        #B07D2C;
+  /* ink */
+  --ink:          #0A0A0A;
+  --ink-2:        #3D3D3B;
+  --ink-3:        #6B6B68;
+  --ink-4:        #9A9A95;
 
-  /* status / labels (matched to plugin's linear-sprint-planning skill) */
-  --epic:         #4A8C5F;
-  --task:         #C28148;
-  --bug:          #B33E3E;
-  --feature:      #8B5DBE;
-  --improve:      #4A7BA8;
-  --qa:           #B89D2A;
-  --debt:         #B85F1E;
+  /* one strong accent — vibrant coral/orange. Not Linear-purple. */
+  --accent:       #FF5634;
+  --accent-2:     #E03E1A;
+  --accent-soft:  #FFEDE7;
+  --accent-line:  #FFB39E;
 
-  /* status pills */
-  --st-backlog:   #888288;
-  --st-todo:      #4A4A50;
-  --st-progress:  #2C5F8E;
-  --st-review:    #B07D2C;
-  --st-done:      #3A5A40;
+  /* badges */
+  --opus:         #1A1A1A;       /* near-black for Anthropic Opus */
+  --opus-soft:    #F2F2EE;
+  --codex:        #10A37F;       /* OpenAI green for Codex */
+  --codex-soft:   #E6F6F1;
+
+  /* status dots */
+  --st-todo:      #6B6B68;
+  --st-prog:      #2B7DD9;
+  --st-review:    #C97A1F;
+  --st-done:      #2C8A4A;
+  --st-block:     #C73E3E;
 
   /* type */
-  --serif:  'Instrument Serif', 'Iowan Old Style', 'Apple Garamond', Georgia, serif;
-  --grotesk: 'Inter Tight', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --mono:   'JetBrains Mono', 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --sans:  'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --mono:  'Geist Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
 
-  /* shadow — paper, not glow */
-  --shadow-1: 0 1px 0 rgba(26,26,28,0.04), 0 1px 2px rgba(26,26,28,0.06);
-  --shadow-2: 0 1px 0 rgba(26,26,28,0.05), 0 8px 24px rgba(26,26,28,0.08);
+  /* shadow — subtle, paper-like */
+  --sh-1: 0 1px 2px rgba(10,10,10,0.04), 0 0 0 1px rgba(10,10,10,0.04);
+  --sh-2: 0 4px 12px rgba(10,10,10,0.04), 0 1px 4px rgba(10,10,10,0.06);
+  --sh-3: 0 12px 32px rgba(10,10,10,0.06), 0 4px 12px rgba(10,10,10,0.05);
 }
 
-/* ── reset ───────────────────────────────────────────────────────────────── */
+/* reset */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
 img, svg { display: block; max-width: 100%; }
 
 body {
-  background: var(--paper);
+  background: var(--bg);
   color: var(--ink);
-  font-family: var(--grotesk);
+  font-family: var(--sans);
   font-weight: 400;
   font-size: 16px;
   line-height: 1.55;
-  font-feature-settings: "ss03", "cv11";
+  letter-spacing: -0.005em;
+  font-feature-settings: "ss01", "ss03", "cv11";
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
-  letter-spacing: -0.005em;
-}
-
-/* very subtle paper grain — uses inline SVG noise so it doesn't 404 */
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  opacity: 0.35;
-  mix-blend-mode: multiply;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 220 220' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.1 0 0 0 0 0.09 0 0 0 0 0.08 0 0 0 0.06 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  z-index: 9998;
 }
 
 a { color: inherit; text-decoration: none; }
+::selection { background: var(--accent); color: white; }
 
-::selection { background: var(--vermillion); color: var(--paper); }
-
-/* ── typography utilities ────────────────────────────────────────────────── */
-.serif  { font-family: var(--serif); font-weight: 400; }
-.serif-italic { font-family: var(--serif); font-style: italic; font-weight: 400; }
-.mono   { font-family: var(--mono); font-weight: 500; letter-spacing: 0; }
-.eyebrow {
-  display: inline-flex; align-items: center; gap: 0.55rem;
-  font-family: var(--mono);
-  font-size: 0.72rem;
-  font-weight: 600;
-  color: var(--ink-mute);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-.eyebrow .num {
-  display: inline-block;
-  color: var(--vermillion);
-  font-weight: 700;
-}
-.eyebrow .rule {
-  display: inline-block;
-  width: 24px; height: 1px;
-  background: var(--ink-mute);
-}
-
-/* ── layout ───────────────────────────────────────────────────────────────── */
+/* ─── primitives ─────────────────────────────────────────────────────────── */
 .shell {
-  max-width: 1240px;
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 0 1.4rem;
+  padding: 0 1.25rem;
 }
 @media (min-width: 720px)  { .shell { padding: 0 2rem; } }
 @media (min-width: 1024px) { .shell { padding: 0 3rem; } }
-@media (min-width: 1320px) { .shell { padding: 0 4rem; } }
 
-section {
-  padding: 4.5rem 0;
-  border-top: 1px solid var(--rule);
-  position: relative;
-}
+section { padding: 4rem 0; position: relative; }
 @media (min-width: 720px)  { section { padding: 6rem 0; } }
-@media (min-width: 1024px) { section { padding: 7.5rem 0; } }
+@media (min-width: 1024px) { section { padding: 7rem 0; } }
 
-section + section { border-top: 1px solid var(--rule); }
+.eyebrow {
+  display: inline-flex; align-items: center; gap: 0.55rem;
+  font-family: var(--mono);
+  font-size: 0.74rem;
+  font-weight: 500;
+  color: var(--accent);
+  letter-spacing: -0.01em;
+  margin-bottom: 1.4rem;
+}
+.eyebrow::before {
+  content: '';
+  display: block;
+  width: 16px; height: 1px;
+  background: var(--accent);
+}
 
-/* section heading — consistent across all sections */
+h1, h2, h3, h4 {
+  font-family: var(--sans);
+  letter-spacing: -0.025em;
+  color: var(--ink);
+  font-weight: 600;
+}
+h1 { font-weight: 700; }
+
 .section-head {
-  display: grid;
-  gap: 1.25rem;
-  margin-bottom: 3rem;
   max-width: 720px;
+  margin-bottom: 3rem;
 }
 @media (min-width: 1024px) { .section-head { margin-bottom: 4rem; } }
-
 .section-head h2 {
-  font-family: var(--serif);
-  font-weight: 400;
-  font-size: clamp(2rem, 4.4vw, 3.4rem);
+  font-size: clamp(1.85rem, 4.4vw, 3rem);
   line-height: 1.05;
-  letter-spacing: -0.018em;
-  color: var(--ink);
+  margin-bottom: 1.1rem;
 }
 .section-head h2 em {
-  font-style: italic;
-  color: var(--vermillion);
+  font-style: normal;
+  background: linear-gradient(180deg, transparent 60%, var(--accent-soft) 60%);
+  padding: 0 2px;
 }
 .section-head p {
   font-size: 1.05rem;
   line-height: 1.55;
-  color: var(--ink-soft);
+  color: var(--ink-2);
   max-width: 600px;
 }
-@media (min-width: 720px) {
-  .section-head p { font-size: 1.12rem; }
+@media (min-width: 720px) { .section-head p { font-size: 1.12rem; } }
+
+code {
+  font-family: var(--mono);
+  font-size: 0.86em;
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  color: var(--ink);
+  padding: 0.05rem 0.35rem;
+  border-radius: 4px;
 }
 
-/* ── nav ─────────────────────────────────────────────────────────────────── */
+/* ─── nav ─────────────────────────────────────────────────────────────────── */
 .nav {
-  position: fixed; top: 0; left: 0; right: 0; z-index: 60;
-  background: rgba(247,244,237,0.88);
-  backdrop-filter: saturate(140%) blur(14px);
-  -webkit-backdrop-filter: saturate(140%) blur(14px);
-  border-bottom: 1px solid var(--rule);
+  position: sticky; top: 0; z-index: 50;
+  background: rgba(250,250,248,0.85);
+  backdrop-filter: saturate(160%) blur(14px);
+  -webkit-backdrop-filter: saturate(160%) blur(14px);
+  border-bottom: 1px solid var(--line);
 }
 .nav-inner {
-  max-width: 1240px;
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 0.85rem 1.4rem;
+  padding: 0.85rem 1.25rem;
   display: flex; align-items: center; justify-content: space-between;
   gap: 1rem;
 }
-@media (min-width: 720px) { .nav-inner { padding: 0.95rem 2rem; } }
+@media (min-width: 720px)  { .nav-inner { padding: 0.95rem 2rem; } }
 @media (min-width: 1024px) { .nav-inner { padding: 1rem 3rem; } }
 
-.brand { display: flex; align-items: baseline; gap: 0.55rem; }
+.brand { display: flex; align-items: center; gap: 0.55rem; }
 .brand-mark {
-  display: inline-block;
-  width: 26px; height: 26px;
+  width: 28px; height: 28px;
   background: var(--ink);
-  color: var(--paper);
-  border-radius: 2px;
-  text-align: center; line-height: 26px;
-  font-family: var(--mono);
-  font-weight: 700;
-  font-size: 0.78rem;
-  letter-spacing: -0.04em;
+  border-radius: 7px;
+  display: grid; place-items: center;
   position: relative;
-  top: 4px;
+}
+.brand-mark::before {
+  content: '';
+  width: 12px; height: 12px;
+  background: var(--accent);
+  border-radius: 2px;
+  transform: rotate(45deg);
 }
 .brand-name {
-  font-family: var(--serif);
-  font-style: italic;
-  font-size: 1.18rem;
+  font-family: var(--sans);
+  font-weight: 600;
+  font-size: 1rem;
   color: var(--ink);
-  letter-spacing: -0.01em;
+  letter-spacing: -0.018em;
 }
 .brand-ver {
   font-family: var(--mono);
-  font-size: 0.68rem;
-  color: var(--ink-mute);
+  font-size: 0.7rem;
+  color: var(--ink-3);
+  background: var(--bg-2);
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+  border: 1px solid var(--line);
 }
 @media (max-width: 480px) { .brand-ver { display: none; } }
 
-.nav-links { display: none; gap: 1.6rem; list-style: none; }
+.nav-links {
+  display: none; gap: 1.6rem; list-style: none;
+}
 @media (min-width: 1024px) { .nav-links { display: flex; align-items: center; } }
 .nav-links a {
-  font-family: var(--mono);
-  font-size: 0.74rem;
+  font-size: 0.86rem;
   font-weight: 500;
-  color: var(--ink-soft);
-  letter-spacing: 0.02em;
+  color: var(--ink-2);
+  letter-spacing: -0.005em;
   transition: color 120ms;
-  position: relative;
 }
 .nav-links a:hover { color: var(--ink); }
-.nav-links a.active { color: var(--vermillion); }
-.nav-links a.active::after {
-  content: '';
-  position: absolute; left: 0; right: 0; bottom: -6px;
-  height: 1px; background: var(--vermillion);
-}
-.nav-cta {
-  display: inline-flex; align-items: center; gap: 0.35rem;
-  background: var(--ink); color: var(--paper);
-  padding: 0.42rem 0.9rem;
-  font-family: var(--mono);
-  font-size: 0.72rem;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  border-radius: 2px;
-  transition: background 120ms;
-}
-.nav-cta:hover { background: var(--vermillion); }
+.nav-links a.active { color: var(--accent); }
 
-/* ── hero ────────────────────────────────────────────────────────────────── */
+.btn {
+  display: inline-flex; align-items: center; gap: 0.45rem;
+  font-family: var(--sans);
+  font-size: 0.86rem;
+  font-weight: 500;
+  padding: 0.55rem 0.95rem;
+  border-radius: 8px;
+  border: 0;
+  cursor: pointer;
+  transition: transform 120ms, background 120ms, color 120ms, border-color 120ms;
+  letter-spacing: -0.005em;
+}
+.btn-primary { background: var(--ink); color: white; }
+.btn-primary:hover { background: var(--accent-2); }
+.btn-ghost {
+  background: transparent;
+  color: var(--ink);
+  border: 1px solid var(--line-2);
+}
+.btn-ghost:hover { background: var(--bg-2); border-color: var(--ink-3); }
+
+/* ─── HERO ───────────────────────────────────────────────────────────────── */
 #hero {
-  border-top: 0;
-  padding-top: 7rem;
+  padding-top: 3.5rem;
   padding-bottom: 0;
   position: relative;
   overflow: hidden;
 }
-@media (min-width: 720px) { #hero { padding-top: 8.5rem; } }
-@media (min-width: 1024px) { #hero { padding-top: 11rem; } }
+@media (min-width: 720px) { #hero { padding-top: 5rem; } }
+@media (min-width: 1024px) { #hero { padding-top: 6rem; } }
+
+.hero-bg {
+  position: absolute; inset: 0; pointer-events: none;
+  background:
+    radial-gradient(ellipse 800px 400px at 50% 0%, rgba(255,86,52,0.06) 0%, transparent 70%),
+    linear-gradient(180deg, transparent 0%, var(--bg) 100%);
+}
 
 .hero-grid {
   display: grid;
   grid-template-columns: 1fr;
   gap: 3rem;
-  align-items: end;
-  padding-bottom: 4rem;
+  align-items: start;
+  position: relative;
 }
 @media (min-width: 1024px) {
-  .hero-grid {
-    grid-template-columns: 1.3fr 1fr;
-    gap: 5rem;
-    padding-bottom: 5.5rem;
-  }
+  .hero-grid { grid-template-columns: 1fr 1.15fr; gap: 4rem; }
 }
 
-.hero-eyebrow-row {
-  display: flex; align-items: center; gap: 1rem;
-  margin-bottom: 1.5rem;
+.hero-tag {
+  display: inline-flex; align-items: center; gap: 0.5rem;
   font-family: var(--mono);
-  font-size: 0.74rem;
-  color: var(--ink-mute);
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-}
-.hero-eyebrow-row .dot {
-  width: 5px; height: 5px; border-radius: 50%;
-  background: var(--vermillion);
-  flex-shrink: 0;
-}
-.hero-eyebrow-row .v { color: var(--ink); font-weight: 600; }
-
-h1.hero-title {
-  font-family: var(--serif);
-  font-weight: 400;
-  font-size: clamp(2.6rem, 8vw, 6rem);
-  line-height: 0.96;
-  letter-spacing: -0.025em;
-  color: var(--ink);
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--ink-2);
+  background: var(--card);
+  border: 1px solid var(--line);
+  padding: 0.4rem 0.7rem 0.4rem 0.5rem;
+  border-radius: 999px;
   margin-bottom: 1.75rem;
+  box-shadow: var(--sh-1);
 }
-h1.hero-title em {
-  font-style: italic;
-  color: var(--vermillion);
+.hero-tag .pulse {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--accent);
+  position: relative;
 }
+.hero-tag .pulse::after {
+  content: '';
+  position: absolute; inset: -3px;
+  border-radius: 50%;
+  background: var(--accent);
+  opacity: 0.3;
+  animation: pulse 2.4s ease-out infinite;
+}
+@keyframes pulse {
+  0% { transform: scale(0.8); opacity: 0.4; }
+  80%, 100% { transform: scale(2.2); opacity: 0; }
+}
+
+h1.hero {
+  font-size: clamp(2.2rem, 6vw, 4rem);
+  line-height: 1;
+  letter-spacing: -0.035em;
+  margin-bottom: 1.5rem;
+}
+h1.hero em {
+  font-style: normal;
+  color: var(--accent);
+}
+
 .hero-lede {
   font-size: 1.05rem;
   line-height: 1.55;
-  color: var(--ink-soft);
+  color: var(--ink-2);
+  max-width: 520px;
   margin-bottom: 2rem;
-  max-width: 540px;
 }
-@media (min-width: 720px) { .hero-lede { font-size: 1.18rem; } }
+@media (min-width: 720px) { .hero-lede { font-size: 1.16rem; } }
 
-.hero-cta-row {
-  display: flex; flex-wrap: wrap; gap: 0.75rem;
+.hero-cta {
+  display: flex; flex-wrap: wrap; gap: 0.65rem;
   margin-bottom: 2.5rem;
 }
-.btn {
-  display: inline-flex; align-items: center; gap: 0.55rem;
-  font-family: var(--mono);
-  font-size: 0.78rem;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  padding: 0.85rem 1.2rem;
-  border-radius: 2px;
-  border: 0;
-  cursor: pointer;
-  transition: transform 120ms, background 120ms, color 120ms, border-color 120ms;
-  text-transform: uppercase;
-}
-.btn:hover { transform: translateY(-1px); }
-.btn-primary { background: var(--ink); color: var(--paper); }
-.btn-primary:hover { background: var(--vermillion); }
-.btn-ghost {
-  background: transparent;
-  color: var(--ink);
-  border: 1px solid var(--ink);
-}
-.btn-ghost:hover { background: var(--ink); color: var(--paper); }
-.btn .arr { display: inline-block; transition: transform 200ms; }
-.btn:hover .arr { transform: translateX(2px); }
 
-/* hero stats — editorial info-box */
-.hero-stats {
-  border-top: 1px solid var(--ink);
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-}
-@media (min-width: 600px) { .hero-stats { grid-template-columns: repeat(4, 1fr); } }
-.hero-stat {
-  padding: 1.1rem 0;
-  border-right: 1px solid var(--rule);
-  border-bottom: 1px solid var(--rule);
-}
-.hero-stat:nth-child(2n) { border-right: 0; }
-@media (min-width: 600px) {
-  .hero-stat { border-bottom: 1px solid var(--ink); padding: 1.4rem 0; }
-  .hero-stat:nth-child(2n) { border-right: 1px solid var(--rule); }
-  .hero-stat:last-child { border-right: 0; }
-}
-.hero-stat-num {
-  font-family: var(--serif);
-  font-size: 2.6rem;
-  line-height: 1;
-  color: var(--ink);
-  letter-spacing: -0.02em;
-}
-.hero-stat-label {
+.hero-trust {
+  display: flex; flex-wrap: wrap; gap: 1rem 1.4rem;
+  align-items: center;
   font-family: var(--mono);
-  font-size: 0.66rem;
-  font-weight: 600;
-  color: var(--ink-mute);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  margin-top: 0.55rem;
-  display: block;
+  font-size: 0.75rem;
+  color: var(--ink-3);
+  letter-spacing: -0.005em;
 }
+.hero-trust .check {
+  display: inline-flex; align-items: center; gap: 0.4rem;
+}
+.hero-trust .check svg { color: var(--codex); flex-shrink: 0; }
 
-/* hero diagram column */
-.hero-diagram-card {
-  padding: 1.5rem;
-  background: var(--paper-card);
-  border: 1px solid var(--rule);
+/* ── SPRINT DASHBOARD MOCKUP (the orchestration centerpiece) ─────────────── */
+.sprint-dash {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  box-shadow: var(--sh-3);
+  overflow: hidden;
   position: relative;
 }
-@media (min-width: 720px) { .hero-diagram-card { padding: 2rem; } }
-.hero-diagram-card .diag-tag {
-  position: absolute; top: 0; left: 0;
-  background: var(--ink);
-  color: var(--paper);
+.dash-bar {
+  display: flex; align-items: center; gap: 0.5rem;
+  padding: 0.7rem 1rem;
+  border-bottom: 1px solid var(--line);
+  background: var(--bg-2);
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--ink-3);
+}
+.dash-bar .ts { display: flex; gap: 0.32rem; margin-right: 0.5rem; }
+.dash-bar .ts span {
+  width: 9px; height: 9px; border-radius: 50%;
+  background: var(--line-2);
+}
+.dash-bar .ts span:first-child { background: var(--accent); }
+.dash-bar .meta { margin-left: auto; }
+
+.dash-header {
+  padding: 1.1rem 1.25rem;
+  border-bottom: 1px solid var(--line);
+  display: grid; gap: 0.85rem;
+  grid-template-columns: 1fr;
+}
+@media (min-width: 540px) {
+  .dash-header { grid-template-columns: 1fr auto; align-items: center; }
+}
+.dash-title {
+  display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap;
+}
+.dash-title .label {
   font-family: var(--mono);
   font-size: 0.66rem;
   font-weight: 600;
-  padding: 0.3rem 0.6rem;
-  letter-spacing: 0.06em;
+  color: var(--ink-3);
   text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
-.hero-diagram-card .diag-cap {
-  margin-top: 1rem;
-  padding-top: 1rem;
-  border-top: 1px dashed var(--rule);
+.dash-title .name {
+  font-family: var(--sans);
+  font-weight: 600;
+  font-size: 1rem;
+  letter-spacing: -0.012em;
+}
+.dash-phase {
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  background: var(--accent-soft);
+  border: 1px solid var(--accent-line);
+  color: var(--accent-2);
   font-family: var(--mono);
   font-size: 0.7rem;
-  color: var(--ink-mute);
-  letter-spacing: 0.02em;
+  font-weight: 600;
+  padding: 0.22rem 0.5rem;
+  border-radius: 4px;
+  letter-spacing: -0.005em;
+}
+.dash-phase::before {
+  content: ''; width: 6px; height: 6px; border-radius: 50%;
+  background: var(--accent);
 }
 
-/* hero base — full-width lifecycle */
-.hero-lifecycle-row {
-  border-block: 1px solid var(--ink);
-  padding: 2.5rem 0;
-  background: var(--paper-soft);
-  border-left: 0; border-right: 0;
-  margin-left: calc(-50vw + 50%);
-  margin-right: calc(-50vw + 50%);
-  width: 100vw;
-}
-@media (min-width: 720px) { .hero-lifecycle-row { padding: 3.5rem 0; } }
-
-.hero-lifecycle-shell {
-  max-width: 1240px;
-  margin: 0 auto;
-  padding: 0 1.4rem;
-}
-@media (min-width: 720px)  { .hero-lifecycle-shell { padding: 0 2rem; } }
-@media (min-width: 1024px) { .hero-lifecycle-shell { padding: 0 3rem; } }
-
-.hero-lifecycle-head {
-  display: flex; align-items: baseline; justify-content: space-between;
-  gap: 1rem; flex-wrap: wrap;
-  margin-bottom: 2rem;
-}
-.hero-lifecycle-head .t {
-  font-family: var(--serif);
-  font-style: italic;
-  font-size: 1.4rem;
-  color: var(--ink);
-}
-.hero-lifecycle-head .s {
+.dash-progress {
+  display: grid; gap: 0.5rem;
+  grid-template-columns: 1fr auto;
+  align-items: center;
   font-family: var(--mono);
-  font-size: 0.74rem;
-  color: var(--ink-mute);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
+  font-size: 0.72rem;
+  color: var(--ink-3);
+}
+.dash-progress-bar {
+  height: 4px;
+  background: var(--bg-3);
+  border-radius: 999px;
+  overflow: hidden;
+  width: 100%;
+  min-width: 120px;
+}
+.dash-progress-bar > span {
+  display: block; height: 100%;
+  width: 62%;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  border-radius: 999px;
 }
 
-/* ── reusable: card ──────────────────────────────────────────────────────── */
-.card {
-  background: var(--paper-card);
-  border: 1px solid var(--rule);
-  padding: 1.6rem;
-  transition: border-color 160ms, transform 160ms;
+.dash-agents {
+  padding: 0.85rem;
+  display: grid;
+  gap: 0.5rem;
 }
-@media (min-width: 720px) { .card { padding: 1.85rem; } }
-.card:hover { border-color: var(--ink); }
-.card-num {
-  display: inline-block;
+.dash-agent {
+  display: grid;
+  grid-template-columns: 28px 1fr auto;
+  gap: 0.85rem;
+  align-items: center;
+  padding: 0.7rem 0.85rem;
+  background: var(--card-2);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  position: relative;
+}
+.dash-agent.live {
+  background: linear-gradient(180deg, rgba(255,86,52,0.04), rgba(255,86,52,0));
+  border-color: rgba(255,86,52,0.25);
+}
+.dash-agent-icon {
+  width: 28px; height: 28px;
+  border-radius: 7px;
+  display: grid; place-items: center;
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: white;
+  letter-spacing: -0.04em;
+  flex-shrink: 0;
+}
+.dash-agent-body { min-width: 0; }
+.dash-agent-name {
+  font-family: var(--mono);
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: var(--ink);
+  display: flex; align-items: center; gap: 0.5rem;
+  flex-wrap: wrap;
+}
+.dash-agent-task {
+  font-size: 0.78rem;
+  color: var(--ink-3);
+  margin-top: 0.18rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.dash-agent-task .id {
+  font-family: var(--mono);
+  color: var(--accent);
+  font-weight: 500;
+}
+.dash-agent-status {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--ink-3);
+  display: flex; align-items: center; gap: 0.4rem;
+  flex-shrink: 0;
+}
+.dash-agent-status .dot {
+  width: 7px; height: 7px; border-radius: 50%;
+}
+.dash-agent-status.running { color: var(--st-prog); }
+.dash-agent-status.running .dot {
+  background: var(--st-prog);
+  position: relative;
+  animation: blink 1.4s ease-in-out infinite;
+}
+.dash-agent-status.done    { color: var(--st-done); }
+.dash-agent-status.done .dot { background: var(--st-done); }
+.dash-agent-status.queued  { color: var(--ink-4); }
+.dash-agent-status.queued .dot { background: var(--line-strong); }
+@keyframes blink {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(43,125,217,0.5); }
+  50% { opacity: 0.7; box-shadow: 0 0 0 4px rgba(43,125,217,0); }
+}
+
+/* ── badges (the proper, named, legible Opus/Codex pills) ────────────────── */
+.badge {
+  display: inline-flex; align-items: center; gap: 0.32rem;
   font-family: var(--mono);
   font-size: 0.66rem;
-  font-weight: 700;
-  color: var(--vermillion);
-  letter-spacing: 0.08em;
+  font-weight: 600;
+  padding: 0.1rem 0.42rem;
+  border-radius: 4px;
+  letter-spacing: -0.005em;
+  white-space: nowrap;
+  line-height: 1.4;
+  border: 1px solid transparent;
+}
+.badge::before {
+  content: '';
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.badge.opus  { background: var(--opus-soft);  color: var(--opus);  border-color: rgba(0,0,0,0.10); }
+.badge.opus::before  { background: var(--opus); }
+.badge.codex { background: var(--codex-soft); color: var(--codex); border-color: rgba(16,163,127,0.25); }
+.badge.codex::before { background: var(--codex); }
+
+.dash-feed {
+  padding: 0.85rem 1rem 1rem;
+  border-top: 1px solid var(--line);
+  background: var(--bg-2);
+}
+.dash-feed-head {
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  font-weight: 600;
+  color: var(--ink-3);
   text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 0.5rem;
+}
+.feed-line {
+  display: flex; align-items: baseline; gap: 0.6rem;
+  font-family: var(--mono);
+  font-size: 0.74rem;
+  color: var(--ink-2);
+  padding: 0.18rem 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.feed-line .ts {
+  color: var(--ink-4);
+  flex-shrink: 0;
+}
+.feed-line .who {
+  color: var(--ink);
+  font-weight: 600;
+  flex-shrink: 0;
+}
+.feed-line .who.cdx { color: var(--codex); }
+.feed-line .what { color: var(--ink-3); min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+
+/* ─── BEFORE / AFTER ─────────────────────────────────────────────────────── */
+.ba-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 1fr;
+}
+@media (min-width: 720px) { .ba-grid { grid-template-columns: 1fr 1fr; gap: 1.5rem; } }
+.ba {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 1.5rem;
+  position: relative;
+}
+.ba.before { background: var(--bg-2); border-color: var(--line); }
+.ba.after { border-color: var(--ink); box-shadow: var(--sh-2); }
+.ba-tag {
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.2rem 0.55rem;
+  border-radius: 4px;
+  margin-bottom: 0.85rem;
+  letter-spacing: -0.005em;
+  text-transform: uppercase;
+}
+.ba.before .ba-tag { background: var(--bg-3); color: var(--ink-3); }
+.ba.after  .ba-tag { background: var(--accent); color: white; }
+.ba h3 {
+  font-size: 1.2rem;
+  margin-bottom: 0.85rem;
+  letter-spacing: -0.02em;
+}
+.ba p {
+  font-size: 0.94rem;
+  color: var(--ink-2);
+  line-height: 1.55;
   margin-bottom: 0.85rem;
 }
-.card h3 {
-  font-family: var(--serif);
-  font-weight: 400;
-  font-size: 1.35rem;
-  line-height: 1.15;
-  letter-spacing: -0.012em;
-  margin-bottom: 0.65rem;
+.ba ul {
+  list-style: none;
+  margin-top: 0.85rem;
 }
-.card h3 em { font-style: italic; color: var(--vermillion); }
-.card p {
-  font-size: 0.92rem;
-  line-height: 1.55;
-  color: var(--ink-soft);
-}
-.card p code, .card p strong {
-  font-family: var(--mono);
-  font-size: 0.85em;
-  color: var(--ink);
-}
-.card p strong { font-weight: 600; }
-
-/* 3-card grid */
-.three-grid {
-  display: grid; gap: 0;
-  grid-template-columns: 1fr;
-  border-top: 1px solid var(--ink);
-  border-left: 1px solid var(--rule);
-}
-.three-grid .card {
-  border: 0;
-  border-right: 1px solid var(--rule);
-  border-bottom: 1px solid var(--rule);
-  background: transparent;
-  padding: 2rem 1.6rem;
-}
-@media (min-width: 720px) {
-  .three-grid { grid-template-columns: repeat(2, 1fr); }
-}
-@media (min-width: 1024px) {
-  .three-grid { grid-template-columns: repeat(3, 1fr); }
-  .three-grid .card { padding: 2.4rem 2rem; }
-}
-
-/* ── diagram frame ───────────────────────────────────────────────────────── */
-.diagram {
-  background: var(--paper-card);
-  border: 1px solid var(--rule);
-  padding: 1.25rem;
+.ba li {
+  padding: 0.45rem 0 0.45rem 1.4rem;
+  font-size: 0.88rem;
+  color: var(--ink-2);
+  line-height: 1.5;
+  border-top: 1px solid var(--line);
   position: relative;
 }
-@media (min-width: 720px) { .diagram { padding: 2rem; } }
-@media (min-width: 1024px) { .diagram { padding: 2.5rem; } }
-.diagram .corner-tl,
-.diagram .corner-tr,
-.diagram .corner-bl,
-.diagram .corner-br {
-  position: absolute;
-  width: 14px; height: 14px;
-  border: 1px solid var(--ink);
-}
-.diagram .corner-tl { top: -1px; left: -1px; border-right: 0; border-bottom: 0; }
-.diagram .corner-tr { top: -1px; right: -1px; border-left: 0; border-bottom: 0; }
-.diagram .corner-bl { bottom: -1px; left: -1px; border-right: 0; border-top: 0; }
-.diagram .corner-br { bottom: -1px; right: -1px; border-left: 0; border-top: 0; }
-.diagram-meta {
-  display: flex; flex-wrap: wrap; align-items: baseline;
-  justify-content: space-between; gap: 0.5rem;
-  font-family: var(--mono); font-size: 0.7rem; color: var(--ink-mute);
-  text-transform: uppercase; letter-spacing: 0.06em;
-  padding-bottom: 1rem; border-bottom: 1px dashed var(--rule);
-  margin-bottom: 1.5rem;
-}
-.diagram-meta .ttl { color: var(--ink); font-weight: 600; }
-.diagram-svg-frame {
-  display: flex; justify-content: center; align-items: center;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  margin: 0 -0.25rem;
-}
-.diagram-svg-frame svg {
-  display: block;
-  width: 100%;
-  height: auto;
-  max-width: 100%;
-}
-.scroll-cue {
-  display: none;
-  font-family: var(--mono); font-size: 0.66rem;
-  color: var(--ink-faint); text-align: center;
-  margin-top: 0.85rem; letter-spacing: 0.05em;
-}
-@media (max-width: 720px) {
-  .scroll-cue { display: block; }
-  .diagram-svg-frame { margin: 0 -1.25rem; padding: 0 1.25rem; }
-  .diagram-svg-frame svg { min-width: 540px; }
-}
+.ba li:first-child { border-top: 0; }
+.ba.before li::before  { content: '✕'; position: absolute; left: 0; top: 0.45rem; color: var(--ink-4); font-weight: 700; }
+.ba.after  li::before  { content: '✓'; position: absolute; left: 0; top: 0.45rem; color: var(--codex); font-weight: 700; }
 
-/* ── callouts ────────────────────────────────────────────────────────────── */
-.pull {
-  margin-top: 2rem;
-  padding: 1.5rem 1.6rem;
-  border-left: 3px solid var(--vermillion);
-  background: var(--paper-soft);
-  font-family: var(--serif);
-  font-style: italic;
-  font-size: 1.05rem;
-  line-height: 1.5;
-  color: var(--ink);
+/* ─── STACK CALLOUT (opt-in clarity) ─────────────────────────────────────── */
+.stack-rows {
+  display: grid; gap: 1rem;
+  margin-top: 1.5rem;
+}
+.stack {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 1fr;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 1.5rem;
+  position: relative;
+  overflow: hidden;
 }
 @media (min-width: 720px) {
-  .pull { font-size: 1.18rem; padding: 1.75rem 2rem; }
+  .stack { grid-template-columns: 200px 1fr auto; align-items: center; padding: 1.6rem 1.85rem; }
 }
-.pull strong { font-style: normal; font-weight: 600; color: var(--vermillion); font-family: var(--grotesk); }
-.pull .by {
-  display: block;
-  font-family: var(--mono); font-style: normal;
-  font-size: 0.7rem; color: var(--ink-mute);
-  margin-top: 1rem; text-transform: uppercase; letter-spacing: 0.06em;
+.stack-tier {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  display: flex; align-items: center; gap: 0.5rem;
 }
-
-/* ── codex routing matrix ────────────────────────────────────────────────── */
-.cdx-grid {
-  display: grid; grid-template-columns: 1fr;
-  border-top: 1px solid var(--ink);
-  border-left: 1px solid var(--rule);
+.stack-tier .tone {
+  display: inline-block; width: 6px; height: 6px; border-radius: 50%;
 }
-@media (min-width: 600px) { .cdx-grid { grid-template-columns: repeat(2, 1fr); } }
-@media (min-width: 1024px) { .cdx-grid { grid-template-columns: repeat(4, 1fr); } }
-.cdx-stage {
-  border-right: 1px solid var(--rule);
-  border-bottom: 1px solid var(--rule);
-  padding: 1.6rem;
-  background: var(--paper-card);
+.stack.required .tone { background: var(--accent); }
+.stack.optional .tone { background: var(--codex); }
+.stack-tier .word { color: var(--ink-2); }
+.stack.required .stack-tier .word { color: var(--accent-2); }
+.stack.optional .stack-tier .word { color: var(--codex); }
+.stack-body h4 {
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin-bottom: 0.3rem;
+  letter-spacing: -0.018em;
 }
-.cdx-phase {
-  font-family: var(--mono); font-size: 0.66rem; font-weight: 700;
-  color: var(--vermillion); letter-spacing: 0.08em;
-  text-transform: uppercase; margin-bottom: 0.55rem;
-}
-.cdx-stage h4 {
-  font-family: var(--serif); font-weight: 400; font-size: 1.25rem;
-  letter-spacing: -0.012em; margin-bottom: 1rem;
-}
-.cdx-row {
-  display: grid; grid-template-columns: 60px 1fr;
-  gap: 0.75rem; padding: 0.7rem 0;
-  border-top: 1px dashed var(--rule);
-  font-size: 0.86rem;
-  line-height: 1.45;
-  color: var(--ink-soft);
-}
-.cdx-row:first-of-type { border-top: 0; padding-top: 0; }
-.cdx-tag {
-  font-family: var(--mono); font-size: 0.66rem; font-weight: 700;
-  text-transform: uppercase; letter-spacing: 0.06em;
-  padding-top: 0.15rem;
-}
-.cdx-tag.ai { color: var(--moss); }
-.cdx-tag.cl { color: var(--ink-mute); }
-.cdx-tag.al { color: var(--vermillion); }
-.cdx-row code, .cdx-row strong {
-  font-family: var(--mono); font-size: 0.82em; color: var(--ink); font-weight: 500;
-}
-
-/* eligibility two-col compare */
-.elig-grid {
-  display: grid; gap: 1rem;
-  grid-template-columns: 1fr;
-  margin-top: 2.5rem;
-}
-@media (min-width: 720px) { .elig-grid { grid-template-columns: 1fr 1fr; gap: 1.25rem; } }
-.elig-col {
-  background: var(--paper-card);
-  border: 1px solid var(--rule);
-  padding: 1.5rem 1.6rem;
-}
-.elig-col.yes { border-top: 3px solid var(--moss); }
-.elig-col.no  { border-top: 3px solid var(--bug); }
-.elig-head {
-  font-family: var(--serif); font-style: italic;
-  font-size: 1.2rem; margin-bottom: 1rem;
-  display: flex; align-items: baseline; gap: 0.55rem;
-}
-.elig-head .ico {
-  font-family: var(--mono); font-style: normal;
-  font-size: 0.85rem; font-weight: 700;
-  display: inline-grid; place-items: center;
-  width: 22px; height: 22px;
-  border-radius: 50%;
-}
-.elig-col.yes .ico { background: var(--moss); color: var(--paper); }
-.elig-col.no  .ico { background: var(--bug); color: var(--paper); }
-.elig-list { list-style: none; }
-.elig-list li {
-  padding: 0.55rem 0;
-  border-top: 1px dashed var(--rule);
-  font-size: 0.88rem;
-  color: var(--ink-soft);
+.stack-body p {
+  font-size: 0.9rem;
+  color: var(--ink-2);
   line-height: 1.5;
 }
-.elig-list li:first-child { border-top: 0; padding-top: 0; }
-.elig-list li strong { color: var(--ink); font-weight: 600; }
-.elig-list li code { font-family: var(--mono); font-size: 0.82em; color: var(--ink); }
+.stack-body p strong { color: var(--ink); font-weight: 600; }
+.stack-meta {
+  font-family: var(--mono);
+  font-size: 0.74rem;
+  color: var(--ink-3);
+  display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center;
+}
+.tag-required {
+  display: inline-flex; align-items: center; gap: 0.3rem;
+  background: var(--accent); color: white;
+  padding: 0.18rem 0.5rem;
+  border-radius: 4px;
+  font-weight: 600; font-size: 0.7rem;
+  letter-spacing: -0.005em;
+}
+.tag-optional {
+  display: inline-flex; align-items: center; gap: 0.3rem;
+  background: var(--bg-2);
+  color: var(--ink-3);
+  border: 1px solid var(--line);
+  padding: 0.18rem 0.5rem;
+  border-radius: 4px;
+  font-weight: 500; font-size: 0.7rem;
+  letter-spacing: -0.005em;
+}
 
-/* ── visibility — issue mockup ───────────────────────────────────────────── */
-.vis-features {
-  display: grid; gap: 0;
+/* ─── AGENT GRID ─────────────────────────────────────────────────────────── */
+.role-legend {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 2rem;
+  display: grid;
+  gap: 1rem;
   grid-template-columns: 1fr;
-  margin-bottom: 3rem;
-  border-top: 1px solid var(--ink);
-  border-left: 1px solid var(--rule);
 }
-@media (min-width: 720px) { .vis-features { grid-template-columns: repeat(3, 1fr); } }
-.vis-feat {
-  border-right: 1px solid var(--rule);
-  border-bottom: 1px solid var(--rule);
-  padding: 1.75rem 1.6rem;
+@media (min-width: 720px) { .role-legend { grid-template-columns: 1fr 1fr; gap: 1.5rem; padding: 1.5rem 1.85rem; } }
+.role-legend-item { display: flex; gap: 0.7rem; align-items: flex-start; }
+.role-legend-item .badge { margin-top: 0.15rem; flex-shrink: 0; }
+.role-legend-item p {
+  font-size: 0.88rem;
+  color: var(--ink-2);
+  line-height: 1.5;
 }
-.vis-feat .vn {
-  font-family: var(--mono); font-size: 0.66rem;
-  color: var(--vermillion); font-weight: 700;
-  letter-spacing: 0.08em; text-transform: uppercase;
+.role-legend-item p strong { color: var(--ink); font-weight: 600; }
+
+.agents {
+  display: grid;
+  gap: 0.85rem;
+  grid-template-columns: 1fr;
+}
+@media (min-width: 600px)  { .agents { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1024px) { .agents { grid-template-columns: repeat(3, 1fr); gap: 1rem; } }
+.agent {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 1.3rem;
+  display: grid;
+  gap: 0.85rem;
+  transition: border-color 160ms, box-shadow 160ms;
+}
+.agent:hover { border-color: var(--ink-3); box-shadow: var(--sh-1); }
+
+.agent-top { display: flex; gap: 0.75rem; align-items: flex-start; }
+.agent-icon {
+  width: 36px; height: 36px;
+  border-radius: 8px;
+  display: grid; place-items: center;
+  color: white;
+  font-family: var(--mono);
+  font-weight: 700;
+  font-size: 0.86rem;
+  letter-spacing: -0.04em;
+  flex-shrink: 0;
+}
+.agent-id .name {
+  font-family: var(--mono);
+  font-size: 0.92rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  display: block;
+  color: var(--ink);
+}
+.agent-id .role {
+  font-size: 0.78rem;
+  color: var(--ink-3);
+  display: block;
+  margin-top: 0.15rem;
+}
+.agent-badges {
+  display: flex; flex-wrap: wrap; gap: 0.32rem;
+}
+.agent p {
+  font-size: 0.86rem;
+  line-height: 1.5;
+  color: var(--ink-2);
+}
+
+/* ─── LIFECYCLE PIPELINE ─────────────────────────────────────────────────── */
+.pipe {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 1.5rem;
+}
+@media (min-width: 720px) { .pipe { padding: 2rem; } }
+
+.pipe-stages {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 1fr;
+}
+@media (min-width: 720px) { .pipe-stages { grid-template-columns: repeat(3, 1fr); gap: 1rem; } }
+.pipe-stage {
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 1.2rem 1.3rem;
+  position: relative;
+}
+.pipe-stage.terminal {
+  background: var(--ink);
+  border-color: var(--ink);
+}
+.pipe-stage.terminal h4 { color: white; }
+.pipe-stage.terminal p { color: rgba(255,255,255,0.65); }
+.pipe-stage.terminal .pipe-cmd { color: var(--accent); background: rgba(255,86,52,0.15); border-color: transparent; }
+.pipe-num {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--accent);
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+.pipe-stage h4 {
+  font-size: 1.05rem;
+  margin-bottom: 0.4rem;
+  letter-spacing: -0.018em;
+}
+.pipe-stage p {
+  font-size: 0.86rem;
+  color: var(--ink-2);
+  line-height: 1.5;
+  margin-bottom: 0.85rem;
+}
+.pipe-cmd {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 0.76rem;
+  background: var(--card);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  padding: 0.22rem 0.5rem;
+  border-radius: 4px;
+}
+
+.pipe-phases {
+  margin-top: 1.5rem;
+  border-top: 1px solid var(--line);
+  padding-top: 1.5rem;
+}
+.pipe-phases-head {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--ink-3);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 1rem;
+}
+.phase-row {
+  display: grid;
+  gap: 0.5rem;
+  grid-template-columns: repeat(2, 1fr);
+}
+@media (min-width: 540px) { .phase-row { grid-template-columns: repeat(3, 1fr); } }
+@media (min-width: 1024px) { .phase-row { grid-template-columns: repeat(6, 1fr); gap: 0.65rem; } }
+.phase {
+  padding: 0.7rem 0.85rem;
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+.phase .pn {
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  color: var(--accent);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  margin-bottom: 0.18rem;
+}
+.phase .pt {
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+}
+
+/* ─── LINEAR MOCKUP ──────────────────────────────────────────────────────── */
+.linear-cards {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: 1fr;
+  align-items: start;
+}
+@media (min-width: 980px) { .linear-cards { grid-template-columns: 1fr 1fr; gap: 1.5rem; } }
+.lin-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: var(--sh-1);
+}
+.lin-bar {
+  background: var(--bg-2);
+  padding: 0.7rem 1rem;
+  border-bottom: 1px solid var(--line);
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--ink-3);
+  display: flex; align-items: center; gap: 0.55rem;
+}
+.lin-bar .ts { display: flex; gap: 0.32rem; margin-right: 0.5rem; }
+.lin-bar .ts span {
+  width: 9px; height: 9px; border-radius: 50%;
+  background: var(--line-2);
+}
+.lin-bar .ts span:first-child { background: var(--accent); }
+.lin-body { padding: 1.25rem 1.4rem; }
+
+.lin-doc-eyebrow {
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--ink-3);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.6rem;
+  font-weight: 600;
+}
+.lin-doc-title {
+  font-size: 1.45rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
   margin-bottom: 0.6rem;
 }
-.vis-feat h4 {
-  font-family: var(--serif); font-weight: 400;
-  font-size: 1.18rem; line-height: 1.18;
-  letter-spacing: -0.012em;
-  margin-bottom: 0.55rem;
+.lin-doc-lede {
+  font-size: 0.92rem;
+  color: var(--ink-2);
+  line-height: 1.55;
+  margin-bottom: 1rem;
 }
-.vis-feat h4 em { font-style: italic; color: var(--vermillion); }
-.vis-feat p {
-  font-size: 0.88rem; line-height: 1.55;
-  color: var(--ink-soft);
+.lin-section {
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  color: var(--ink-3);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 600;
+  margin-top: 1.1rem;
+  margin-bottom: 0.5rem;
 }
-.vis-feat p code { font-family: var(--mono); font-size: 0.82em; color: var(--ink); }
+.lin-line {
+  font-size: 0.86rem;
+  color: var(--ink-2);
+  line-height: 1.5;
+  padding: 0.2rem 0;
+}
+.lin-line .key {
+  color: var(--ink);
+  font-weight: 600;
+}
+.adr {
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--accent);
+  padding: 0.85rem 1rem;
+  margin-top: 0.5rem;
+  border-radius: 4px;
+  font-size: 0.86rem;
+  color: var(--ink-2);
+  line-height: 1.55;
+}
+.adr .id {
+  font-family: var(--mono);
+  color: var(--accent);
+  font-weight: 700;
+  font-size: 0.84rem;
+}
 
+/* board panel */
+.board {
+  display: grid; gap: 0.5rem;
+  grid-template-columns: 1fr;
+}
+.board-col {
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 0.75rem;
+}
+.board-col-head {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink-2);
+  margin-bottom: 0.6rem;
+  display: flex; align-items: center; gap: 0.45rem;
+}
+.board-col-head .dot { width: 7px; height: 7px; border-radius: 50%; }
+.board-col-head .ct {
+  margin-left: auto; font-family: var(--mono); font-size: 0.7rem; color: var(--ink-3); font-weight: 500;
+}
+.board-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 0.55rem 0.7rem;
+  margin-bottom: 0.4rem;
+  font-size: 0.82rem;
+  line-height: 1.4;
+  color: var(--ink);
+  cursor: pointer;
+  transition: border-color 120ms;
+}
+.board-card:hover { border-color: var(--ink); }
+.board-card .id {
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  color: var(--ink-3);
+  margin-bottom: 0.15rem;
+}
+.board-card .meta {
+  display: flex; gap: 0.35rem; align-items: center; margin-top: 0.4rem;
+}
+
+/* ─── ISSUE / ACTIVITY MOCKUP ────────────────────────────────────────────── */
 .issue {
-  background: var(--paper-card);
-  border: 1px solid var(--ink);
-  max-width: 680px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: var(--sh-2);
+  max-width: 720px;
   margin: 0 auto;
-  position: relative;
 }
 .issue-bar {
+  background: var(--bg-2);
+  padding: 0.7rem 1rem;
+  border-bottom: 1px solid var(--line);
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--ink-3);
   display: flex; align-items: center; gap: 0.55rem;
-  padding: 0.7rem 1.1rem;
-  border-bottom: 1px solid var(--rule);
-  font-family: var(--mono); font-size: 0.7rem;
-  color: var(--ink-mute); letter-spacing: 0.02em;
-  background: var(--paper-soft);
 }
-.issue-bar .dots { display: flex; gap: 0.3rem; margin-right: 0.4rem; }
-.issue-bar .dots span {
-  width: 9px; height: 9px; border-radius: 50%;
-  background: var(--ink-faint);
+.issue-bar .ts { display: flex; gap: 0.32rem; margin-right: 0.5rem; }
+.issue-bar .ts span {
+  width: 9px; height: 9px; border-radius: 50%; background: var(--line-2);
 }
-.issue-bar .dots span:first-child { background: var(--vermillion); }
-.issue-head { padding: 1.4rem 1.5rem 1.1rem; border-bottom: 1px solid var(--rule); }
+.issue-bar .ts span:first-child { background: var(--accent); }
+.issue-head {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--line);
+}
 .issue-id {
-  display: flex; align-items: center; gap: 0.65rem; flex-wrap: wrap;
-  font-family: var(--mono); font-size: 0.74rem;
-  color: var(--ink-mute); margin-bottom: 0.7rem;
+  display: flex; align-items: center; gap: 0.55rem; flex-wrap: wrap;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--ink-3);
+  margin-bottom: 0.6rem;
 }
-.issue-title {
-  font-family: var(--serif); font-weight: 400;
-  font-size: 1.55rem; line-height: 1.1;
-  letter-spacing: -0.018em;
-  margin-bottom: 0.7rem;
-  color: var(--ink);
-}
-.issue-labels { display: flex; gap: 0.35rem; flex-wrap: wrap; }
-.lbl {
-  display: inline-block;
-  font-family: var(--mono); font-size: 0.66rem;
-  font-weight: 600;
-  padding: 0.18rem 0.45rem;
-  border-radius: 2px;
-  text-transform: uppercase; letter-spacing: 0.04em;
-  line-height: 1.4;
-}
-.lbl-task    { background: rgba(194,129,72,0.15); color: #6f4319; }
-.lbl-feature { background: rgba(139,93,190,0.15); color: #5d3b86; }
-.lbl-bug     { background: rgba(179,62,62,0.15); color: #802222; }
-.lbl-improve { background: rgba(74,123,168,0.15); color: #2c5077; }
-.lbl-debt    { background: rgba(184,95,30,0.15); color: #6f3c0f; }
-.lbl-epic    { background: rgba(74,140,95,0.15); color: #2a5538; }
-
 .status {
   display: inline-flex; align-items: center; gap: 0.4rem;
-  padding: 0.18rem 0.55rem;
-  border-radius: 2px;
+  padding: 0.18rem 0.5rem;
+  border-radius: 4px;
   font-family: var(--mono);
   font-size: 0.7rem; font-weight: 600;
-  text-transform: uppercase; letter-spacing: 0.05em;
-  background: var(--paper-soft);
-  border: 1px solid var(--rule);
+  background: var(--card);
+  border: 1px solid var(--line);
 }
 .status::before {
   content: ''; width: 7px; height: 7px; border-radius: 50%;
-  background: var(--ink-mute);
+  background: var(--ink-3);
 }
 .status.review::before  { background: var(--st-review); }
-.status.progress::before { background: var(--st-progress); }
-.status.done::before    { background: var(--st-done); }
+.status.progress::before { background: var(--st-prog); }
 
+.issue-title {
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  margin-bottom: 0.55rem;
+}
+.issue-labels {
+  display: flex; flex-wrap: wrap; gap: 0.35rem;
+}
+.lbl {
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  font-weight: 600;
+  padding: 0.16rem 0.45rem;
+  border-radius: 4px;
+  background: var(--bg-3);
+  color: var(--ink-2);
+  letter-spacing: -0.005em;
+}
 .issue-meta-row {
-  display: grid; gap: 1rem;
-  grid-template-columns: 1fr 1fr;
-  margin-top: 1rem;
+  display: grid;
+  gap: 0.85rem;
+  grid-template-columns: 1fr;
+  margin-top: 0.85rem;
 }
 @media (min-width: 540px) { .issue-meta-row { grid-template-columns: repeat(3, 1fr); } }
-.issue-meta-block .lbl-key {
+.imeta .lbl-key {
   display: block;
-  font-family: var(--mono); font-size: 0.64rem;
-  color: var(--ink-mute); text-transform: uppercase;
-  letter-spacing: 0.06em; margin-bottom: 0.2rem;
-  font-weight: 600;
+  font-family: var(--mono); font-size: 0.66rem;
+  color: var(--ink-3); text-transform: uppercase;
+  letter-spacing: 0.05em; margin-bottom: 0.18rem; font-weight: 600;
 }
-.issue-meta-block .lbl-val {
-  font-family: var(--grotesk); font-size: 0.88rem;
+.imeta .lbl-val {
+  font-size: 0.88rem;
   color: var(--ink); font-weight: 500;
+  display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap;
 }
 
-/* activity feed */
-.activity-list { padding: 0.5rem 1.5rem 1.5rem; }
-.activity-head {
-  font-family: var(--mono); font-size: 0.64rem; font-weight: 700;
-  color: var(--ink-mute); text-transform: uppercase; letter-spacing: 0.07em;
+.feed {
+  padding: 0.5rem 1.5rem 1.5rem;
+}
+.feed-head {
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink-3);
   padding: 1rem 0 0.85rem;
-  border-bottom: 1px solid var(--rule);
+  border-bottom: 1px solid var(--line);
   margin-bottom: 0.85rem;
 }
 .act {
   display: flex; gap: 0.85rem;
   padding: 0.7rem 0;
-  border-top: 1px dashed var(--rule);
+  border-top: 1px dashed var(--line);
   font-size: 0.86rem;
   line-height: 1.5;
 }
 .act:first-of-type { border-top: 0; padding-top: 0; }
-.act-avatar {
-  width: 28px; height: 28px; flex-shrink: 0;
-  border-radius: 2px;
+.act-av {
+  width: 30px; height: 30px;
+  border-radius: 7px;
   display: grid; place-items: center;
-  font-family: var(--mono); font-size: 0.68rem; font-weight: 700;
-  color: var(--paper);
-  letter-spacing: -0.02em;
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: white;
+  letter-spacing: -0.04em;
+  flex-shrink: 0;
 }
-.av-sl { background: #1A1A1C; }
-.av-cx { background: var(--moss); }
-.av-cr { background: var(--sky); }
-.av-yo { background: var(--vermillion); }
+.av-sl { background: var(--ink); }
+.av-cx { background: var(--codex); }
+.av-cr { background: #4F46E5; }
+.av-yo { background: var(--accent); }
 .act-body { flex: 1; min-width: 0; }
 .act-meta {
-  font-family: var(--mono); font-size: 0.7rem;
-  color: var(--ink-mute); margin-bottom: 0.15rem;
-  letter-spacing: 0.02em;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--ink-3);
+  margin-bottom: 0.18rem;
 }
 .act-meta .who { color: var(--ink); font-weight: 600; }
-.act-meta .who.me { color: var(--vermillion); }
+.act-meta .who.you { color: var(--accent); }
 .act-meta .pill {
   display: inline-block;
-  background: rgba(184,50,39,0.12);
-  color: var(--vermillion);
-  border: 1px solid rgba(184,50,39,0.25);
-  font-size: 0.62rem; font-weight: 700;
-  padding: 0.04rem 0.35rem; margin-left: 0.4rem;
-  letter-spacing: 0.06em; text-transform: uppercase;
-  border-radius: 2px;
+  background: var(--accent-soft);
+  color: var(--accent-2);
+  border: 1px solid var(--accent-line);
+  font-size: 0.62rem;
+  font-weight: 700;
+  padding: 0.04rem 0.35rem;
+  margin-left: 0.4rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border-radius: 4px;
 }
-.act-text { color: var(--ink-soft); }
-.act-text .arr { font-family: var(--mono); color: var(--ink-mute); }
+.act-text { color: var(--ink-2); }
+.act-text .arr { color: var(--ink-3); font-family: var(--mono); }
 .act-text strong { color: var(--ink); font-weight: 600; }
 .act-text code {
-  font-family: var(--mono); font-size: 0.82em;
-  background: var(--paper-soft);
-  border: 1px solid var(--rule);
-  padding: 0.08rem 0.35rem;
+  font-family: var(--mono);
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  padding: 0.05rem 0.32rem;
+  font-size: 0.82em;
   color: var(--ink);
 }
 .act-quote {
   margin-top: 0.4rem;
   padding: 0.6rem 0.85rem;
-  border-left: 2px solid var(--vermillion);
-  background: var(--paper-soft);
-  color: var(--ink); font-style: italic;
-  font-family: var(--serif); font-size: 0.95rem;
-  line-height: 1.5;
-}
-
-/* ── kanban ──────────────────────────────────────────────────────────────── */
-.kanban-frame {
-  border-top: 1px solid var(--ink);
-  padding-top: 2rem;
-}
-.kanban {
-  display: grid; gap: 0.85rem;
-  grid-template-columns: 1fr;
-}
-@media (min-width: 540px) { .kanban { grid-template-columns: repeat(2, 1fr); } }
-@media (min-width: 1024px) { .kanban { grid-template-columns: repeat(5, 1fr); gap: 1rem; } }
-.col {
-  background: var(--paper-card);
-  border: 1px solid var(--rule);
-  padding: 1rem;
-  min-height: 220px;
-}
-.col-head {
-  display: flex; align-items: center; gap: 0.55rem;
-  padding-bottom: 0.85rem;
-  border-bottom: 1px solid var(--rule);
-  margin-bottom: 0.85rem;
-  font-family: var(--mono); font-size: 0.7rem;
-  font-weight: 700; color: var(--ink);
-  text-transform: uppercase; letter-spacing: 0.06em;
-}
-.col-dot { width: 8px; height: 8px; border-radius: 50%; }
-.col-count {
-  margin-left: auto;
-  font-family: var(--mono); font-size: 0.7rem;
-  color: var(--ink-mute); font-weight: 500;
-}
-.kcard {
-  background: var(--paper);
-  border: 1px solid var(--rule);
-  padding: 0.7rem 0.85rem;
-  margin-bottom: 0.55rem;
-  font-size: 0.84rem;
-  line-height: 1.4;
+  border-left: 2px solid var(--accent);
+  background: var(--bg-2);
   color: var(--ink);
+  font-style: italic;
+  font-size: 0.92rem;
 }
-.kcard:hover { border-color: var(--ink); }
-.kcard-id {
-  font-family: var(--mono); font-size: 0.66rem;
-  color: var(--ink-mute); margin-bottom: 0.2rem;
-}
-.kcard-labels { display: flex; gap: 0.3rem; margin-top: 0.5rem; flex-wrap: wrap; }
 
-.phase-row {
-  display: none;
-  margin-top: 0.85rem;
-  grid-template-columns: repeat(5, 1fr); gap: 1rem;
+/* ─── DRIFT EXPLAINER ────────────────────────────────────────────────────── */
+.drift-grid {
+  display: grid; gap: 1rem;
+  grid-template-columns: 1fr;
+  margin-top: 2rem;
 }
-@media (min-width: 1024px) { .phase-row { display: grid; } }
-.phase-row .phase {
-  border-top: 2px dashed var(--ink);
-  padding-top: 0.6rem;
-  font-family: var(--mono); font-size: 0.66rem;
-  color: var(--ink-mute);
-  text-align: center;
+@media (min-width: 720px) { .drift-grid { grid-template-columns: 1fr 1fr; gap: 1.25rem; } }
+.drift-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 1.3rem 1.5rem;
+}
+.drift-tag {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  margin-bottom: 0.7rem;
   letter-spacing: 0.04em;
-  text-transform: uppercase;
 }
-.phase strong { color: var(--vermillion); display: block; font-weight: 700; margin-bottom: 0.15rem; }
-
-/* ── agents ──────────────────────────────────────────────────────────────── */
-.agent-grid {
-  display: grid; gap: 0;
-  grid-template-columns: 1fr;
-  border-top: 1px solid var(--ink);
-  border-left: 1px solid var(--rule);
+.drift-card.warn { border-top: 3px solid #C97A1F; }
+.drift-card.warn .drift-tag { background: rgba(201,122,31,0.12); color: #8B5410; }
+.drift-card.block { border-top: 3px solid var(--st-block); }
+.drift-card.block .drift-tag { background: rgba(199,62,62,0.12); color: #8B2F2F; }
+.drift-card h4 {
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.018em;
 }
-@media (min-width: 600px) { .agent-grid { grid-template-columns: repeat(2, 1fr); } }
-@media (min-width: 1024px) { .agent-grid { grid-template-columns: repeat(3, 1fr); } }
-.agent {
-  border-right: 1px solid var(--rule);
-  border-bottom: 1px solid var(--rule);
-  padding: 1.5rem 1.4rem;
-  background: var(--paper-card);
-  transition: background 160ms;
-}
-.agent:hover { background: var(--paper-soft); }
-.agent-row {
-  display: flex; align-items: flex-start; gap: 0.8rem;
-  margin-bottom: 0.8rem;
-}
-.agent-mark {
-  width: 36px; height: 36px;
-  border-radius: 2px;
-  display: grid; place-items: center;
-  color: var(--paper);
-  font-family: var(--mono);
-  font-weight: 700; font-size: 0.85rem;
-  flex-shrink: 0;
-}
-.agent-name-row {
-  display: flex; align-items: baseline; gap: 0.45rem; flex-wrap: wrap;
-}
-.agent-nm {
-  font-family: var(--mono);
-  font-size: 0.92rem; font-weight: 600;
-  color: var(--ink); letter-spacing: -0.01em;
-}
-.agent-mod {
-  font-family: var(--mono); font-size: 0.7rem;
-  color: var(--ink-mute); letter-spacing: 0.02em;
-  margin-top: 0.18rem;
-}
-.cdx-pill {
-  display: inline-flex; align-items: center; gap: 0.22rem;
-  font-family: var(--mono); font-size: 0.62rem;
-  font-weight: 700; color: var(--moss);
-  background: rgba(58,90,64,0.10);
-  border: 1px solid rgba(58,90,64,0.25);
-  padding: 0.08rem 0.4rem;
-  letter-spacing: 0.05em;
-  text-transform: uppercase; border-radius: 2px;
-}
-.cdx-pill::before { content: '⚡'; font-size: 0.95em; }
-.cdx-pill.replaces { color: var(--vermillion); background: rgba(184,50,39,0.10); border-color: rgba(184,50,39,0.25); }
-.agent p {
-  font-size: 0.88rem; line-height: 1.55;
-  color: var(--ink-soft);
-}
-.agent p em { font-style: italic; color: var(--ink); }
-.agent p code { font-family: var(--mono); font-size: 0.82em; color: var(--ink); }
-
-/* ── skills ──────────────────────────────────────────────────────────────── */
-.skills-shell {
-  display: grid; gap: 1.5rem;
-}
-@media (min-width: 720px) { .skills-shell { gap: 1.85rem; } }
-.skill-grp {
-  display: grid; gap: 0.85rem;
-  grid-template-columns: 1fr;
-  align-items: baseline;
-  padding-bottom: 1.5rem;
-  border-bottom: 1px solid var(--rule);
-}
-@media (min-width: 720px) { .skill-grp { grid-template-columns: 220px 1fr; gap: 2rem; } }
-.skill-grp:last-child { border-bottom: 0; padding-bottom: 0; }
-.skill-grp-title {
-  font-family: var(--serif); font-style: italic;
-  font-size: 1.18rem; color: var(--ink);
-  letter-spacing: -0.01em;
-}
-.skill-grp-num {
-  font-family: var(--mono); font-size: 0.66rem;
-  color: var(--vermillion); font-weight: 700;
-  letter-spacing: 0.08em; margin-bottom: 0.25rem;
-  text-transform: uppercase;
-}
-.skill-chips { display: flex; flex-wrap: wrap; gap: 0.4rem; }
-.chip {
-  display: inline-flex; align-items: center; gap: 0.35rem;
-  background: var(--paper-card);
-  border: 1px solid var(--rule);
-  padding: 0.42rem 0.7rem;
-  font-family: var(--mono);
-  font-size: 0.78rem;
-  color: var(--ink);
-  transition: border-color 120ms, background 120ms;
-  border-radius: 2px;
-}
-.chip:hover { border-color: var(--ink); background: var(--paper-soft); }
-.chip::before {
-  content: ''; width: 5px; height: 5px; border-radius: 50%;
-  background: var(--vermillion);
-}
-
-/* ── architect mockup ────────────────────────────────────────────────────── */
-.lin-doc {
-  background: var(--paper-card);
-  border: 1px solid var(--ink);
-  max-width: 720px;
-  margin: 0 auto;
-}
-.lin-doc-bar {
-  display: flex; align-items: center; gap: 0.55rem;
-  padding: 0.7rem 1.1rem;
-  border-bottom: 1px solid var(--rule);
-  font-family: var(--mono); font-size: 0.7rem;
-  color: var(--ink-mute); letter-spacing: 0.02em;
-  background: var(--paper-soft);
-}
-.lin-doc-bar .dots { display: flex; gap: 0.3rem; margin-right: 0.4rem; }
-.lin-doc-bar .dots span {
-  width: 9px; height: 9px; border-radius: 50%;
-  background: var(--ink-faint);
-}
-.lin-doc-body { padding: 1.5rem 1.75rem; }
-@media (max-width: 540px) { .lin-doc-body { padding: 1.25rem 1.25rem; } }
-.lin-doc-eyebrow {
-  display: inline-flex; align-items: center; gap: 0.4rem;
-  font-family: var(--mono); font-size: 0.66rem;
-  color: var(--ink-mute);
-  text-transform: uppercase; letter-spacing: 0.06em;
+.drift-card p {
+  font-size: 0.9rem;
+  color: var(--ink-2);
+  line-height: 1.55;
   margin-bottom: 0.7rem;
 }
-.lin-doc-title {
-  font-family: var(--serif); font-weight: 400;
-  font-size: 1.85rem; line-height: 1.05;
-  letter-spacing: -0.02em;
-  color: var(--ink); margin-bottom: 0.85rem;
+.drift-card .ex {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  color: var(--ink-2);
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 0.7rem 0.85rem;
+  line-height: 1.55;
 }
-.lin-doc-title em { font-style: italic; color: var(--vermillion); }
-.lin-doc-lede {
-  font-size: 0.9rem; line-height: 1.55;
-  color: var(--ink-soft); margin-bottom: 1rem;
-}
-.doc-section {
-  font-family: var(--mono); font-size: 0.66rem;
-  color: var(--ink-mute); font-weight: 700;
-  text-transform: uppercase; letter-spacing: 0.06em;
-  margin-top: 1.2rem; margin-bottom: 0.55rem;
-}
-.doc-line {
-  font-size: 0.86rem; color: var(--ink-soft);
-  margin-bottom: 0.28rem;
-  line-height: 1.45;
-}
-.doc-line .key { color: var(--ink); font-weight: 600; }
-.adr {
-  background: var(--paper-soft);
-  border: 1px solid var(--rule);
-  padding: 0.85rem 1rem;
-  margin-top: 0.55rem;
-  font-size: 0.84rem;
-  color: var(--ink-soft); line-height: 1.5;
-}
-.adr .id {
-  font-family: var(--mono); color: var(--vermillion);
-  font-weight: 700; font-size: 0.82rem;
-}
-.adr-tag {
-  display: inline-block;
-  background: var(--paper);
-  border: 1px solid var(--rule);
-  font-family: var(--mono); font-size: 0.66rem;
-  color: var(--ink-mute);
-  padding: 0.05rem 0.35rem; margin-left: 0.4rem;
-  border-radius: 2px;
-  text-transform: uppercase; letter-spacing: 0.05em;
-}
+.drift-card .ex strong { color: var(--ink); font-weight: 600; }
 
-/* ── quickstart ──────────────────────────────────────────────────────────── */
-.qs {
-  display: grid; gap: 1rem;
-  counter-reset: q;
+/* ─── CODEX SECTION ──────────────────────────────────────────────────────── */
+.cdx-explainer {
+  background: linear-gradient(180deg, var(--codex-soft) 0%, var(--card) 100%);
+  border: 1px solid var(--line);
+  border-top: 3px solid var(--codex);
+  border-radius: 12px;
+  padding: 1.75rem;
+  margin-bottom: 2.5rem;
 }
-.qs-step {
-  display: grid;
+@media (min-width: 720px) { .cdx-explainer { padding: 2rem 2.25rem; } }
+.cdx-explainer h3 {
+  font-size: 1.25rem;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.6rem;
+  display: flex; align-items: center; gap: 0.55rem; flex-wrap: wrap;
+}
+.cdx-explainer h3 .badge { font-size: 0.74rem; }
+.cdx-explainer p {
+  font-size: 0.95rem;
+  color: var(--ink-2);
+  line-height: 1.55;
+}
+.cdx-explainer p strong { color: var(--ink); font-weight: 600; }
+
+.elig {
+  display: grid; gap: 0.85rem;
   grid-template-columns: 1fr;
+}
+@media (min-width: 720px) { .elig { grid-template-columns: 1fr 1fr; gap: 1rem; } }
+.elig-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 1.4rem 1.5rem;
+}
+.elig-card.yes { border-top: 3px solid var(--codex); }
+.elig-card.no  { border-top: 3px solid var(--ink-3); }
+.elig-head {
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin-bottom: 0.85rem;
+  display: flex; align-items: center; gap: 0.5rem;
+  letter-spacing: -0.018em;
+}
+.elig-head .ico {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  display: grid; place-items: center;
+  font-family: var(--mono); font-weight: 700;
+  font-size: 0.78rem;
+  color: white;
+}
+.elig-card.yes .ico { background: var(--codex); }
+.elig-card.no  .ico { background: var(--ink); }
+.elig-list { list-style: none; }
+.elig-list li {
+  font-size: 0.86rem;
+  color: var(--ink-2);
+  line-height: 1.5;
+  padding: 0.45rem 0;
+  border-top: 1px dashed var(--line);
+}
+.elig-list li:first-child { border-top: 0; padding-top: 0; }
+.elig-list li strong { color: var(--ink); font-weight: 600; }
+
+/* ─── INSTALL ────────────────────────────────────────────────────────────── */
+.install {
+  display: grid;
   gap: 1rem;
-  background: var(--paper-card);
-  border: 1px solid var(--rule);
+}
+.step {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
   padding: 1.5rem;
-  position: relative;
-  counter-increment: q;
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 1fr;
 }
-@media (min-width: 720px) { .qs-step { grid-template-columns: 80px 1fr; gap: 1.4rem; padding: 1.85rem 2rem; } }
-.qs-num {
-  font-family: var(--serif);
-  font-size: 2.6rem; line-height: 1;
-  color: var(--vermillion);
-  letter-spacing: -0.03em;
+@media (min-width: 720px) {
+  .step { grid-template-columns: 60px 1fr; gap: 1.5rem; padding: 1.85rem; align-items: start; }
 }
-.qs-num::before { content: counter(q, decimal-leading-zero); }
-.qs-step h4 {
-  font-family: var(--serif); font-weight: 400;
-  font-size: 1.35rem; line-height: 1.15;
-  letter-spacing: -0.012em; margin-bottom: 0.4rem;
+.step-num {
+  font-family: var(--mono);
+  font-size: 1.85rem;
+  font-weight: 600;
+  color: var(--accent);
+  letter-spacing: -0.04em;
+  line-height: 1;
 }
-.qs-step h4 em { font-style: italic; color: var(--vermillion); }
-.qs-step p {
-  font-size: 0.9rem; line-height: 1.55;
-  color: var(--ink-soft); margin-bottom: 0.85rem;
+.step h4 {
+  font-size: 1.15rem;
+  margin-bottom: 0.4rem;
+  letter-spacing: -0.018em;
+  display: flex; flex-wrap: wrap; align-items: center; gap: 0.55rem;
 }
-.qs-tag {
-  display: inline-block;
-  font-family: var(--mono); font-size: 0.66rem;
-  color: var(--ink-mute); font-weight: 600;
-  text-transform: uppercase; letter-spacing: 0.06em;
-  padding: 0.1rem 0.4rem;
-  border: 1px solid var(--rule);
-  border-radius: 2px;
-  margin-left: 0.4rem;
-  background: var(--paper);
+.step .opt-tag {
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  font-weight: 600;
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+  background: var(--bg-2);
+  color: var(--ink-3);
+  border: 1px solid var(--line);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.step .opt-tag.req { background: var(--accent); color: white; border-color: transparent; }
+.step p {
+  font-size: 0.92rem;
+  color: var(--ink-2);
+  line-height: 1.55;
+  margin-bottom: 0.85rem;
 }
 pre {
   font-family: var(--mono);
   background: var(--ink);
-  color: #E4E1D7;
-  padding: 1rem 1.15rem;
-  border-radius: 2px;
+  color: #E4E4E4;
+  padding: 0.95rem 1.1rem;
+  border-radius: 8px;
   font-size: 0.78rem;
   line-height: 1.65;
   overflow-x: auto;
-  border: 1px solid var(--ink);
 }
-@media (min-width: 720px) { pre { font-size: 0.82rem; padding: 1.15rem 1.3rem; } }
-pre .pr { color: #B83227; user-select: none; }
-pre .cm { color: #6F6E64; }
+pre .pr { color: var(--accent); user-select: none; }
+pre .cm { color: #888; }
 
-/* ── tree ────────────────────────────────────────────────────────────────── */
-.tree {
-  font-family: var(--mono);
-  background: var(--ink);
-  color: #E4E1D7;
-  padding: 1.5rem 1.25rem;
-  border-radius: 2px;
-  font-size: 0.74rem;
-  line-height: 1.7;
-  overflow-x: auto;
-}
-@media (min-width: 720px) { .tree { font-size: 0.82rem; padding: 1.85rem 2rem; } }
-.tree .dr { color: #B83227; font-weight: 600; }
-.tree .fl { color: #E4E1D7; }
-.tree .cm { color: #6F6E64; }
-.tree .hl { color: #E2C66B; }
-
-/* ── footer ──────────────────────────────────────────────────────────────── */
+/* ─── FOOTER ─────────────────────────────────────────────────────────────── */
 footer {
-  background: var(--ink);
-  color: var(--paper);
-  padding: 4rem 0 2rem;
-  position: relative;
-}
-footer::before {
-  content: '';
-  position: absolute; left: 0; right: 0; top: 0; height: 1px;
-  background: var(--vermillion);
+  border-top: 1px solid var(--line);
+  background: var(--bg);
+  padding: 3rem 0 2rem;
 }
 .foot {
-  display: grid; gap: 2rem;
+  display: grid;
+  gap: 2rem;
   grid-template-columns: 1fr;
   margin-bottom: 2rem;
 }
 @media (min-width: 540px) { .foot { grid-template-columns: 1fr 1fr; } }
 @media (min-width: 1024px) { .foot { grid-template-columns: 2fr 1fr 1fr 1fr; gap: 3rem; } }
-.foot-brand .brand-name { color: var(--paper); }
-.foot-brand p {
-  font-size: 0.88rem; color: rgba(247,244,237,0.7);
-  margin-top: 1rem; max-width: 320px; line-height: 1.55;
-}
 footer h5 {
-  font-family: var(--mono); font-size: 0.66rem;
-  color: rgba(247,244,237,0.5);
-  text-transform: uppercase; letter-spacing: 0.08em;
-  font-weight: 700; margin-bottom: 1rem;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--ink-3);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 1rem;
 }
 footer ul { list-style: none; }
 footer li { margin-bottom: 0.55rem; }
 footer a {
   font-size: 0.88rem;
-  color: rgba(247,244,237,0.78);
+  color: var(--ink-2);
   transition: color 120ms;
 }
-footer a:hover { color: var(--vermillion); }
+footer a:hover { color: var(--accent); }
+.foot-brand p {
+  font-size: 0.88rem;
+  color: var(--ink-3);
+  line-height: 1.55;
+  margin-top: 1rem;
+  max-width: 320px;
+}
 .foot-meta {
-  text-align: left;
-  border-top: 1px solid rgba(247,244,237,0.12);
+  border-top: 1px solid var(--line);
   padding-top: 1.5rem;
-  font-family: var(--mono); font-size: 0.7rem;
-  color: rgba(247,244,237,0.5);
-  display: flex; flex-wrap: wrap; gap: 0.85rem 1.5rem;
-  letter-spacing: 0.04em;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--ink-3);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.85rem 1.5rem;
+  letter-spacing: -0.005em;
 }
 
-/* ── reduced motion ──────────────────────────────────────────────────────── */
+/* ─── reduced motion ─────────────────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
   html { scroll-behavior: auto; }
-  * { animation-duration: 0s !important; transition: none !important; }
 }
 </style>
 </head>
 <body>
 
-<!-- ════════════════════════════════════════════ NAV ═══════════════════════ -->
+<!-- ─── NAV ─────────────────────────────────────────────────────────────── -->
 <header class="nav">
   <div class="nav-inner">
     <a class="brand" href="#hero">
-      <span class="brand-mark">SW</span>
-      <span class="brand-name">sprint&middot;workflow</span>
+      <span class="brand-mark"></span>
+      <span class="brand-name">sprint-workflow</span>
       <span class="brand-ver">v3.3.0</span>
     </a>
     <ul class="nav-links">
-      <li><a href="#orchestration" data-spy="orchestration">Orchestration</a></li>
+      <li><a href="#what" data-spy="what">What it does</a></li>
+      <li><a href="#team" data-spy="team">The team</a></li>
       <li><a href="#linear" data-spy="linear">Linear</a></li>
       <li><a href="#codex" data-spy="codex">Codex</a></li>
-      <li><a href="#visibility" data-spy="visibility">Visibility</a></li>
-      <li><a href="#agents" data-spy="agents">Agents</a></li>
-      <li><a href="#skills" data-spy="skills">Skills</a></li>
+      <li><a href="#stack" data-spy="stack">What's optional</a></li>
       <li><a href="#install" data-spy="install">Install</a></li>
     </ul>
-    <a class="nav-cta" href="https://github.com/rynhardt-potgieter/sprint_workflow">
+    <a href="https://github.com/rynhardt-potgieter/sprint_workflow" class="btn btn-primary">
       Github
       <svg width="11" height="11" viewBox="0 0 11 11" fill="none" aria-hidden="true">
         <path d="M3 2h6v6 M3 8L9 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"/>
@@ -1265,743 +1440,593 @@ footer a:hover { color: var(--vermillion); }
   </div>
 </header>
 
-<!-- ════════════════════════════════════════════ HERO ═════════════════════ -->
+<!-- ─── HERO ────────────────────────────────────────────────────────────── -->
 <section id="hero">
+  <div class="hero-bg"></div>
   <div class="shell">
     <div class="hero-grid">
+
       <div>
-        <div class="hero-eyebrow-row">
-          <span class="dot"></span>
-          <span><span class="v">claude code plugin</span> &nbsp;&middot;&nbsp; v3.3.0 &middot; mit</span>
+        <div class="hero-tag">
+          <span class="pulse"></span>
+          <span>Claude Code plugin · v3.3.0 · MIT</span>
         </div>
-        <h1 class="hero-title">
-          A development team,<br>
-          <em>orchestrated.</em>
+
+        <h1 class="hero">
+          An <em>engineering team</em><br>
+          in your terminal.
         </h1>
+
         <p class="hero-lede">
-          Nine specialist agents. Twenty-three engineering skills. Thirteen sprint commands.
-          An architecture-first workflow where Linear is the source of truth and drift is caught
-          before it ships. One install &mdash; batteries included.
+          sprint-workflow is a Claude Code plugin that turns one AI assistant into a
+          coordinated team. A sprint lead orchestrates nine specialist agents &mdash;
+          backend, frontend, tests, DBA, security, docs &mdash; while the work plan
+          and every status change live in Linear, where your team already looks.
         </p>
-        <div class="hero-cta-row">
+
+        <div class="hero-cta">
           <a href="#install" class="btn btn-primary">
             Install in Claude Code
-            <span class="arr">→</span>
+            <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M2 5.5h7M5.5 2L9 5.5L5.5 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </a>
-          <a href="https://github.com/rynhardt-potgieter/sprint_workflow" class="btn btn-ghost">
-            Read the source
-            <span class="arr">↗</span>
-          </a>
+          <a href="#what" class="btn btn-ghost">See how it works</a>
         </div>
-        <div class="hero-stats">
-          <div class="hero-stat">
-            <div class="hero-stat-num">9</div>
-            <div class="hero-stat-label">specialist&nbsp;agents</div>
-          </div>
-          <div class="hero-stat">
-            <div class="hero-stat-num">23</div>
-            <div class="hero-stat-label">engineering&nbsp;skills</div>
-          </div>
-          <div class="hero-stat">
-            <div class="hero-stat-num">13</div>
-            <div class="hero-stat-label">sprint&nbsp;commands</div>
-          </div>
-          <div class="hero-stat">
-            <div class="hero-stat-num">6</div>
-            <div class="hero-stat-label">quality&nbsp;phases</div>
-          </div>
+
+        <div class="hero-trust">
+          <span class="check"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7.5L6 10.5L11 4.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>9 specialist agents</span>
+          <span class="check"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7.5L6 10.5L11 4.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>23 engineering skills</span>
+          <span class="check"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7.5L6 10.5L11 4.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>One install</span>
         </div>
       </div>
 
-      <div class="hero-diagram-card">
-        <span class="diag-tag">fig. 00 / artifacts</span>
-        <!-- Inline SVG: stack-of-artifacts illustration showing what a sprint produces -->
-        <svg viewBox="0 0 360 320" role="img" aria-labelledby="art-title" style="margin-top: 1.5rem;">
-          <title id="art-title">Artifacts a sprint produces: Linear Project, Architecture & Roadmap document, Epic + Task issues, commits</title>
-          <defs>
-            <pattern id="grid-paper" width="20" height="20" patternUnits="userSpaceOnUse">
-              <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#E5DFD0" stroke-width="0.5"/>
-            </pattern>
-          </defs>
-          <rect width="360" height="320" fill="url(#grid-paper)"/>
-          <!-- Linear Project (back card, slightly tilted) -->
-          <g transform="translate(40 170) rotate(-4)">
-            <rect width="240" height="120" fill="#FBF9F4" stroke="#1A1A1C" stroke-width="1"/>
-            <rect width="240" height="6" fill="#B83227"/>
-            <text x="20" y="34" font-family="JetBrains Mono, monospace" font-size="9" font-weight="700" fill="#7A7A82" letter-spacing="1">PROJECT</text>
-            <text x="20" y="60" font-family="Instrument Serif, serif" font-size="20" fill="#1A1A1C">Order rewrite</text>
-            <line x1="20" y1="78" x2="220" y2="78" stroke="#D9D2C2"/>
-            <text x="20" y="98" font-family="JetBrains Mono, monospace" font-size="10" fill="#4A4A50">4 epics &middot; 35 tasks</text>
-          </g>
-          <!-- Document (middle card) -->
-          <g transform="translate(60 100) rotate(2)">
-            <rect width="220" height="100" fill="#FBF9F4" stroke="#1A1A1C" stroke-width="1"/>
-            <rect width="220" height="6" fill="#3A5A40"/>
-            <text x="20" y="32" font-family="JetBrains Mono, monospace" font-size="9" font-weight="700" fill="#7A7A82" letter-spacing="1">DOCUMENT</text>
-            <text x="20" y="58" font-family="Instrument Serif, serif" font-style="italic" font-size="18" fill="#1A1A1C">Architecture &amp; Roadmap</text>
-            <line x1="20" y1="74" x2="200" y2="74" stroke="#D9D2C2"/>
-            <text x="20" y="92" font-family="JetBrains Mono, monospace" font-size="9" fill="#4A4A50">C4 &middot; ADR &middot; arc42</text>
-          </g>
-          <!-- Epic (top card) -->
-          <g transform="translate(80 30) rotate(-2)">
-            <rect width="200" height="92" fill="#FBF9F4" stroke="#1A1A1C" stroke-width="1"/>
-            <rect width="200" height="6" fill="#4A8C5F"/>
-            <text x="18" y="30" font-family="JetBrains Mono, monospace" font-size="9" font-weight="700" fill="#7A7A82" letter-spacing="1">EPIC &middot; PHASE 1</text>
-            <text x="18" y="54" font-family="Instrument Serif, serif" font-size="18" fill="#1A1A1C">Catalog ingestion</text>
-            <text x="18" y="78" font-family="JetBrains Mono, monospace" font-size="9" fill="#4A4A50">8 tasks &middot; backend + db + ui</text>
-          </g>
-          <!-- corner markers -->
-          <g stroke="#1A1A1C" stroke-width="1" fill="none">
-            <path d="M 8 8 L 8 22 M 8 8 L 22 8"/>
-            <path d="M 352 8 L 338 8 M 352 8 L 352 22"/>
-            <path d="M 8 312 L 8 298 M 8 312 L 22 312"/>
-            <path d="M 352 312 L 338 312 M 352 312 L 352 298"/>
-          </g>
-        </svg>
-        <div class="diag-cap">a sprint produces these artifacts in linear &mdash; not a markdown file in your repo.</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Lifecycle: full-width band, distinctive treatment -->
-  <div class="hero-lifecycle-row">
-    <div class="hero-lifecycle-shell">
-      <div class="hero-lifecycle-head">
-        <div>
-          <span class="eyebrow"><span class="num">00</span><span class="rule"></span>lifecycle</span>
-          <div class="t" style="margin-top: 0.6rem;">From blank context to shipped code.</div>
+      <!-- ─── SPRINT DASHBOARD MOCKUP — orchestration in action ────────── -->
+      <div class="sprint-dash" role="img" aria-label="Sprint dashboard mockup showing the orchestration: a sprint lead, four agents working in parallel with their current tasks, and an activity feed">
+        <div class="dash-bar">
+          <span class="ts"><span></span><span></span><span></span></span>
+          claude-code &middot; /sprint-start
+          <span class="meta">running</span>
         </div>
-        <span class="s">three commands &middot; six phases &middot; one source of truth</span>
+
+        <div class="dash-header">
+          <div>
+            <div class="dash-title">
+              <span class="label">SPRINT</span>
+              <span class="name">Order rewrite &middot; Phase 1</span>
+            </div>
+            <div class="dash-progress" style="margin-top: 0.5rem;">
+              <div class="dash-progress-bar"><span></span></div>
+              <span>5 / 8 tasks</span>
+            </div>
+          </div>
+          <span class="dash-phase">Phase 1 &middot; Implement</span>
+        </div>
+
+        <div class="dash-agents">
+          <!-- backend-dev — running on Codex -->
+          <div class="dash-agent live">
+            <div class="dash-agent-icon" style="background: linear-gradient(135deg,#22c55e,#16a34a);">B</div>
+            <div class="dash-agent-body">
+              <div class="dash-agent-name">backend-dev <span class="badge codex">Codex</span></div>
+              <div class="dash-agent-task"><span class="id">PROJ-122</span> · Catalog ingestion API</div>
+            </div>
+            <div class="dash-agent-status running"><span class="dot"></span>running</div>
+          </div>
+
+          <!-- frontend-dev — running on Codex -->
+          <div class="dash-agent live">
+            <div class="dash-agent-icon" style="background: linear-gradient(135deg,#3b82f6,#2563eb);">F</div>
+            <div class="dash-agent-body">
+              <div class="dash-agent-name">frontend-dev <span class="badge codex">Codex</span></div>
+              <div class="dash-agent-task"><span class="id">PROJ-125</span> · Catalog page</div>
+            </div>
+            <div class="dash-agent-status running"><span class="dot"></span>running</div>
+          </div>
+
+          <!-- dba-agent — done, ran on Opus -->
+          <div class="dash-agent">
+            <div class="dash-agent-icon" style="background: linear-gradient(135deg,#a855f7,#7e22ce);">D</div>
+            <div class="dash-agent-body">
+              <div class="dash-agent-name">dba-agent <span class="badge opus">Opus</span></div>
+              <div class="dash-agent-task"><span class="id">PROJ-123</span> · Migration: catalog table</div>
+            </div>
+            <div class="dash-agent-status done"><span class="dot"></span>done</div>
+          </div>
+
+          <!-- test-writer — queued -->
+          <div class="dash-agent">
+            <div class="dash-agent-icon" style="background: linear-gradient(135deg,#f59e0b,#d97706);">T</div>
+            <div class="dash-agent-body">
+              <div class="dash-agent-name">test-writer <span class="badge codex">Codex</span></div>
+              <div class="dash-agent-task">queued for Phase 2</div>
+            </div>
+            <div class="dash-agent-status queued"><span class="dot"></span>queued</div>
+          </div>
+
+          <!-- security-agent — queued, opus only -->
+          <div class="dash-agent">
+            <div class="dash-agent-icon" style="background: linear-gradient(135deg,#ef4444,#b91c1c);">S</div>
+            <div class="dash-agent-body">
+              <div class="dash-agent-name">security-agent <span class="badge opus">Opus</span></div>
+              <div class="dash-agent-task">queued for Phase 3</div>
+            </div>
+            <div class="dash-agent-status queued"><span class="dot"></span>queued</div>
+          </div>
+        </div>
+
+        <div class="dash-feed">
+          <div class="dash-feed-head">activity</div>
+          <div class="feed-line"><span class="ts">14:23</span><span class="who">sprint-lead</span><span class="what">→ test-writer queued; waits on PROJ-122</span></div>
+          <div class="feed-line"><span class="ts">14:21</span><span class="who cdx">codex</span><span class="what">PROJ-123 HANDOFF · 4 files · build pass</span></div>
+          <div class="feed-line"><span class="ts">14:18</span><span class="who">sprint-lead</span><span class="what">PROJ-123 In Progress → In Review</span></div>
+        </div>
       </div>
 
-      <!-- Lifecycle SVG: timeline of three stations with phases unfolding below -->
-      <div style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
-        <svg viewBox="0 0 1180 280" preserveAspectRatio="xMinYMid meet" role="img" aria-labelledby="lif-title" style="display:block; min-width: 720px; max-width: 1180px; margin: 0 auto;">
-          <title id="lif-title">Lifecycle: /sprint-architect, /sprint-plan, /sprint-start with the six execution phases</title>
-          <defs>
-            <marker id="lif-tip" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
-              <path d="M 0 0 L 10 5 L 0 10 z" fill="#1A1A1C"/>
-            </marker>
-          </defs>
-
-          <!-- top horizontal beam — the "track" -->
-          <line x1="80" y1="60" x2="1100" y2="60" stroke="#1A1A1C" stroke-width="1"/>
-
-          <!-- station 1: /sprint-architect -->
-          <g transform="translate(160 60)">
-            <circle r="9" fill="#B83227"/>
-            <circle r="4" fill="#F7F4ED"/>
-            <text y="-22" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700" fill="#7A7A82" letter-spacing="1">STATION 01</text>
-            <text y="38" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="13" font-weight="600" fill="#1A1A1C">/sprint-architect</text>
-            <text y="58" text-anchor="middle" font-family="Inter Tight, sans-serif" font-size="11" fill="#4A4A50">linear project + doc + epics</text>
-          </g>
-
-          <!-- station 2: /sprint-plan -->
-          <g transform="translate(560 60)">
-            <circle r="9" fill="#B83227"/>
-            <circle r="4" fill="#F7F4ED"/>
-            <text y="-22" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700" fill="#7A7A82" letter-spacing="1">STATION 02</text>
-            <text y="38" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="13" font-weight="600" fill="#1A1A1C">/sprint-plan + enrich</text>
-            <text y="58" text-anchor="middle" font-family="Inter Tight, sans-serif" font-size="11" fill="#4A4A50">epic → tasks · drift self-check</text>
-          </g>
-
-          <!-- station 3: /sprint-start -->
-          <g transform="translate(960 60)">
-            <circle r="9" fill="#1A1A1C"/>
-            <circle r="4" fill="#F7F4ED"/>
-            <text y="-22" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700" fill="#7A7A82" letter-spacing="1">STATION 03</text>
-            <text y="38" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="13" font-weight="600" fill="#1A1A1C">/sprint-start</text>
-            <text y="58" text-anchor="middle" font-family="Inter Tight, sans-serif" font-size="11" fill="#4A4A50">six phases &middot; build → ship</text>
-          </g>
-
-          <!-- terminus arrow at far right -->
-          <line x1="1080" y1="60" x2="1100" y2="60" stroke="#1A1A1C" stroke-width="1" marker-end="url(#lif-tip)"/>
-          <text x="1110" y="64" font-family="Instrument Serif, serif" font-style="italic" font-size="14" fill="#B83227">ship</text>
-
-          <!-- vertical drop from station 3 down to phase strip -->
-          <line x1="960" y1="100" x2="960" y2="160" stroke="#1A1A1C" stroke-width="1" stroke-dasharray="3 3"/>
-
-          <!-- phase strip: six phases in a horizontal table -->
-          <g transform="translate(80 170)">
-            <line x1="0" y1="0" x2="1020" y2="0" stroke="#1A1A1C" stroke-width="1"/>
-            <line x1="0" y1="80" x2="1020" y2="80" stroke="#1A1A1C" stroke-width="1"/>
-
-            <!-- six column dividers -->
-            <g stroke="#D9D2C2" stroke-width="0.75">
-              <line x1="170" y1="0" x2="170" y2="80"/>
-              <line x1="340" y1="0" x2="340" y2="80"/>
-              <line x1="510" y1="0" x2="510" y2="80"/>
-              <line x1="680" y1="0" x2="680" y2="80"/>
-              <line x1="850" y1="0" x2="850" y2="80"/>
-            </g>
-
-            <!-- column labels -->
-            <g font-family="JetBrains Mono, monospace" font-size="10" font-weight="700" fill="#B83227" letter-spacing="1">
-              <text x="14" y="22">PHASE 01</text>
-              <text x="184" y="22">PHASE 02</text>
-              <text x="354" y="22">PHASE 03</text>
-              <text x="524" y="22">PHASE 04</text>
-              <text x="694" y="22">PHASE 05</text>
-              <text x="864" y="22">PHASE 06</text>
-            </g>
-            <g font-family="Inter Tight, sans-serif" font-size="13" font-weight="600" fill="#1A1A1C">
-              <text x="14" y="44">Implement</text>
-              <text x="184" y="44">Tests</text>
-              <text x="354" y="44">QA + Review</text>
-              <text x="524" y="44">Fix loop</text>
-              <text x="694" y="44">Docs</text>
-              <text x="864" y="44">Ship</text>
-            </g>
-            <g font-family="Inter Tight, sans-serif" font-size="11" fill="#4A4A50">
-              <text x="14" y="64">backend &middot; frontend</text>
-              <text x="184" y="64">test-writer + e2e</text>
-              <text x="354" y="64">drift check &middot; ⚡ codex</text>
-              <text x="524" y="64">surgical → ⚡ codex</text>
-              <text x="694" y="64">changelog &middot; readme</text>
-              <text x="864" y="64">git/tfs &middot; linear → done</text>
-            </g>
-          </g>
-
-          <!-- fix-loop arc back from phase 4 to phase 1 -->
-          <path d="M 590 250 Q 380 268 220 252 L 168 252" fill="none" stroke="#B83227" stroke-width="1" stroke-dasharray="3 3" marker-end="url(#lif-tip-r)"/>
-          <text x="395" y="270" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#B83227" letter-spacing="0.5">retry until clean</text>
-
-          <defs>
-            <marker id="lif-tip-r" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
-              <path d="M 0 0 L 10 5 L 0 10 z" fill="#B83227"/>
-            </marker>
-          </defs>
-        </svg>
-      </div>
     </div>
   </div>
 </section>
 
-<!-- ════════════════════════════════════════════ WHAT IT DOES ═════════════ -->
+<!-- ─── WHAT IT ACTUALLY DOES ─────────────────────────────────────────────── -->
 <section id="what">
   <div class="shell">
     <div class="section-head">
-      <span class="eyebrow"><span class="num">01</span><span class="rule"></span>what it does</span>
-      <h2>Three jobs.<br><em>One install.</em></h2>
-      <p>Sprint-workflow doesn't replace Claude Code &mdash; it directs it. The plugin enforces a structured lifecycle so Claude doesn't write whatever it feels like at the moment, and so the work it produces is traceable, reviewable, and tied to a real plan.</p>
+      <div class="eyebrow">01 · what it actually does</div>
+      <h2>Claude Code is one developer.<br>This makes it <em>a team</em>.</h2>
+      <p>
+        Out of the box, an AI coding assistant is one person who tries to do
+        everything in one shot. That works for a snippet. It falls apart on
+        anything multi-file, multi-day, or multi-feature. sprint-workflow
+        introduces structure: planning, role specialisation, parallel
+        execution, gates, and a shared place for the work to live.
+      </p>
     </div>
 
-    <div class="three-grid">
-      <div class="card">
-        <div class="card-num">A &nbsp;/&nbsp; ARCHITECT</div>
-        <h3>Turn a conversation into a <em>roadmap.</em></h3>
-        <p><code>/sprint-architect</code> takes any context (the current session, a PRD, attached docs) and produces a Linear Project, an Architecture &amp; Roadmap document (C4 + ADR + arc42), and Epic issues for each phase. Asks ≤5 clarifying questions, each with a "Choose for me" option.</p>
+    <div class="ba-grid">
+      <div class="ba before">
+        <div class="ba-tag">Without sprint-workflow</div>
+        <h3>One generalist, one shot</h3>
+        <p>You ask Claude to "build the catalog feature." It produces a wall of code, possibly working, probably with the patterns it felt like using today.</p>
+        <ul>
+          <li>One agent, no specialisation</li>
+          <li>No persistent plan &mdash; nothing to come back to next session</li>
+          <li>No second pair of eyes on the output</li>
+          <li>Architectural decisions disappear into the chat history</li>
+          <li>You audit by re-reading the diff</li>
+        </ul>
       </div>
-      <div class="card">
-        <div class="card-num">B &nbsp;/&nbsp; ORCHESTRATE</div>
-        <h3>The sprint lead <em>never writes code.</em></h3>
-        <p>It dispatches. Backend, frontend, tests, security, DBA, docs, and product-management agents run in parallel where they can, sequentially where they must. Codex handles surgical execution; Claude reviews. Status moves through Linear, comments are attributed, the user can step in.</p>
-      </div>
-      <div class="card">
-        <div class="card-num">C &nbsp;/&nbsp; VERIFY</div>
-        <h3>Build, lint, test, review &mdash; <em>then</em> ship.</h3>
-        <p>Phase 3 runs build + lint + tests + spec compliance + a Codex adversarial review + a Claude code review &mdash; in parallel. Architecture drift is caught and classified: drift = warning, erosion of an Accepted ADR = blocking. Fix loop runs until clean.</p>
+
+      <div class="ba after">
+        <div class="ba-tag">With sprint-workflow</div>
+        <h3>A coordinated team</h3>
+        <p>You run <code>/sprint-architect</code>, then <code>/sprint-plan</code>, then <code>/sprint-start</code>. Nine specialist agents run in parallel under a sprint lead. Every step is tracked.</p>
+        <ul>
+          <li>Specialist agents per domain &mdash; backend, frontend, tests, DBA, security, docs</li>
+          <li>Plans, tasks, decisions live in Linear &mdash; not in chat history</li>
+          <li>QA + code review run automatically before anything ships</li>
+          <li>Architectural drift is caught and labelled before merge</li>
+          <li>You audit by reading a board, not a transcript</li>
+        </ul>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ════════════════════════════════════════════ ORCHESTRATION ════════════ -->
-<section id="orchestration">
+<!-- ─── THE TEAM ──────────────────────────────────────────────────────────── -->
+<section id="team">
   <div class="shell">
     <div class="section-head">
-      <span class="eyebrow"><span class="num">02</span><span class="rule"></span>orchestration</span>
-      <h2>The sprint lead orchestrates &mdash;<br><em>nothing more, nothing less.</em></h2>
-      <p>The orchestrator never writes a line of code. Its only job is to dispatch the right agent with the right context, track results, retry failures, and finalize tracking. That separation is what keeps work traceable and quality high.</p>
+      <div class="eyebrow">02 · the team</div>
+      <h2>Nine specialists, one <em>sprint lead</em>.</h2>
+      <p>Each agent has a focused responsibility and reads its domain skills before writing a line of code. The sprint lead never writes code itself &mdash; it dispatches, tracks, and retries.</p>
     </div>
 
-    <div class="diagram">
-      <span class="corner-tl"></span><span class="corner-tr"></span><span class="corner-bl"></span><span class="corner-br"></span>
-      <div class="diagram-meta">
-        <span class="ttl">fig. 02 &middot; agent network</span>
-        <span>orchestrator + 9 specialists, by responsibility</span>
+    <!-- BADGE LEGEND — explains what Opus and Codex mean -->
+    <div class="role-legend">
+      <div class="role-legend-item">
+        <span class="badge opus">Opus</span>
+        <p><strong>Anthropic Claude Opus.</strong> The default model for every agent. Strong reasoning, full context, what every agent uses if Codex isn't installed.</p>
       </div>
-      <div class="diagram-svg-frame">
-        <svg viewBox="0 0 980 580" role="img" aria-labelledby="orch-title">
-          <title id="orch-title">Sprint lead orchestrator at top, three columns of specialist agents below by responsibility (planning, implement, verify). Codex-eligible agents marked with a lightning glyph.</title>
-          <defs>
-            <marker id="orc-tip" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto">
-              <path d="M 0 0 L 10 5 L 0 10 z" fill="#1A1A1C"/>
-            </marker>
-          </defs>
-
-          <!-- ORCHESTRATOR header bar -->
-          <g transform="translate(40 30)">
-            <rect width="900" height="86" fill="#1A1A1C"/>
-            <rect width="900" height="3" fill="#B83227"/>
-            <text x="32" y="38" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700" fill="#B83227" letter-spacing="1.5">ORCHESTRATOR &middot; DISPATCHES &middot; TRACKS &middot; RETRIES</text>
-            <text x="32" y="68" font-family="Instrument Serif, serif" font-style="italic" font-size="32" fill="#F7F4ED">Sprint Lead</text>
-            <text x="240" y="68" font-family="Instrument Serif, serif" font-size="18" fill="rgba(247,244,237,0.6)">— never writes code.</text>
-            <text x="600" y="60" font-family="JetBrains Mono, monospace" font-size="10" fill="rgba(247,244,237,0.5)">opus &middot; main session</text>
-          </g>
-
-          <!-- three vertical lines down -->
-          <g stroke="#1A1A1C" stroke-width="1" fill="none">
-            <line x1="180" y1="116" x2="180" y2="160" marker-end="url(#orc-tip)"/>
-            <line x1="490" y1="116" x2="490" y2="160" marker-end="url(#orc-tip)"/>
-            <line x1="800" y1="116" x2="800" y2="160" marker-end="url(#orc-tip)"/>
-          </g>
-
-          <!-- COLUMN A: PLANNING -->
-          <g transform="translate(40 170)">
-            <rect width="280" height="380" fill="#FBF9F4" stroke="#1A1A1C"/>
-            <rect width="280" height="2" fill="#B83227"/>
-            <text x="20" y="34" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700" fill="#B83227" letter-spacing="1.5">A &middot; PLANNING</text>
-            <text x="20" y="56" font-family="Instrument Serif, serif" font-style="italic" font-size="16" fill="#1A1A1C">phase 0 &middot; pre-flight</text>
-
-            <!-- agent node: product-manager -->
-            <g transform="translate(20 80)">
-              <rect width="240" height="56" fill="#F7F4ED" stroke="#1A1A1C" stroke-width="1"/>
-              <rect x="0" width="3" height="56" fill="#B83227"/>
-              <text x="14" y="22" font-family="JetBrains Mono, monospace" font-size="13" font-weight="600" fill="#1A1A1C">product-manager</text>
-              <text x="14" y="40" font-family="JetBrains Mono, monospace" font-size="10" fill="#7A7A82">opus &middot; architecture mode</text>
-            </g>
-
-            <text x="20" y="172" font-family="Inter Tight, sans-serif" font-size="12" fill="#4A4A50">Reads specs, writes user stories with</text>
-            <text x="20" y="188" font-family="Inter Tight, sans-serif" font-size="12" fill="#4A4A50">INVEST + AC, runs drift self-check,</text>
-            <text x="20" y="204" font-family="Inter Tight, sans-serif" font-size="12" fill="#4A4A50">groups into parallel/sequential.</text>
-
-            <line x1="20" y1="240" x2="260" y2="240" stroke="#D9D2C2" stroke-dasharray="2 3"/>
-            <text x="20" y="262" font-family="JetBrains Mono, monospace" font-size="9" font-weight="700" fill="#7A7A82" letter-spacing="1">RUNS IN</text>
-            <g font-family="JetBrains Mono, monospace" font-size="11" fill="#1A1A1C">
-              <text x="20" y="284">/sprint-architect</text>
-              <text x="20" y="304">/sprint-plan</text>
-              <text x="20" y="324">/sprint-grill</text>
-              <text x="20" y="344">/sprint-retro</text>
-            </g>
-          </g>
-
-          <!-- COLUMN B: IMPLEMENT -->
-          <g transform="translate(340 170)">
-            <rect width="300" height="380" fill="#FBF9F4" stroke="#1A1A1C"/>
-            <rect width="300" height="2" fill="#B83227"/>
-            <text x="20" y="34" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700" fill="#B83227" letter-spacing="1.5">B &middot; IMPLEMENT</text>
-            <text x="20" y="56" font-family="Instrument Serif, serif" font-style="italic" font-size="16" fill="#1A1A1C">phases 1–2 &middot; parallel</text>
-
-            <!-- 6 agents in 2x3 grid -->
-            <g transform="translate(20 80)">
-              <!-- backend-dev (codex) -->
-              <g>
-                <rect width="130" height="48" fill="#F7F4ED" stroke="#1A1A1C"/>
-                <rect width="3" height="48" fill="#3A5A40"/>
-                <text x="12" y="20" font-family="JetBrains Mono, monospace" font-size="11" font-weight="600" fill="#1A1A1C">backend-dev</text>
-                <text x="12" y="36" font-family="JetBrains Mono, monospace" font-size="9" fill="#3A5A40" font-weight="700">⚡ CODEX-ELIG</text>
-              </g>
-              <!-- frontend-dev (codex) -->
-              <g transform="translate(140 0)">
-                <rect width="120" height="48" fill="#F7F4ED" stroke="#1A1A1C"/>
-                <rect width="3" height="48" fill="#3A5A40"/>
-                <text x="12" y="20" font-family="JetBrains Mono, monospace" font-size="11" font-weight="600" fill="#1A1A1C">frontend-dev</text>
-                <text x="12" y="36" font-family="JetBrains Mono, monospace" font-size="9" fill="#3A5A40" font-weight="700">⚡ CODEX-ELIG</text>
-              </g>
-              <!-- dba-agent -->
-              <g transform="translate(0 56)">
-                <rect width="130" height="48" fill="#F7F4ED" stroke="#1A1A1C"/>
-                <rect width="3" height="48" fill="#1A1A1C"/>
-                <text x="12" y="20" font-family="JetBrains Mono, monospace" font-size="11" font-weight="600" fill="#1A1A1C">dba-agent</text>
-                <text x="12" y="36" font-family="JetBrains Mono, monospace" font-size="9" fill="#7A7A82">claude opus</text>
-              </g>
-              <!-- security-agent -->
-              <g transform="translate(140 56)">
-                <rect width="120" height="48" fill="#F7F4ED" stroke="#1A1A1C"/>
-                <rect width="3" height="48" fill="#1A1A1C"/>
-                <text x="12" y="20" font-family="JetBrains Mono, monospace" font-size="11" font-weight="600" fill="#1A1A1C">security</text>
-                <text x="12" y="36" font-family="JetBrains Mono, monospace" font-size="9" fill="#7A7A82">claude opus</text>
-              </g>
-              <!-- test-writer (codex) -->
-              <g transform="translate(0 112)">
-                <rect width="130" height="48" fill="#F7F4ED" stroke="#1A1A1C"/>
-                <rect width="3" height="48" fill="#3A5A40"/>
-                <text x="12" y="20" font-family="JetBrains Mono, monospace" font-size="11" font-weight="600" fill="#1A1A1C">test-writer</text>
-                <text x="12" y="36" font-family="JetBrains Mono, monospace" font-size="9" fill="#3A5A40" font-weight="700">⚡ CODEX-ELIG</text>
-              </g>
-              <!-- docs-agent -->
-              <g transform="translate(140 112)">
-                <rect width="120" height="48" fill="#F7F4ED" stroke="#1A1A1C"/>
-                <rect width="3" height="48" fill="#1A1A1C"/>
-                <text x="12" y="20" font-family="JetBrains Mono, monospace" font-size="11" font-weight="600" fill="#1A1A1C">docs-agent</text>
-                <text x="12" y="36" font-family="JetBrains Mono, monospace" font-size="9" fill="#7A7A82">claude sonnet</text>
-              </g>
-            </g>
-
-            <line x1="20" y1="262" x2="280" y2="262" stroke="#D9D2C2" stroke-dasharray="2 3"/>
-            <text x="20" y="284" font-family="JetBrains Mono, monospace" font-size="9" font-weight="700" fill="#7A7A82" letter-spacing="1">PARALLEL WHERE POSSIBLE</text>
-            <text x="20" y="306" font-family="Inter Tight, sans-serif" font-size="12" fill="#4A4A50">Sprint lead dispatches per the plan's</text>
-            <text x="20" y="322" font-family="Inter Tight, sans-serif" font-size="12" fill="#4A4A50">parallel groups. Codex-eligible tasks</text>
-            <text x="20" y="338" font-family="Inter Tight, sans-serif" font-size="12" fill="#4A4A50">route to <tspan font-family="JetBrains Mono, monospace" fill="#1A1A1C">/codex:rescue</tspan>.</text>
-          </g>
-
-          <!-- COLUMN C: VERIFY -->
-          <g transform="translate(660 170)">
-            <rect width="280" height="380" fill="#FBF9F4" stroke="#1A1A1C"/>
-            <rect width="280" height="2" fill="#B83227"/>
-            <text x="20" y="34" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700" fill="#B83227" letter-spacing="1.5">C &middot; VERIFY</text>
-            <text x="20" y="56" font-family="Instrument Serif, serif" font-style="italic" font-size="16" fill="#1A1A1C">phase 3 &middot; quality gates</text>
-
-            <g transform="translate(20 80)">
-              <!-- qa-agent (codex-replaces) -->
-              <g>
-                <rect width="240" height="48" fill="#F7F4ED" stroke="#1A1A1C"/>
-                <rect width="3" height="48" fill="#B83227"/>
-                <text x="12" y="20" font-family="JetBrains Mono, monospace" font-size="11" font-weight="600" fill="#1A1A1C">qa-agent</text>
-                <text x="12" y="36" font-family="JetBrains Mono, monospace" font-size="9" fill="#B83227" font-weight="700">⚡ CODEX REPLACES WHEN OPTED</text>
-              </g>
-              <!-- qa-playwright -->
-              <g transform="translate(0 56)">
-                <rect width="240" height="48" fill="#F7F4ED" stroke="#1A1A1C"/>
-                <rect width="3" height="48" fill="#1A1A1C"/>
-                <text x="12" y="20" font-family="JetBrains Mono, monospace" font-size="11" font-weight="600" fill="#1A1A1C">qa-playwright</text>
-                <text x="12" y="36" font-family="JetBrains Mono, monospace" font-size="9" fill="#7A7A82">claude sonnet &middot; e2e</text>
-              </g>
-              <!-- code-reviewer -->
-              <g transform="translate(0 112)">
-                <rect width="240" height="48" fill="#F7F4ED" stroke="#1A1A1C"/>
-                <rect width="3" height="48" fill="#1A1A1C"/>
-                <text x="12" y="20" font-family="JetBrains Mono, monospace" font-size="11" font-weight="600" fill="#1A1A1C">code-reviewer</text>
-                <text x="12" y="36" font-family="JetBrains Mono, monospace" font-size="9" fill="#7A7A82">always claude</text>
-              </g>
-            </g>
-
-            <line x1="20" y1="262" x2="260" y2="262" stroke="#D9D2C2" stroke-dasharray="2 3"/>
-            <text x="20" y="284" font-family="JetBrains Mono, monospace" font-size="9" font-weight="700" fill="#7A7A82" letter-spacing="1">FIX ROUTING</text>
-            <g font-family="Inter Tight, sans-serif" font-size="12">
-              <text x="20" y="306" fill="#4A4A50">surgical (1 file)</text>
-              <text x="20" y="322" font-family="JetBrains Mono, monospace" font-size="11" fill="#3A5A40">→ /codex:rescue</text>
-              <text x="20" y="346" fill="#4A4A50">architectural</text>
-              <text x="20" y="362" font-family="JetBrains Mono, monospace" font-size="11" fill="#1A1A1C">→ original claude agent</text>
-            </g>
-          </g>
-        </svg>
+      <div class="role-legend-item">
+        <span class="badge codex">Codex</span>
+        <p><strong>OpenAI Codex CLI.</strong> Optional. When installed, eligible tasks route to Codex first &mdash; cheaper and faster for scoped work like CRUD endpoints, migrations, boilerplate. Falls back to Opus automatically if Codex isn't available.</p>
       </div>
-      <div class="scroll-cue">↔ swipe to see the full network</div>
     </div>
 
-    <div class="pull">
-      <strong>Why this matters.</strong> Most "AI agent" setups conflate planning with execution. Here they're separate: the orchestrator picks the work, agents do the work, gates validate the work. When something fails, the orchestrator routes the fix &mdash; surgical fixes go to Codex, architectural fixes go back to the original agent. No task ships with known violations.
-      <span class="by">— from the plugin's <code style="font-family: var(--mono);">CLAUDE.md</code></span>
+    <div class="agents">
+      <!-- backend-dev -->
+      <div class="agent">
+        <div class="agent-top">
+          <div class="agent-icon" style="background: linear-gradient(135deg,#22c55e,#16a34a);">B</div>
+          <div class="agent-id">
+            <span class="name">backend-dev</span>
+            <span class="role">Server-side code</span>
+          </div>
+        </div>
+        <div class="agent-badges">
+          <span class="badge opus">Opus</span>
+          <span class="badge codex">Codex</span>
+        </div>
+        <p>API endpoints, services, middleware, infrastructure. Stack-agnostic &mdash; .NET, Node, Python, Go, Rust.</p>
+      </div>
+
+      <!-- frontend-dev -->
+      <div class="agent">
+        <div class="agent-top">
+          <div class="agent-icon" style="background: linear-gradient(135deg,#3b82f6,#2563eb);">F</div>
+          <div class="agent-id">
+            <span class="name">frontend-dev</span>
+            <span class="role">Client-side UI</span>
+          </div>
+        </div>
+        <div class="agent-badges">
+          <span class="badge opus">Opus</span>
+          <span class="badge codex">Codex</span>
+        </div>
+        <p>Components, pages, styling, state management, API integration. React, Vue, Svelte, Angular.</p>
+      </div>
+
+      <!-- test-writer -->
+      <div class="agent">
+        <div class="agent-top">
+          <div class="agent-icon" style="background: linear-gradient(135deg,#f59e0b,#d97706);">T</div>
+          <div class="agent-id">
+            <span class="name">test-writer</span>
+            <span class="role">Tests</span>
+          </div>
+        </div>
+        <div class="agent-badges">
+          <span class="badge opus">Opus</span>
+          <span class="badge codex">Codex</span>
+        </div>
+        <p>Unit, integration, snapshot tests in any framework. Detects test setup. Regression-test-first for bug fixes.</p>
+      </div>
+
+      <!-- dba-agent -->
+      <div class="agent">
+        <div class="agent-top">
+          <div class="agent-icon" style="background: linear-gradient(135deg,#a855f7,#7e22ce);">D</div>
+          <div class="agent-id">
+            <span class="name">dba-agent</span>
+            <span class="role">Schema &amp; migrations</span>
+          </div>
+        </div>
+        <div class="agent-badges">
+          <span class="badge opus">Opus</span>
+        </div>
+        <p>Schema design, migrations, indexing, expand-contract patterns for zero-downtime change, PII compliance audits.</p>
+      </div>
+
+      <!-- security-agent -->
+      <div class="agent">
+        <div class="agent-top">
+          <div class="agent-icon" style="background: linear-gradient(135deg,#ef4444,#b91c1c);">S</div>
+          <div class="agent-id">
+            <span class="name">security-agent</span>
+            <span class="role">Audit &amp; harden</span>
+          </div>
+        </div>
+        <div class="agent-badges">
+          <span class="badge opus">Opus</span>
+        </div>
+        <p>OWASP Top 10 audits, auth/authz patterns, secrets and PII scanning, dependency vetting, audit trails.</p>
+      </div>
+
+      <!-- qa-agent -->
+      <div class="agent">
+        <div class="agent-top">
+          <div class="agent-icon" style="background: linear-gradient(135deg,#06b6d4,#0891b2);">Q</div>
+          <div class="agent-id">
+            <span class="name">qa-agent</span>
+            <span class="role">Quality gate</span>
+          </div>
+        </div>
+        <div class="agent-badges">
+          <span class="badge opus">Opus</span>
+          <span class="badge codex">Codex</span>
+        </div>
+        <p>Build, lint, type-check, tests. Spec compliance. Architecture drift checks. When Codex is installed, replaced entirely by Codex's adversarial review &mdash; cross-model verification.</p>
+      </div>
+
+      <!-- qa-playwright -->
+      <div class="agent">
+        <div class="agent-top">
+          <div class="agent-icon" style="background: linear-gradient(135deg,#14b8a6,#0d9488);">P</div>
+          <div class="agent-id">
+            <span class="name">qa-playwright</span>
+            <span class="role">E2E + accessibility</span>
+          </div>
+        </div>
+        <div class="agent-badges">
+          <span class="badge opus">Opus</span>
+        </div>
+        <p>Browser automation, visual regression, accessibility (axe-core). Page Object Model patterns.</p>
+      </div>
+
+      <!-- docs-agent -->
+      <div class="agent">
+        <div class="agent-top">
+          <div class="agent-icon" style="background: linear-gradient(135deg,#ec4899,#db2777);">W</div>
+          <div class="agent-id">
+            <span class="name">docs-agent</span>
+            <span class="role">Documentation</span>
+          </div>
+        </div>
+        <div class="agent-badges">
+          <span class="badge opus">Opus</span>
+        </div>
+        <p>READMEs, technical docs, ADRs (MADR format), changelogs from conventional commits, OpenAPI from code.</p>
+      </div>
+
+      <!-- product-manager -->
+      <div class="agent">
+        <div class="agent-top">
+          <div class="agent-icon" style="background: linear-gradient(135deg,#FF5634,#E03E1A);">M</div>
+          <div class="agent-id">
+            <span class="name">product-manager</span>
+            <span class="role">Planning &amp; architecture</span>
+          </div>
+        </div>
+        <div class="agent-badges">
+          <span class="badge opus">Opus</span>
+        </div>
+        <p>Sprint planning, INVEST validation, MoSCoW prioritization, Given/When/Then acceptance criteria. Architecture mode for <code>/sprint-architect</code>.</p>
+      </div>
     </div>
   </div>
 </section>
 
-<!-- ════════════════════════════════════════════ LINEAR ═══════════════════ -->
+<!-- ─── LIFECYCLE ─────────────────────────────────────────────────────────── -->
+<section id="lifecycle">
+  <div class="shell">
+    <div class="section-head">
+      <div class="eyebrow">03 · the lifecycle</div>
+      <h2>Three commands.<br>Six phases. <em>One source of truth</em>.</h2>
+      <p>You drive the workflow with three commands. Each one expands into a defined sequence of steps, dispatches, and gates. The sprint lead handles the rest.</p>
+    </div>
+
+    <div class="pipe">
+      <div class="pipe-stages">
+        <div class="pipe-stage">
+          <span class="pipe-num">STAGE 01</span>
+          <h4>Architect</h4>
+          <p>Turn any context (this conversation, a PRD, attached docs) into a Linear Project, Architecture &amp; Roadmap document, and Epic issues for each phase. Asks ≤5 clarifying questions.</p>
+          <span class="pipe-cmd">/sprint-architect</span>
+        </div>
+        <div class="pipe-stage">
+          <span class="pipe-num">STAGE 02</span>
+          <h4>Plan &amp; Enrich</h4>
+          <p>Pick an Epic. Break it into tasks with agent assignments and acceptance criteria. Specialist agents enrich with security, DB, and test concerns.</p>
+          <span class="pipe-cmd">/sprint-plan + enrich</span>
+        </div>
+        <div class="pipe-stage terminal">
+          <span class="pipe-num">STAGE 03</span>
+          <h4>Execute &amp; Ship</h4>
+          <p>The sprint lead runs the six phases below: build → test → QA + review → fix → docs → ship. Failures loop back. Linear stays current.</p>
+          <span class="pipe-cmd">/sprint-start</span>
+        </div>
+      </div>
+
+      <div class="pipe-phases">
+        <div class="pipe-phases-head">/sprint-start unfolds into</div>
+        <div class="phase-row">
+          <div class="phase"><div class="pn">PHASE 01</div><div class="pt">Implement</div></div>
+          <div class="phase"><div class="pn">PHASE 02</div><div class="pt">Tests</div></div>
+          <div class="phase"><div class="pn">PHASE 03</div><div class="pt">QA + Review</div></div>
+          <div class="phase"><div class="pn">PHASE 04</div><div class="pt">Fix loop</div></div>
+          <div class="phase"><div class="pn">PHASE 05</div><div class="pt">Docs</div></div>
+          <div class="phase"><div class="pn">PHASE 06</div><div class="pt">Ship</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── LINEAR ────────────────────────────────────────────────────────────── -->
 <section id="linear">
   <div class="shell">
     <div class="section-head">
-      <span class="eyebrow"><span class="num">03</span><span class="rule"></span>linear is the source of truth</span>
-      <h2>The architecture lives where<br>the team <em>already looks.</em></h2>
-      <p>Local <code style="font-family: var(--mono);">docs/architecture.md</code> goes stale within weeks because nobody opens it during day-to-day work. Sprint-workflow puts the architecture &amp; roadmap in a Linear Project Document &mdash; on the page where Epics and Tasks already live &mdash; and links every level back to it.</p>
+      <div class="eyebrow">04 · where the work lives</div>
+      <h2>The plan and the architecture<br>live in <em>Linear</em>.</h2>
+      <p>
+        <strong>Linear</strong> is the project-management tool a lot of engineering teams already use &mdash; like Jira, but built for fast-moving software teams. sprint-workflow integrates with it so the architecture, the sprint plan, and every status change live where the team already looks &mdash; not in a markdown file in the repo that nobody opens.
+      </p>
     </div>
 
-    <div class="diagram">
-      <span class="corner-tl"></span><span class="corner-tr"></span><span class="corner-bl"></span><span class="corner-br"></span>
-      <div class="diagram-meta">
-        <span class="ttl">fig. 03 &middot; project hierarchy</span>
-        <span>linear · everything resolves up to the document</span>
+    <div class="linear-cards">
+      <!-- Project Document -->
+      <div class="lin-card">
+        <div class="lin-bar">
+          <span class="ts"><span></span><span></span><span></span></span>
+          linear.app · order-rewrite · documents
+        </div>
+        <div class="lin-body">
+          <div class="lin-doc-eyebrow">
+            <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true">
+              <path d="M3 2h6l3 3v6H3z M9 2v3h3" stroke="#FF5634" stroke-width="1.3"/>
+            </svg>
+            PROJECT DOCUMENT &middot; v1
+          </div>
+          <h3 class="lin-doc-title">Architecture &amp; Roadmap</h3>
+          <p class="lin-doc-lede">Migrate the legacy monolith order pipeline to a bounded-context architecture, phased over four sprints.</p>
+
+          <div class="lin-section">3 · Containers</div>
+          <div class="lin-line"><span class="key">Orders API</span> &middot; .NET 8 &middot; events to EventBus, SQL to OrdersDB</div>
+          <div class="lin-line"><span class="key">Inventory</span> &middot; .NET 8 &middot; events from Orders</div>
+
+          <div class="lin-section">6 · Architectural decisions</div>
+          <div class="adr">
+            <span class="id">ADR-3</span> &middot; <strong style="color: var(--ink);">Status: Accepted</strong>
+            <br><strong style="color: var(--ink);">Decision:</strong> Cross-context communication is async via EventBus, not sync HTTP.
+            <br><strong style="color: var(--ink);">Forbids:</strong> direct HTTP calls between Orders ↔ Inventory ↔ Catalog.
+          </div>
+        </div>
       </div>
-      <div class="diagram-svg-frame">
-        <svg viewBox="0 0 980 460" role="img" aria-labelledby="lin-title">
-          <title id="lin-title">Linear hierarchy: Project at top, Architecture & Roadmap document plus 4 Epics in the middle, sample Tasks under one Epic</title>
-          <defs>
-            <marker id="lin-tip" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto">
-              <path d="M 0 0 L 10 5 L 0 10 z" fill="#7A7A82"/>
-            </marker>
-          </defs>
 
-          <!-- Project (root) -->
-          <g transform="translate(360 30)">
-            <rect width="260" height="80" fill="#1A1A1C"/>
-            <rect width="260" height="3" fill="#B83227"/>
-            <text x="20" y="32" font-family="JetBrains Mono, monospace" font-size="10" font-weight="700" fill="#B83227" letter-spacing="1.5">LINEAR PROJECT &middot; ROOT</text>
-            <text x="20" y="56" font-family="Instrument Serif, serif" font-size="22" fill="#F7F4ED">Order rewrite</text>
-            <text x="20" y="72" font-family="JetBrains Mono, monospace" font-size="10" fill="rgba(247,244,237,0.55)">initiative container · 4 phases</text>
-          </g>
-
-          <!-- vertical drop -->
-          <line x1="490" y1="110" x2="490" y2="140" stroke="#1A1A1C" stroke-width="1"/>
-
-          <!-- horizontal beam at level 2 -->
-          <line x1="180" y1="140" x2="800" y2="140" stroke="#1A1A1C" stroke-width="1"/>
-
-          <!-- vertical drops to level 2 cards -->
-          <g stroke="#7A7A82" stroke-width="1" stroke-dasharray="2 3" fill="none">
-            <line x1="180" y1="140" x2="180" y2="170" marker-end="url(#lin-tip)"/>
-            <line x1="430" y1="140" x2="430" y2="170" marker-end="url(#lin-tip)"/>
-            <line x1="570" y1="140" x2="570" y2="170" marker-end="url(#lin-tip)"/>
-            <line x1="710" y1="140" x2="710" y2="170" marker-end="url(#lin-tip)"/>
-            <line x1="800" y1="140" x2="800" y2="170" marker-end="url(#lin-tip)"/>
-          </g>
-
-          <!-- DOCUMENT (special, vermillion-accented) -->
-          <g transform="translate(60 180)">
-            <rect width="260" height="100" fill="#F7F4ED" stroke="#1A1A1C" stroke-width="1.5"/>
-            <rect width="260" height="3" fill="#B83227"/>
-            <!-- page glyph -->
-            <g transform="translate(20 22)" stroke="#1A1A1C" stroke-width="1" fill="none">
-              <path d="M 0 0 L 16 0 L 22 6 L 22 26 L 0 26 Z" fill="#FBF9F4"/>
-              <path d="M 16 0 L 16 6 L 22 6"/>
-              <line x1="4" y1="11" x2="18" y2="11"/>
-              <line x1="4" y1="16" x2="18" y2="16"/>
-              <line x1="4" y1="21" x2="14" y2="21"/>
-            </g>
-            <text x="56" y="35" font-family="JetBrains Mono, monospace" font-size="10" font-weight="700" fill="#B83227" letter-spacing="1.5">PROJECT DOCUMENT</text>
-            <text x="20" y="68" font-family="Instrument Serif, serif" font-style="italic" font-size="20" fill="#1A1A1C">Architecture &amp; Roadmap</text>
-            <text x="20" y="86" font-family="JetBrains Mono, monospace" font-size="10" fill="#4A4A50">C4 · ADR · arc42 · 7 sections · versioned</text>
-          </g>
-
-          <!-- 3 Epics -->
-          <g font-family="Instrument Serif, serif" font-size="16" fill="#1A1A1C">
-            <g transform="translate(360 180)">
-              <rect width="140" height="100" fill="#FBF9F4" stroke="#1A1A1C"/>
-              <rect width="3" height="100" fill="#4A8C5F"/>
-              <text x="14" y="26" font-family="JetBrains Mono, monospace" font-size="9" font-weight="700" fill="#4A8C5F" letter-spacing="1">EPIC</text>
-              <text x="14" y="58" font-size="14">Phase 1</text>
-              <text x="14" y="76" font-family="Inter Tight, sans-serif" font-size="11" fill="#4A4A50">Catalog</text>
-              <text x="14" y="92" font-family="JetBrains Mono, monospace" font-size="9" fill="#7A7A82">8 tasks</text>
-            </g>
-            <g transform="translate(510 180)">
-              <rect width="140" height="100" fill="#FBF9F4" stroke="#1A1A1C"/>
-              <rect width="3" height="100" fill="#4A8C5F"/>
-              <text x="14" y="26" font-family="JetBrains Mono, monospace" font-size="9" font-weight="700" fill="#4A8C5F" letter-spacing="1">EPIC</text>
-              <text x="14" y="58" font-size="14">Phase 2</text>
-              <text x="14" y="76" font-family="Inter Tight, sans-serif" font-size="11" fill="#4A4A50">Capture</text>
-              <text x="14" y="92" font-family="JetBrains Mono, monospace" font-size="9" fill="#7A7A82">12 tasks</text>
-            </g>
-            <g transform="translate(660 180)">
-              <rect width="140" height="100" fill="#FBF9F4" stroke="#1A1A1C"/>
-              <rect width="3" height="100" fill="#4A8C5F"/>
-              <text x="14" y="26" font-family="JetBrains Mono, monospace" font-size="9" font-weight="700" fill="#4A8C5F" letter-spacing="1">EPIC</text>
-              <text x="14" y="58" font-size="14">Phase 3</text>
-              <text x="14" y="76" font-family="Inter Tight, sans-serif" font-size="11" fill="#4A4A50">Fulfill</text>
-              <text x="14" y="92" font-family="JetBrains Mono, monospace" font-size="9" fill="#7A7A82">9 tasks</text>
-            </g>
-            <!-- Epic 4 (more) -->
-            <g transform="translate(810 180)">
-              <rect width="120" height="100" fill="#FBF9F4" stroke="#D9D2C2" stroke-dasharray="3 3"/>
-              <text x="14" y="26" font-family="JetBrains Mono, monospace" font-size="9" font-weight="700" fill="#7A7A82" letter-spacing="1">EPIC</text>
-              <text x="14" y="58" font-size="14" fill="#7A7A82">Phase 4</text>
-              <text x="14" y="76" font-family="Inter Tight, sans-serif" font-size="11" fill="#7A7A82">Returns</text>
-              <text x="14" y="92" font-family="JetBrains Mono, monospace" font-size="9" fill="#7A7A82">6 tasks</text>
-            </g>
-          </g>
-
-          <!-- vertical drop from Epic 1 to its tasks -->
-          <line x1="430" y1="280" x2="430" y2="310" stroke="#1A1A1C" stroke-width="1"/>
-          <line x1="180" y1="310" x2="660" y2="310" stroke="#1A1A1C" stroke-width="1"/>
-          <g stroke="#7A7A82" stroke-width="1" stroke-dasharray="2 3" fill="none">
-            <line x1="180" y1="310" x2="180" y2="335" marker-end="url(#lin-tip)"/>
-            <line x1="430" y1="310" x2="430" y2="335" marker-end="url(#lin-tip)"/>
-            <line x1="660" y1="310" x2="660" y2="335" marker-end="url(#lin-tip)"/>
-          </g>
-
-          <!-- Tasks under Epic 1 -->
-          <g>
-            <g transform="translate(60 345)">
-              <rect width="240" height="68" fill="#FBF9F4" stroke="#1A1A1C"/>
-              <rect width="3" height="68" fill="#C28148"/>
-              <text x="14" y="22" font-family="JetBrains Mono, monospace" font-size="9" font-weight="700" fill="#C28148" letter-spacing="1">TASK</text>
-              <text x="14" y="44" font-family="Inter Tight, sans-serif" font-size="13" font-weight="600" fill="#1A1A1C">Catalog ingestion API</text>
-              <text x="14" y="60" font-family="JetBrains Mono, monospace" font-size="9" fill="#7A7A82">backend-dev · ⚡ codex-elig</text>
-            </g>
-            <g transform="translate(310 345)">
-              <rect width="240" height="68" fill="#FBF9F4" stroke="#1A1A1C"/>
-              <rect width="3" height="68" fill="#C28148"/>
-              <text x="14" y="22" font-family="JetBrains Mono, monospace" font-size="9" font-weight="700" fill="#C28148" letter-spacing="1">TASK</text>
-              <text x="14" y="44" font-family="Inter Tight, sans-serif" font-size="13" font-weight="600" fill="#1A1A1C">Migration: catalog table</text>
-              <text x="14" y="60" font-family="JetBrains Mono, monospace" font-size="9" fill="#7A7A82">dba-agent · claude opus</text>
-            </g>
-            <g transform="translate(560 345)">
-              <rect width="240" height="68" fill="#FBF9F4" stroke="#1A1A1C"/>
-              <rect width="3" height="68" fill="#B89D2A"/>
-              <text x="14" y="22" font-family="JetBrains Mono, monospace" font-size="9" font-weight="700" fill="#B89D2A" letter-spacing="1">TASK · QA</text>
-              <text x="14" y="44" font-family="Inter Tight, sans-serif" font-size="13" font-weight="600" fill="#1A1A1C">Catalog page tests</text>
-              <text x="14" y="60" font-family="JetBrains Mono, monospace" font-size="9" fill="#7A7A82">test-writer · ⚡ codex-elig</text>
-            </g>
-          </g>
-
-          <!-- Resolution arrow back to doc -->
-          <g>
-            <text x="60" y="438" font-family="Instrument Serif, serif" font-style="italic" font-size="14" fill="#B83227">→</text>
-            <text x="78" y="438" font-family="Inter Tight, sans-serif" font-size="12" fill="#4A4A50">Every Task can resolve up to the Project Document via</text>
-            <text x="478" y="438" font-family="JetBrains Mono, monospace" font-size="12" fill="#1A1A1C">parent &amp; project</text>
-            <text x="598" y="438" font-family="Inter Tight, sans-serif" font-size="12" fill="#4A4A50">relations.</text>
-          </g>
-        </svg>
+      <!-- Sprint Board -->
+      <div class="lin-card">
+        <div class="lin-bar">
+          <span class="ts"><span></span><span></span><span></span></span>
+          linear.app · order-rewrite · sprint board
+        </div>
+        <div class="lin-body" style="padding: 1rem;">
+          <div class="board">
+            <div class="board-col">
+              <div class="board-col-head"><span class="dot" style="background: var(--st-prog);"></span>In Progress<span class="ct">2</span></div>
+              <div class="board-card">
+                <div class="id">PROJ-122</div>
+                Catalog ingestion API
+                <div class="meta"><span class="badge codex">Codex</span></div>
+              </div>
+              <div class="board-card">
+                <div class="id">PROJ-125</div>
+                Catalog page (FE)
+                <div class="meta"><span class="badge codex">Codex</span></div>
+              </div>
+            </div>
+            <div class="board-col">
+              <div class="board-col-head"><span class="dot" style="background: var(--st-review);"></span>In Review<span class="ct">1</span></div>
+              <div class="board-card">
+                <div class="id">PROJ-120</div>
+                Auth refresh fix
+                <div class="meta"><span class="badge opus">Opus</span></div>
+              </div>
+            </div>
+            <div class="board-col">
+              <div class="board-col-head"><span class="dot" style="background: var(--st-done);"></span>Done<span class="ct">3</span></div>
+              <div class="board-card">
+                <div class="id">PROJ-123</div>
+                Migration: catalog table
+                <div class="meta"><span class="badge opus">Opus</span></div>
+              </div>
+              <div class="board-card">
+                <div class="id">PROJ-117</div>
+                Idempotency keys
+                <div class="meta"><span class="badge codex">Codex</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="scroll-cue">↔ swipe to see the full hierarchy</div>
     </div>
 
-    <div class="pull">
-      <strong>Drift vs erosion.</strong> Drift = code introduces a component or edge the architecture doc doesn't mention. Often correct, just undocumented &mdash; a <em>warning</em>. Erosion = code violates an Accepted ADR or quality attribute &mdash; <em>blocking</em>. The check runs in <code style="font-family: var(--mono);">/sprint-plan</code>, <code style="font-family: var(--mono);">/sprint-enrich</code>, Phase 3 QA, code review, and <code style="font-family: var(--mono);">/sprint-retro</code>. When erosion is intentional, run <code style="font-family: var(--mono);">/sprint-architect --update</code> &mdash; the new decision becomes an ADR, the old one is superseded, the next sprint passes.
-      <span class="by">— architecture-drift-check skill</span>
+    <!-- Drift detection explainer -->
+    <div style="margin-top: 3rem;">
+      <h3 style="font-size: 1.45rem; letter-spacing: -0.025em; margin-bottom: 0.85rem;">
+        And the architecture document <em style="font-style:normal; background: linear-gradient(180deg, transparent 60%, var(--accent-soft) 60%); padding: 0 2px;">stays honest</em>.
+      </h3>
+      <p style="font-size: 1.02rem; color: var(--ink-2); max-width: 720px; line-height: 1.55;">
+        Every time the implementation diverges from what the architecture document says, sprint-workflow flags it &mdash; at planning time, at QA time, at code-review time, and in the sprint retro. There are two things we look for:
+      </p>
+
+      <div class="drift-grid">
+        <div class="drift-card warn">
+          <div class="drift-tag">DRIFT &middot; warning</div>
+          <h4>Code adds something the doc doesn't mention</h4>
+          <p>Often correct &mdash; the doc was incomplete and reality has more nuance. Flagged so you can decide whether to update the doc.</p>
+          <div class="ex">
+            <strong>Example:</strong> ADR-3 says "Orders → Inventory via EventBus." Code adds a Redis cache between them. The doc is silent on caching. <em>Warning, not blocking.</em>
+          </div>
+        </div>
+        <div class="drift-card block">
+          <div class="drift-tag">EROSION &middot; blocking</div>
+          <h4>Code violates an explicit architectural decision</h4>
+          <p>The doc said don't, the code did. The sprint can't ship until you either revise the code or update the architecture document with a new ADR.</p>
+          <div class="ex">
+            <strong>Example:</strong> ADR-3 forbids sync HTTP between bounded contexts. Code adds <code style="font-family: var(--mono);">httpClient.GetAsync(inventoryUrl)</code> from Orders. <em>Blocking.</em>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </section>
 
-<!-- ════════════════════════════════════════════ CODEX ════════════════════ -->
+<!-- ─── CODEX ─────────────────────────────────────────────────────────────── -->
 <section id="codex">
   <div class="shell">
     <div class="section-head">
-      <span class="eyebrow"><span class="num">04</span><span class="rule"></span>codex delegation &middot; opt-in</span>
-      <h2>Conserve tokens.<br>Get a <em>second pair of eyes.</em></h2>
-      <p>When the <code style="font-family: var(--mono);">codex-plugin-cc</code> is installed, sprint-workflow auto-detects it and routes scoped execution to OpenAI Codex (~4&times; more token-efficient for well-bounded work) while Claude handles planning, architectural decisions, and code review. Cross-model verification &mdash; Codex catches issues Claude-reviewing-Claude would rationalize away.</p>
+      <div class="eyebrow">05 · codex routing &middot; optional</div>
+      <h2>Cheaper execution.<br><em>Cross-model</em> verification.</h2>
+      <p>
+        <strong>Codex</strong> is OpenAI's command-line coding agent. When you have it installed, sprint-workflow auto-detects it and routes scoped tasks to Codex instead of Claude &mdash; roughly four times more token-efficient for well-bounded work, and the model swap means quality reviews happen across two model families instead of one.
+      </p>
     </div>
 
-    <div class="cdx-grid">
-      <div class="cdx-stage">
-        <div class="cdx-phase">phase 1 &middot; task</div>
-        <h4>Task assignment</h4>
-        <div class="cdx-row">
-          <span class="cdx-tag ai">⚡ codex</span>
-          <span><code>/codex:rescue</code> — tasks flagged <strong>codex-eligible</strong> at planning time</span>
-        </div>
-        <div class="cdx-row">
-          <span class="cdx-tag cl">claude</span>
-          <span>Original opus agent — everything else</span>
-        </div>
-      </div>
-
-      <div class="cdx-stage">
-        <div class="cdx-phase">phase 3 &middot; qa</div>
-        <h4>QA gate</h4>
-        <div class="cdx-row">
-          <span class="cdx-tag ai">⚡ codex</span>
-          <span><code>/codex:adversarial-review</code> — replaces the qa-agent entirely when opted in</span>
-        </div>
-        <div class="cdx-row">
-          <span class="cdx-tag cl">claude</span>
-          <span><strong>qa-agent (sonnet)</strong> — fallback when Codex unavailable</span>
-        </div>
-      </div>
-
-      <div class="cdx-stage">
-        <div class="cdx-phase">phase 3 &middot; review</div>
-        <h4>Code review</h4>
-        <div class="cdx-row">
-          <span class="cdx-tag al">always</span>
-          <span><strong>pr-review-toolkit:code-reviewer</strong> on Claude — never Codex. Claude's idiomatic pattern recognition is superior for review.</span>
-        </div>
-      </div>
-
-      <div class="cdx-stage">
-        <div class="cdx-phase">phase 4 &middot; fix</div>
-        <h4>Fix routing</h4>
-        <div class="cdx-row">
-          <span class="cdx-tag ai">⚡ codex</span>
-          <span><strong>Surgical fixes</strong> — single file, mechanical (lint, null check, missing import, typo)</span>
-        </div>
-        <div class="cdx-row">
-          <span class="cdx-tag cl">claude</span>
-          <span><strong>Architectural fixes</strong> — multi-file, interface change, design decision needed</span>
-        </div>
-      </div>
+    <div class="cdx-explainer">
+      <h3>How the routing decides <span class="badge opus">Opus</span> <span class="badge codex">Codex</span></h3>
+      <p>
+        Every agent runs on <strong>Opus</strong> by default. If <strong>Codex</strong> is installed AND the task is flagged eligible (clear scope, single concern, no design ambiguity), the work routes to Codex automatically. If Codex isn't installed, every task runs on Opus and the page works exactly the same. If a Codex run fails, sprint-workflow falls back to Opus on its own. <strong>You don't pick &mdash; the orchestrator does, and you can see which one ran on every issue.</strong>
+      </p>
     </div>
 
-    <div class="elig-grid">
-      <div class="elig-col yes">
-        <div class="elig-head"><span class="ico">✓</span> <em>Codex-eligible</em></div>
+    <div class="elig">
+      <div class="elig-card yes">
+        <div class="elig-head"><span class="ico">✓</span> Routes to Codex</div>
         <ul class="elig-list">
-          <li><strong>Well-scoped CRUD</strong> — "Create REST endpoint for listing orders with pagination"</li>
-          <li><strong>Migration scaffolds</strong> — "Add migration for new <code>audit_logs</code> table"</li>
-          <li><strong>Boilerplate generation</strong> — controllers + services + repositories</li>
-          <li><strong>Test generation</strong> — against existing implementation, straightforward assertions</li>
-          <li><strong>Single-concern features</strong> — clear acceptance criteria, no ambiguity, no local services</li>
+          <li><strong>Well-scoped CRUD</strong> &mdash; "REST endpoint for listing orders with pagination"</li>
+          <li><strong>Migration scaffolds</strong> &mdash; "Add migration for new <code>audit_logs</code> table"</li>
+          <li><strong>Boilerplate</strong> &mdash; controllers + services + repositories</li>
+          <li><strong>Tests against existing code</strong> &mdash; straightforward assertions, clear setup</li>
+          <li><strong>Single-concern features</strong> &mdash; no ambiguity, no local services needed</li>
         </ul>
       </div>
-      <div class="elig-col no">
-        <div class="elig-head"><span class="ico">✗</span> <em>Not Codex-eligible</em></div>
+      <div class="elig-card no">
+        <div class="elig-head"><span class="ico">✗</span> Stays on Opus</div>
         <ul class="elig-list">
-          <li><strong>Cross-cutting architecture</strong> — "Redesign middleware pipeline for multi-tenancy"</li>
-          <li><strong>Design exploration</strong> — multiple approaches to compare</li>
-          <li><strong>Local services needed</strong> — running PostgreSQL with seed data, Docker, VPN</li>
-          <li><strong>Security-critical</strong> — OAuth2 PKCE flows, token rotation, audit-trail design</li>
-          <li><strong>Heavy iteration expected</strong> — UX exploration, complex state management</li>
+          <li><strong>Cross-cutting architecture</strong> &mdash; "Redesign middleware for multi-tenancy"</li>
+          <li><strong>Design exploration</strong> &mdash; multiple approaches to compare</li>
+          <li><strong>Local services needed</strong> &mdash; running Postgres, Docker, VPN</li>
+          <li><strong>Security-critical</strong> &mdash; OAuth flows, audit trails</li>
+          <li><strong>Heavy iteration</strong> &mdash; UX exploration, complex state</li>
         </ul>
       </div>
-    </div>
-
-    <div class="pull">
-      <strong>Auto-detection &middot; no flags needed.</strong> Sprint-workflow checks for <code style="font-family: var(--mono);">/codex:rescue</code> + <code style="font-family: var(--mono);">/codex:adversarial-review</code> at the start of every sprint command. If both are present, Codex mode activates and the product-manager flags eligible tasks during planning. If either is missing, every task routes to Claude. Same orchestration either way &mdash; Codex is purely additive.
     </div>
   </div>
 </section>
 
-<!-- ════════════════════════════════════════════ VISIBILITY ═══════════════ -->
+<!-- ─── VISIBILITY & CONTROL ──────────────────────────────────────────────── -->
 <section id="visibility">
   <div class="shell">
     <div class="section-head">
-      <span class="eyebrow"><span class="num">05</span><span class="rule"></span>visibility &amp; control</span>
-      <h2>Watch agents work.<br>Reject, comment, <em>move things around.</em></h2>
-      <p>Every dispatch, every status change, every fix lands as a comment on the relevant Linear issue &mdash; attributed to the agent that did it. You can reply, drag a card back across the board, or override anything at any time. The sprint lead picks up your changes on the next turn. <strong>No more grepping a stale <code style="font-family: var(--mono);">SPRINT_PLAN.md</code> to figure out where things are.</strong></p>
-    </div>
-
-    <div class="vis-features">
-      <div class="vis-feat">
-        <div class="vn">01 &middot; transparent</div>
-        <h4>Agents <em>narrate</em> as they work</h4>
-        <p>Each phase transition and result lands as a comment on the issue, attributed to the agent. You see <em>why</em> a task moved, not just that it moved. HANDOFF blocks from worktree-isolated agents land here too &mdash; branch, SHA, files, build status.</p>
-      </div>
-      <div class="vis-feat">
-        <div class="vn">02 &middot; bidirectional</div>
-        <h4>You can <em>override</em> at any moment</h4>
-        <p>Drag a card from In Review back to In Progress with a comment explaining why. The orchestrator detects the manual transition on its next pass and re-dispatches the agent with your note as additional context. Same for cancelling, re-prioritising, or changing assignment.</p>
-      </div>
-      <div class="vis-feat">
-        <div class="vn">03 &middot; always current</div>
-        <h4>Source of truth <em>stays alive</em></h4>
-        <p>Agents update Linear as they work, so the board reflects reality. There's no parallel markdown going stale because nobody opens it. Every Task resolves up to its Epic, every Epic up to its Project Document &mdash; queryable in one place.</p>
-      </div>
+      <div class="eyebrow">06 · visibility &amp; control</div>
+      <h2>Watch agents work.<br>Override <em>any of it</em>, anytime.</h2>
+      <p>Every dispatch, every status change, every fix lands as a comment on the relevant Linear issue &mdash; attributed to the agent that did it. You can drag a card back across the board, leave a comment, and the orchestrator picks it up on the next turn.</p>
     </div>
 
     <div class="issue">
       <div class="issue-bar">
-        <span class="dots"><span></span><span></span><span></span></span>
+        <span class="ts"><span></span><span></span><span></span></span>
         linear.app · order-rewrite · proj-122
       </div>
       <div class="issue-head">
         <div class="issue-id">
-          <span>PROJ-122</span>
-          <span>·</span>
-          <span class="status progress">In Progress</span>
-          <span style="margin-left: auto; opacity: 0.7;">opened 14:02</span>
+          <span>PROJ-122</span> · <span class="status progress">In Progress</span>
+          <span style="margin-left: auto;">opened 14:02</span>
         </div>
         <div class="issue-title">Catalog ingestion API</div>
         <div class="issue-labels">
-          <span class="lbl lbl-task">task</span>
-          <span class="lbl lbl-feature">feature</span>
+          <span class="lbl">task</span>
+          <span class="lbl">feature</span>
         </div>
         <div class="issue-meta-row">
-          <div class="issue-meta-block">
+          <div class="imeta">
             <span class="lbl-key">Assignee</span>
-            <span class="lbl-val">backend-dev <span class="cdx-pill">codex</span></span>
+            <span class="lbl-val">backend-dev <span class="badge codex">Codex</span></span>
           </div>
-          <div class="issue-meta-block">
+          <div class="imeta">
             <span class="lbl-key">Parent epic</span>
             <span class="lbl-val">Phase 1 · Catalog</span>
           </div>
-          <div class="issue-meta-block">
+          <div class="imeta">
             <span class="lbl-key">Group</span>
             <span class="lbl-val">parallel · 1</span>
           </div>
         </div>
       </div>
-      <div class="activity-list">
-        <div class="activity-head">activity</div>
+
+      <div class="feed">
+        <div class="feed-head">activity</div>
 
         <div class="act">
-          <div class="act-avatar av-sl">SL</div>
-          <div class="act-body">
-            <div class="act-meta"><span class="who">sprint-lead</span> · 14:02</div>
-            <div class="act-text">moved <span class="arr">Backlog → Todo</span></div>
-          </div>
-        </div>
-
-        <div class="act">
-          <div class="act-avatar av-sl">SL</div>
+          <div class="act-av av-sl">SL</div>
           <div class="act-body">
             <div class="act-meta"><span class="who">sprint-lead</span> · 14:03</div>
             <div class="act-text">moved <span class="arr">Todo → In Progress</span> · dispatched to <code>/codex:rescue</code></div>
@@ -2009,7 +2034,7 @@ footer a:hover { color: var(--vermillion); }
         </div>
 
         <div class="act">
-          <div class="act-avatar av-cx">CX</div>
+          <div class="act-av av-cx">CX</div>
           <div class="act-body">
             <div class="act-meta"><span class="who">codex</span> · 14:11</div>
             <div class="act-text">
@@ -2020,7 +2045,7 @@ footer a:hover { color: var(--vermillion); }
         </div>
 
         <div class="act">
-          <div class="act-avatar av-sl">SL</div>
+          <div class="act-av av-sl">SL</div>
           <div class="act-body">
             <div class="act-meta"><span class="who">sprint-lead</span> · 14:11</div>
             <div class="act-text">moved <span class="arr">In Progress → In Review</span> · Phase 3 quality gates running</div>
@@ -2028,7 +2053,7 @@ footer a:hover { color: var(--vermillion); }
         </div>
 
         <div class="act">
-          <div class="act-avatar av-cr">CR</div>
+          <div class="act-av av-cr">CR</div>
           <div class="act-body">
             <div class="act-meta"><span class="who">code-reviewer</span> · 14:14</div>
             <div class="act-text">Review verdict: <strong>PASS</strong> · 0 blocking, 1 minor (style nit)</div>
@@ -2036,9 +2061,9 @@ footer a:hover { color: var(--vermillion); }
         </div>
 
         <div class="act">
-          <div class="act-avatar av-yo">YO</div>
+          <div class="act-av av-yo">YO</div>
           <div class="act-body">
-            <div class="act-meta"><span class="who me">you</span> · 14:18 <span class="pill">manual</span></div>
+            <div class="act-meta"><span class="who you">you</span> · 14:18 <span class="pill">manual</span></div>
             <div class="act-text">
               moved <span class="arr">In Review → In Progress</span>
               <div class="act-quote">"Pagination contract differs from ADR-7 (cursor-based, not offset). Bump back &mdash; please re-check before merging."</div>
@@ -2047,7 +2072,7 @@ footer a:hover { color: var(--vermillion); }
         </div>
 
         <div class="act">
-          <div class="act-avatar av-sl">SL</div>
+          <div class="act-av av-sl">SL</div>
           <div class="act-body">
             <div class="act-meta"><span class="who">sprint-lead</span> · 14:18</div>
             <div class="act-text">detected user override · re-dispatching <strong>backend-dev</strong> with your note as additional context</div>
@@ -2058,460 +2083,111 @@ footer a:hover { color: var(--vermillion); }
   </div>
 </section>
 
-<!-- ════════════════════════════════════════════ KANBAN ═══════════════════ -->
-<section id="kanban">
+<!-- ─── WHAT'S OPTIONAL (the explicit opt-in stack) ───────────────────────── -->
+<section id="stack">
   <div class="shell">
     <div class="section-head">
-      <span class="eyebrow"><span class="num">06</span><span class="rule"></span>status lifecycle</span>
-      <h2>Five states.<br>The orchestrator handles the <em>transitions.</em></h2>
-      <p>You don't drag cards. The sprint lead transitions Linear issues automatically as agents complete each phase. Failed QA bounces a task back to In Progress; a passing fix loop walks it to Done. You can still override anything &mdash; see <a href="#visibility" style="color: var(--vermillion);">section 05</a>.</p>
+      <div class="eyebrow">07 · what's required, what's optional</div>
+      <h2>One thing required.<br>Two <em>powerful add-ons</em>.</h2>
+      <p>The plugin works on its own. Linear and Codex are opt-in &mdash; install them when you're ready and sprint-workflow auto-detects them. You don't change any config; the plugin notices and switches behaviour.</p>
     </div>
 
-    <div class="kanban-frame">
-      <div class="kanban">
-        <div class="col">
-          <div class="col-head">
-            <span class="col-dot" style="background: var(--st-backlog);"></span>
-            Backlog
-            <span class="col-count">3</span>
-          </div>
-          <div class="kcard">
-            <div class="kcard-id">PROJ-118</div>
-            Reporting v2 spike
-            <div class="kcard-labels">
-              <span class="lbl lbl-epic">epic</span>
-              <span class="lbl lbl-improve">improve</span>
-            </div>
-          </div>
-          <div class="kcard">
-            <div class="kcard-id">PROJ-119</div>
-            Returns flow
-            <div class="kcard-labels">
-              <span class="lbl lbl-epic">epic</span>
-            </div>
-          </div>
+    <div class="stack-rows">
+      <div class="stack required">
+        <div class="stack-tier">
+          <span class="tone"></span>
+          <span class="word">Required</span>
         </div>
-        <div class="col">
-          <div class="col-head">
-            <span class="col-dot" style="background: var(--st-todo);"></span>
-            Todo
-            <span class="col-count">5</span>
-          </div>
-          <div class="kcard">
-            <div class="kcard-id">PROJ-122</div>
-            Catalog ingestion API
-            <div class="kcard-labels">
-              <span class="lbl lbl-task">task</span>
-              <span class="lbl lbl-feature">feature</span>
-            </div>
-          </div>
-          <div class="kcard">
-            <div class="kcard-id">PROJ-123</div>
-            Migration: catalog
-            <div class="kcard-labels">
-              <span class="lbl lbl-task">task</span>
-            </div>
-          </div>
+        <div class="stack-body">
+          <h4>Claude Code</h4>
+          <p>The host environment. <strong>sprint-workflow installs as a Claude Code plugin</strong>, alongside whatever else you already use. Free.</p>
         </div>
-        <div class="col">
-          <div class="col-head">
-            <span class="col-dot" style="background: var(--st-progress);"></span>
-            In Progress
-            <span class="col-count">2</span>
-          </div>
-          <div class="kcard">
-            <div class="kcard-id">PROJ-124</div>
-            Order capture endpoint
-            <div class="kcard-labels">
-              <span class="lbl lbl-task">task</span>
-              <span class="lbl lbl-feature">feature</span>
-            </div>
-          </div>
-          <div class="kcard">
-            <div class="kcard-id">PROJ-125</div>
-            Catalog page (FE)
-            <div class="kcard-labels">
-              <span class="lbl lbl-task">task</span>
-            </div>
-          </div>
-        </div>
-        <div class="col">
-          <div class="col-head">
-            <span class="col-dot" style="background: var(--st-review);"></span>
-            In Review
-            <span class="col-count">1</span>
-          </div>
-          <div class="kcard">
-            <div class="kcard-id">PROJ-120</div>
-            Auth refresh fix
-            <div class="kcard-labels">
-              <span class="lbl lbl-task">task</span>
-              <span class="lbl lbl-bug">bug</span>
-            </div>
-          </div>
-        </div>
-        <div class="col">
-          <div class="col-head">
-            <span class="col-dot" style="background: var(--st-done);"></span>
-            Done
-            <span class="col-count">8</span>
-          </div>
-          <div class="kcard">
-            <div class="kcard-id">PROJ-117</div>
-            Idempotency keys
-            <div class="kcard-labels">
-              <span class="lbl lbl-task">task</span>
-              <span class="lbl lbl-debt">tech-debt</span>
-            </div>
-          </div>
-          <div class="kcard">
-            <div class="kcard-id">PROJ-116</div>
-            Webhook retry
-            <div class="kcard-labels">
-              <span class="lbl lbl-task">task</span>
-              <span class="lbl lbl-improve">improve</span>
-            </div>
-          </div>
+        <div class="stack-meta">
+          <span class="tag-required">Required</span>
         </div>
       </div>
-      <div class="phase-row">
-        <div class="phase"><strong>—</strong>unplanned</div>
-        <div class="phase"><strong>/sprint-start</strong>begins</div>
-        <div class="phase"><strong>phase 1</strong>agent dispatched</div>
-        <div class="phase"><strong>phase 3</strong>qa + review</div>
-        <div class="phase"><strong>phase 6</strong>shipped</div>
-      </div>
-    </div>
-  </div>
-</section>
 
-<!-- ════════════════════════════════════════════ AGENTS ═══════════════════ -->
-<section id="agents">
-  <div class="shell">
-    <div class="section-head">
-      <span class="eyebrow"><span class="num">07</span><span class="rule"></span>nine personas</span>
-      <h2>Specialist agents,<br>each with their <em>own conventions.</em></h2>
-      <p>Every agent reads its required skill files before writing a line of code. Project-local skills override plugin-bundled ones. When a task references a Linear Epic, agents fetch the parent Project's Architecture &amp; Roadmap automatically.</p>
-    </div>
+      <div class="stack optional">
+        <div class="stack-tier">
+          <span class="tone"></span>
+          <span class="word">Optional</span>
+        </div>
+        <div class="stack-body">
+          <h4>Linear MCP <span style="font-family: var(--mono); font-size: 0.78rem; color: var(--ink-3); font-weight: 500;">— project tracking</span></h4>
+          <p><strong>Without it:</strong> sprint plans live in a markdown file in your repo. Functional, but goes stale. <strong>With it:</strong> plans, the Architecture &amp; Roadmap document, and every status change live in Linear &mdash; required for <code>/sprint-architect</code>.</p>
+        </div>
+        <div class="stack-meta">
+          <span class="tag-optional">Optional</span>
+          <span>required for /sprint-architect</span>
+        </div>
+      </div>
 
-    <div class="agent-grid">
-      <div class="agent">
-        <div class="agent-row">
-          <div class="agent-mark" style="background: #4A8C5F;">B</div>
-          <div>
-            <div class="agent-name-row">
-              <span class="agent-nm">backend-dev</span>
-              <span class="cdx-pill">codex-elig</span>
-            </div>
-            <div class="agent-mod">opus &middot; server-side</div>
-          </div>
+      <div class="stack optional">
+        <div class="stack-tier">
+          <span class="tone"></span>
+          <span class="word">Optional</span>
         </div>
-        <p>Server-side work across any stack &mdash; .NET, Node, Python, Go, Rust. API endpoints, service logic, middleware, infrastructure.</p>
-      </div>
-      <div class="agent">
-        <div class="agent-row">
-          <div class="agent-mark" style="background: #2C5F8E;">F</div>
-          <div>
-            <div class="agent-name-row">
-              <span class="agent-nm">frontend-dev</span>
-              <span class="cdx-pill">codex-elig</span>
-            </div>
-            <div class="agent-mod">opus &middot; client UI</div>
-          </div>
+        <div class="stack-body">
+          <h4>Codex CLI <span style="font-family: var(--mono); font-size: 0.78rem; color: var(--ink-3); font-weight: 500;">— cheaper execution</span></h4>
+          <p><strong>Without it:</strong> every task runs on Claude Opus. <strong>With it:</strong> eligible tasks route to Codex (~4× more token-efficient for scoped work), and Phase 3 QA gets a cross-model adversarial review. Falls back to Opus automatically if Codex isn't available or fails.</p>
         </div>
-        <p>Client-side UI &mdash; React, Vue, Svelte, Angular. Components, pages, styling, state, API integration.</p>
-      </div>
-      <div class="agent">
-        <div class="agent-row">
-          <div class="agent-mark" style="background: #6B4F8E;">D</div>
-          <div>
-            <div class="agent-name-row">
-              <span class="agent-nm">dba-agent</span>
-            </div>
-            <div class="agent-mod">opus &middot; data layer</div>
-          </div>
-        </div>
-        <p>Schema design, migrations, indexing, PII/POPIA compliance audits, expand-contract patterns for zero-downtime change.</p>
-      </div>
-      <div class="agent">
-        <div class="agent-row">
-          <div class="agent-mark" style="background: #B33E3E;">S</div>
-          <div>
-            <div class="agent-name-row">
-              <span class="agent-nm">security-agent</span>
-            </div>
-            <div class="agent-mod">opus &middot; audit + harden</div>
-          </div>
-        </div>
-        <p>OWASP Top 10 audits, auth/authz patterns, secret + PII scanning, dependency vetting, audit trails.</p>
-      </div>
-      <div class="agent">
-        <div class="agent-row">
-          <div class="agent-mark" style="background: #B07D2C;">T</div>
-          <div>
-            <div class="agent-name-row">
-              <span class="agent-nm">test-writer</span>
-              <span class="cdx-pill">codex-elig</span>
-            </div>
-            <div class="agent-mod">sonnet &middot; tests</div>
-          </div>
-        </div>
-        <p>Unit, integration, snapshot tests across any framework. Detects test framework, follows existing patterns. Regression-test-first for bug fixes.</p>
-      </div>
-      <div class="agent">
-        <div class="agent-row">
-          <div class="agent-mark" style="background: #2C5F8E;">Q</div>
-          <div>
-            <div class="agent-name-row">
-              <span class="agent-nm">qa-agent</span>
-              <span class="cdx-pill replaces">codex-replaces</span>
-            </div>
-            <div class="agent-mod">sonnet &middot; quality gate</div>
-          </div>
-        </div>
-        <p>Build, lint, type-check, test runs. Spec-compliance audits. Architecture drift checks during Phase 3. <em>When Codex is opted in, replaced entirely by <code>/codex:adversarial-review</code>.</em></p>
-      </div>
-      <div class="agent">
-        <div class="agent-row">
-          <div class="agent-mark" style="background: #3A5A40;">P</div>
-          <div>
-            <div class="agent-name-row">
-              <span class="agent-nm">qa-playwright</span>
-            </div>
-            <div class="agent-mod">sonnet &middot; e2e + a11y</div>
-          </div>
-        </div>
-        <p>E2E browser automation, visual regression baselines, accessibility (axe-core), Page Object Model.</p>
-      </div>
-      <div class="agent">
-        <div class="agent-row">
-          <div class="agent-mark" style="background: #C28148;">W</div>
-          <div>
-            <div class="agent-name-row">
-              <span class="agent-nm">docs-agent</span>
-            </div>
-            <div class="agent-mod">sonnet &middot; documentation</div>
-          </div>
-        </div>
-        <p>Technical docs, READMEs, ADRs (MADR format), changelogs from conventional commits, OpenAPI from code.</p>
-      </div>
-      <div class="agent">
-        <div class="agent-row">
-          <div class="agent-mark" style="background: #B83227;">M</div>
-          <div>
-            <div class="agent-name-row">
-              <span class="agent-nm">product-manager</span>
-            </div>
-            <div class="agent-mod">opus &middot; planning + architecture</div>
-          </div>
-        </div>
-        <p>Sprint planning, INVEST validation, MoSCoW prioritization, Given/When/Then acceptance criteria, architecture mode for <code>/sprint-architect</code>.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ════════════════════════════════════════════ SKILLS ═══════════════════ -->
-<section id="skills">
-  <div class="shell">
-    <div class="section-head">
-      <span class="eyebrow"><span class="num">08</span><span class="rule"></span>twenty-three engineering skills</span>
-      <h2>The standards every agent reads<br>before writing <em>a line of code.</em></h2>
-      <p>Skills define the patterns. Agents auto-discover project-local skills (highest priority) and fall back to bundled standards. Each skill is a focused SKILL.md with rules, examples, and anti-patterns.</p>
-    </div>
-
-    <div class="skills-shell">
-      <div class="skill-grp">
-        <div>
-          <div class="skill-grp-num">i</div>
-          <div class="skill-grp-title">Full-stack standards</div>
-        </div>
-        <div class="skill-chips">
-          <span class="chip">code-standards</span>
-          <span class="chip">dotnet-api</span>
-          <span class="chip">react-typescript</span>
-          <span class="chip">postgresql-data</span>
-          <span class="chip">api-design</span>
-        </div>
-      </div>
-      <div class="skill-grp">
-        <div>
-          <div class="skill-grp-num">ii</div>
-          <div class="skill-grp-title">Security &amp; compliance</div>
-        </div>
-        <div class="skill-chips">
-          <span class="chip">security-compliance</span>
-        </div>
-      </div>
-      <div class="skill-grp">
-        <div>
-          <div class="skill-grp-num">iii</div>
-          <div class="skill-grp-title">Architecture patterns</div>
-        </div>
-        <div class="skill-chips">
-          <span class="chip">cqrs-patterns</span>
-          <span class="chip">event-mqtt</span>
-          <span class="chip">bpmn-workflow</span>
-        </div>
-      </div>
-      <div class="skill-grp">
-        <div>
-          <div class="skill-grp-num">iv</div>
-          <div class="skill-grp-title">Rust ecosystem</div>
-        </div>
-        <div class="skill-chips">
-          <span class="chip">rust-cli</span>
-          <span class="chip">rust-testing</span>
-        </div>
-      </div>
-      <div class="skill-grp">
-        <div>
-          <div class="skill-grp-num">v</div>
-          <div class="skill-grp-title">Specialised domains</div>
-        </div>
-        <div class="skill-chips">
-          <span class="chip">computational-geometry</span>
-          <span class="chip">cli-agent-patterns</span>
-          <span class="chip">task-board-ops</span>
-        </div>
-      </div>
-      <div class="skill-grp">
-        <div>
-          <div class="skill-grp-num">vi</div>
-          <div class="skill-grp-title">Engineering discipline</div>
-        </div>
-        <div class="skill-chips">
-          <span class="chip">diagnose</span>
-          <span class="chip">tdd</span>
-          <span class="chip">zoom-out</span>
-          <span class="chip">worktree-handoff</span>
-        </div>
-      </div>
-      <div class="skill-grp">
-        <div>
-          <div class="skill-grp-num">vii</div>
-          <div class="skill-grp-title">Version control</div>
-        </div>
-        <div class="skill-chips">
-          <span class="chip">git-flow</span>
-          <span class="chip">tfs-flow</span>
-        </div>
-      </div>
-      <div class="skill-grp">
-        <div>
-          <div class="skill-grp-num">viii</div>
-          <div class="skill-grp-title">Architecture governance &amp; integration</div>
-        </div>
-        <div class="skill-chips">
-          <span class="chip">architecture-drift-check</span>
-          <span class="chip">linear-sprint-planning</span>
-          <span class="chip">codex-delegation</span>
+        <div class="stack-meta">
+          <span class="tag-optional">Optional</span>
+          <span>auto-detected at runtime</span>
         </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ════════════════════════════════════════════ ARCHITECT MOCKUP ═════════ -->
-<section id="architect">
-  <div class="shell">
-    <div class="section-head">
-      <span class="eyebrow"><span class="num">09</span><span class="rule"></span>/sprint-architect</span>
-      <h2>From conversation<br>to a <em>living architecture doc.</em></h2>
-      <p>Run <code style="font-family: var(--mono);">/sprint-architect</code> with no arguments and the main session uses the current conversation as context. Confirm what it understood, answer ≤5 clarifying questions (each with a "Choose for me" option), and out comes a Linear Project Document, ready to drive every sprint that follows.</p>
-    </div>
-
-    <div class="lin-doc">
-      <div class="lin-doc-bar">
-        <span class="dots"><span></span><span></span><span></span></span>
-        linear.app · order-rewrite · documents · architecture &amp; roadmap
-      </div>
-      <div class="lin-doc-body">
-        <div class="lin-doc-eyebrow">
-          <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true">
-            <path d="M3 2h6l3 3v6H3z M9 2v3h3" stroke="#B83227" stroke-width="1.2"/>
-          </svg>
-          PROJECT DOCUMENT &middot; v1
-        </div>
-        <h3 class="lin-doc-title">Architecture &amp; <em>Roadmap</em></h3>
-        <p class="lin-doc-lede">Migrate the legacy monolith order pipeline to a bounded-context architecture, phased over four sprints. Initial users: warehouse + customer support.</p>
-
-        <div class="doc-section">3 &middot; containers (c4 level 2)</div>
-        <div class="doc-line"><span class="key">Orders API</span> &middot; .NET 8 &middot; sync HTTP from Frontend &middot; events to EventBus, SQL to OrdersDB</div>
-        <div class="doc-line"><span class="key">Inventory</span> &middot; .NET 8 &middot; events from Orders &middot; SQL to InventoryDB</div>
-        <div class="doc-line"><span class="key">Catalog</span> &middot; .NET 8 &middot; sync HTTP from Frontend &middot; SQL to CatalogDB (read-only replica)</div>
-
-        <div class="doc-section">6 &middot; architectural decisions</div>
-        <div class="adr">
-          <span class="id">ADR-3</span> &middot; <strong style="color: var(--ink);">Status: Accepted</strong> <span class="adr-tag">auto-selected</span>
-          <br><strong style="color: var(--ink);">Decision:</strong> Cross-context communication is async via EventBus, not sync HTTP.
-          <br><strong style="color: var(--ink);">Consequences:</strong> Forbids direct HTTP calls between Orders &harr; Inventory &harr; Catalog. Drift check will flag any sync edge.
-        </div>
-        <div class="adr" style="margin-top: 0.55rem;">
-          <span class="id">ADR-4</span> &middot; <strong style="color: var(--ink);">Status: Accepted</strong>
-          <br><strong style="color: var(--ink);">Decision:</strong> No shared databases across bounded contexts. Each service owns its schema.
-          <br><strong style="color: var(--ink);">Consequences:</strong> Forbids cross-context FKs. Reads happen via async snapshots or HTTP read endpoints.
-        </div>
-
-        <div class="doc-section">7 &middot; change log</div>
-        <div class="doc-line" style="color: var(--ink-mute);">Empty &mdash; populated by <code>/sprint-architect --update</code> when reality shifts.</div>
-      </div>
-    </div>
-
-    <div class="pull">
-      <strong>"Choose for me" UX.</strong> For every clarifying question, you get 2&ndash;4 concrete options plus <em>Choose for me</em> and <em>Skip / not sure</em>. Auto-selected decisions are tagged in the doc so you can review and override them later via <code style="font-family: var(--mono);">/sprint-architect --update</code>. The cap is 5 questions per run &mdash; further decisions get safe defaults the user can ratify in their own time.
-    </div>
-  </div>
-</section>
-
-<!-- ════════════════════════════════════════════ INSTALL ══════════════════ -->
+<!-- ─── INSTALL ───────────────────────────────────────────────────────────── -->
 <section id="install">
   <div class="shell">
     <div class="section-head">
-      <span class="eyebrow"><span class="num">10</span><span class="rule"></span>install</span>
-      <h2>Up and running<br>in <em>under a minute.</em></h2>
-      <p>Sprint-workflow is a Claude Code plugin. Install via the marketplace, then opt into Linear (for sprint tracking) and Codex (for token-efficient task execution) when you're ready.</p>
+      <div class="eyebrow">08 · install</div>
+      <h2>Up and running<br>in <em>under a minute</em>.</h2>
+      <p>Two commands to install. Two more to wire up the optional integrations when you're ready.</p>
     </div>
 
-    <div class="qs">
-      <div class="qs-step">
-        <div class="qs-num"></div>
+    <div class="install">
+      <div class="step">
+        <div class="step-num">01</div>
         <div>
-          <h4>Add the <em>marketplace</em></h4>
+          <h4>Add the marketplace <span class="opt-tag req">Required</span></h4>
           <p>In Claude Code, register this repo as a plugin marketplace.</p>
 <pre><span class="pr">$</span> /plugins marketplace add rynhardt-potgieter/sprint_workflow</pre>
         </div>
       </div>
-      <div class="qs-step">
-        <div class="qs-num"></div>
+      <div class="step">
+        <div class="step-num">02</div>
         <div>
-          <h4>Install the <em>plugin</em></h4>
+          <h4>Install the plugin <span class="opt-tag req">Required</span></h4>
           <p>One install brings 9 agents, 23 skills, 13 commands, and the hooks.</p>
 <pre><span class="pr">$</span> /plugins install sprint-workflow</pre>
         </div>
       </div>
-      <div class="qs-step">
-        <div class="qs-num"></div>
+      <div class="step">
+        <div class="step-num">03</div>
         <div>
-          <h4>Optional: <em>Linear MCP</em><span class="qs-tag">required for /sprint-architect</span></h4>
-          <p>Auto-detected at runtime. Without it, sprint tracking falls back to a markdown file.</p>
+          <h4>Linear MCP <span class="opt-tag">Optional</span></h4>
+          <p>Required for <code>/sprint-architect</code>. Without it, plans live in a markdown file.</p>
 <pre><span class="cm"># Follow Linear's MCP setup</span>
 <span class="pr">$</span> open https://linear.app/docs/mcp</pre>
         </div>
       </div>
-      <div class="qs-step">
-        <div class="qs-num"></div>
+      <div class="step">
+        <div class="step-num">04</div>
         <div>
-          <h4>Optional: <em>Codex CLI</em><span class="qs-tag">~4× token savings</span></h4>
-          <p>Auto-detected. When available, scoped tasks route to Codex; reviews stay on Claude.</p>
+          <h4>Codex CLI <span class="opt-tag">Optional</span></h4>
+          <p>Auto-detected. When available, eligible tasks route to Codex automatically.</p>
 <pre><span class="cm"># Install codex-plugin-cc to wire it in</span>
 <span class="pr">$</span> /plugins install codex</pre>
         </div>
       </div>
-      <div class="qs-step">
-        <div class="qs-num"></div>
+      <div class="step">
+        <div class="step-num">05</div>
         <div>
-          <h4>Start an <em>initiative</em></h4>
+          <h4>Start an initiative</h4>
           <p>Already had a brainstorm in this conversation? Use the current chat as context.</p>
 <pre><span class="pr">$</span> /sprint-architect
 <span class="cm"># Confirm context, answer up to 5 questions, get a Linear Project + Doc + Epics</span>
@@ -2520,93 +2196,40 @@ footer a:hover { color: var(--vermillion); }
 <span class="cm"># Auto-loads Architecture &amp; Roadmap, breaks the Epic into Tasks</span>
 
 <span class="pr">$</span> /sprint-start
-<span class="cm"># Phases 1-6: implement, test, QA + review, fix, docs, ship</span></pre>
+<span class="cm"># Phases 1–6 — implement, test, QA + review, fix, docs, ship</span></pre>
         </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ════════════════════════════════════════════ LAYOUT ═══════════════════ -->
-<section id="layout">
-  <div class="shell">
-    <div class="section-head">
-      <span class="eyebrow"><span class="num">11</span><span class="rule"></span>inside the plugin</span>
-      <h2>Everything's just files.<br>Read them, fork them, <em>override them.</em></h2>
-      <p>Skills are markdown. Agents are markdown with a frontmatter prompt. Commands are markdown with a YAML header. Hooks are bash scripts. There's no DSL, no compiler, no build step &mdash; the contract is whatever Claude Code reads.</p>
-    </div>
-
-<pre class="tree">
-<span class="dr">sprint-workflow/</span>
-├── <span class="dr">.claude-plugin/</span>
-│   └── <span class="fl">plugin.json</span>          <span class="cm"># manifest, version</span>
-├── <span class="dr">agents/</span>                 <span class="cm"># 9 specialist agents</span>
-│   ├── backend-dev.md      frontend-dev.md
-│   ├── dba-agent.md        security-agent.md
-│   ├── test-writer.md      qa-agent.md
-│   ├── qa-playwright.md    docs-agent.md
-│   └── product-manager.md
-├── <span class="dr">commands/</span>               <span class="cm"># 13 slash commands</span>
-│   ├── <span class="hl">sprint-architect.md</span>   <span class="cm"># NEW v3.3 — linear-backed architecture &amp; roadmap</span>
-│   ├── sprint-plan.md      sprint-enrich.md
-│   ├── sprint-start.md     sprint-continue.md
-│   ├── sprint-resume-task.md  sprint-handoff.md
-│   ├── sprint-bug-triage.md   sprint-grill.md
-│   ├── sprint-retro.md     sprint-rollback.md
-│   └── sprint-review.md    sprint-status.md
-├── <span class="dr">skills/</span>                 <span class="cm"># 23 engineering skills</span>
-│   ├── code-standards/     dotnet-api/
-│   ├── react-typescript/   postgresql-data/
-│   ├── api-design/         security-compliance/
-│   ├── cqrs-patterns/      event-mqtt/
-│   ├── bpmn-workflow/      rust-cli/    rust-testing/
-│   ├── computational-geometry/   cli-agent-patterns/
-│   ├── task-board-ops/     diagnose/    tdd/
-│   ├── zoom-out/
-│   ├── <span class="hl">worktree-handoff/</span>          <span class="cm"># v3.2</span>
-│   ├── git-flow/           tfs-flow/
-│   ├── linear-sprint-planning/  codex-delegation/
-│   └── <span class="hl">architecture-drift-check/</span>   <span class="cm"># NEW v3.3 — reflexion modeling</span>
-├── <span class="dr">hooks/</span>
-│   ├── <span class="fl">hooks.json</span>            <span class="cm"># PostToolUse, PreToolUse, Stop</span>
-│   └── <span class="dr">scripts/</span>
-│       ├── post-edit-lint.sh
-│       ├── pre-push-build-check.sh
-│       └── <span class="fl">stop-sprint-tracking.sh</span>  <span class="cm"># sentinel-gated, no false positives</span>
-└── <span class="dr">scripts/</span>
-    └── <span class="fl">discover-skills.sh</span>    <span class="cm"># auto-discovery for project-local skills</span>
-</pre>
-  </div>
-</section>
-
-<!-- ════════════════════════════════════════════ FOOTER ═══════════════════ -->
+<!-- ─── FOOTER ────────────────────────────────────────────────────────────── -->
 <footer>
   <div class="shell">
     <div class="foot">
       <div class="foot-brand">
-        <a class="brand" href="#hero" style="color: var(--paper);">
-          <span class="brand-mark" style="background: var(--paper); color: var(--ink);">SW</span>
-          <span class="brand-name">sprint&middot;workflow</span>
-          <span class="brand-ver" style="color: rgba(247,244,237,0.4);">v3.3.0</span>
+        <a class="brand" href="#hero">
+          <span class="brand-mark"></span>
+          <span class="brand-name">sprint-workflow</span>
         </a>
         <p>A Claude Code plugin for orchestrated, architecture-first software development. Linear is the source of truth. MIT licensed.</p>
       </div>
       <div>
-        <h5>Lifecycle</h5>
+        <h5>Workflow</h5>
         <ul>
-          <li><a href="#orchestration">Orchestration</a></li>
-          <li><a href="#linear">Linear is truth</a></li>
-          <li><a href="#codex">Codex delegation</a></li>
+          <li><a href="#what">What it does</a></li>
+          <li><a href="#team">The team</a></li>
+          <li><a href="#lifecycle">Lifecycle</a></li>
           <li><a href="#visibility">Visibility &amp; control</a></li>
         </ul>
       </div>
       <div>
-        <h5>Reference</h5>
+        <h5>Integrations</h5>
         <ul>
-          <li><a href="#agents">Agents</a></li>
-          <li><a href="#skills">Skills</a></li>
+          <li><a href="#linear">Linear</a></li>
+          <li><a href="#codex">Codex</a></li>
+          <li><a href="#stack">What's optional</a></li>
           <li><a href="#install">Install</a></li>
-          <li><a href="#layout">Folder layout</a></li>
         </ul>
       </div>
       <div>
@@ -2621,38 +2244,39 @@ footer a:hover { color: var(--vermillion); }
       </div>
     </div>
     <div class="foot-meta">
-      <span>sprint-workflow &middot; v3.3.0</span>
+      <span>sprint-workflow · v3.3.0</span>
       <span>MIT</span>
       <span>built with Claude Code</span>
-      <span style="margin-left: auto;">©2026</span>
+      <span style="margin-left: auto;">© 2026</span>
     </div>
   </div>
 </footer>
 
 <script>
-  // scroll-spy: highlight nav link for the section currently in view
+  // scroll-spy
   (function() {
-    const links = Array.from(document.querySelectorAll('.nav-links a[data-spy]'));
-    const ids   = links.map(a => a.dataset.spy);
-    const sections = ids.map(id => document.getElementById(id)).filter(Boolean);
-    const setActive = (id) => {
-      links.forEach(a => a.classList.toggle('active', a.dataset.spy === id));
-    };
-    let raf;
-    const onScroll = () => {
-      if (raf) return;
-      raf = requestAnimationFrame(() => {
-        raf = null;
-        const y = window.scrollY + 140;
-        let active = sections[0]?.id || null;
-        for (const s of sections) {
-          if (s.offsetTop <= y) active = s.id;
-        }
-        setActive(active);
+    var links = Array.from(document.querySelectorAll('.nav-links a[data-spy]'));
+    var ids   = links.map(function(a){ return a.dataset.spy; });
+    var sections = ids.map(function(id){ return document.getElementById(id); }).filter(Boolean);
+    var ticking = false;
+    function spy() {
+      ticking = false;
+      var y = window.scrollY + 140;
+      var active = sections[0] ? sections[0].id : null;
+      for (var i = 0; i < sections.length; i++) {
+        if (sections[i].offsetTop <= y) active = sections[i].id;
+      }
+      links.forEach(function(a){
+        a.classList.toggle('active', a.dataset.spy === active);
       });
-    };
-    window.addEventListener('scroll', onScroll, { passive: true });
-    onScroll();
+    }
+    window.addEventListener('scroll', function(){
+      if (!ticking) {
+        requestAnimationFrame(spy);
+        ticking = true;
+      }
+    }, { passive: true });
+    spy();
   })();
 </script>
 
