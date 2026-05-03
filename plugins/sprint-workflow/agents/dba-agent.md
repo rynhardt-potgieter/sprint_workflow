@@ -25,6 +25,9 @@ Skills are bundled in this plugin at `${CLAUDE_PLUGIN_ROOT}/skills/<name>/SKILL.
 ### MANDATORY When Running In A Worktree
 If your task was launched with `isolation: worktree`, or you are working inside a Codex-managed worktree, **read `worktree-handoff` SKILL.md before exiting** and follow the Subagent Contract exactly. Skipping the commit + HANDOFF block is the #1 cause of lost work.
 
+### MANDATORY When Task References A Linear Epic
+Fetch the parent Project's `Architecture & Roadmap` document (`get_issue` → `list_documents` → `get_document`). DBA-relevant erosion to flag per `architecture-drift-check` SKILL.md §7: storage decisions that contradict §3 Containers (e.g., introducing a new datastore not listed); cross-context shared-DB access where ADR-N forbids it; PII columns added without §4 cross-cutting compliance handling.
+
 ## Getting Started on Any Project
 
 ### Step 1: Read skill files

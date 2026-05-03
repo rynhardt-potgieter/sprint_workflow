@@ -27,8 +27,9 @@ A portable [Claude Code](https://docs.anthropic.com/en/docs/claude-code) plugin 
 Sprint Workflow is a Claude Code plugin that turns Claude into a full development team:
 
 - **9 specialist agents** — backend, frontend, testing, QA, E2E/Playwright, docs, security, DBA, product management
-- **22 engineering skills** — .NET, React, Rust, PostgreSQL, security, MQTT, BPMN, CQRS, Linear, Codex, plus diagnose/tdd/zoom-out
-- **12 sprint commands** — plan, enrich, start, continue, resume-task, handoff, bug-triage, grill, retro, rollback, review, status
+- **23 engineering skills** — .NET, React, Rust, PostgreSQL, security, MQTT, BPMN, CQRS, Linear, Codex, plus diagnose/tdd/zoom-out
+- **13 sprint commands** — architect, plan, enrich, start, continue, resume-task, handoff, bug-triage, grill, retro, rollback, review, status
+- **Architecture-first workflow** (v3.3) — `/sprint-architect` produces a Linear Project Document containing a C4+ADR system design and feature roadmap, then loads Epics into Linear. Drift detection runs at every sprint stage to flag when implementation diverges
 - **Automated hooks** — type-check reminders, push gates, plan update enforcement
 - **[Linear](https://linear.app) integration** (opt-in) — single-track sprint management via [Linear MCP](https://linear.app/docs/mcp)
 - **[Codex](https://github.com/openai/codex) delegation** (opt-in) — route eligible tasks to OpenAI Codex for ~4x token savings via the [codex-plugin-cc](https://github.com/openai/codex-plugin-cc)
@@ -43,6 +44,57 @@ Claude Code is powerful but undirected. Without structure, it writes code howeve
 2. **Auto-discovery** that finds project-local skills and global standards automatically
 3. **Quality gates** that block shipping until builds pass, specs are met, and code is reviewed
 4. **Retry loops** that send failed work back to agents with specific failures — no human babysitting
+
+---
+
+## Architecture-First Workflow (v3.3)
+
+For non-trivial initiatives (features that span multiple phases, system rewrites, anything where the design matters), start with `/sprint-architect`. It produces the artifact every downstream sprint command consumes — and it lives in Linear, not in a markdown file that goes stale.
+
+```
+  /sprint-architect <context | --from-conversation | --update <project-id>>
+  ┌──────────────────────────────────────────────────────────────────┐
+  │  1. Confirm context (one-paragraph restatement, user approves)   │
+  │  2. Ask ≤5 clarifying questions                                  │
+  │     each: 2–4 options + "Choose for me" + "Skip / not sure"      │
+  │  3. product-manager (architecture mode) → C4 + ADR + arc42 doc   │
+  │  4. WRITE TO LINEAR:                                             │
+  │     • Project (initiative container)                             │
+  │     • Project Document "Architecture & Roadmap" (long-form)      │
+  │     • Epic Issues (one per Phase, linked to the Document)        │
+  └──────────────────────────────────┬───────────────────────────────┘
+                                     │
+                                     ▼
+                         User picks an Epic to work on,
+                         then runs /sprint-plan <epic-id>
+                                     │
+                                     ▼
+                  /sprint-plan auto-fetches Architecture & Roadmap
+                  from the Epic's parent Project. The plan is built
+                  with full system context. Drift detection runs.
+```
+
+**Why Linear and not markdown**: a markdown architecture file in `docs/` goes stale within weeks because nobody opens it during day-to-day work. Linear's Project Document sits on the Project page where the team already looks, supports Markdown with the same editor as Issues, retains version history, and links bidirectionally with the Issues that implement it. The hard-no-MD rule is deliberate — it forces the artifact to live where it stays useful.
+
+**Document structure** — the industry consensus for SaaS teams: **C4** for hierarchical clarity (Context → Container → Component), **ADRs** for decision history (Status / Context / Decision / Consequences), **arc42** section ordering for completeness without bloat. Sources at the bottom of this README.
+
+**Drift detection** — every downstream command runs an [architectural reflexion-modeling](https://www.sciencedirect.com/science/article/pii/S0920548923000557) check against the Architecture & Roadmap doc:
+
+| Stage | What gets compared | What gets flagged |
+|---|---|---|
+| `/sprint-plan` | Proposed Tasks vs prescribed model | Erosion blocks the plan; drift is informational |
+| `/sprint-enrich` | Plan vs prescribed model, from each specialist's domain angle | Same severity rules |
+| `/sprint-start` Phase 3 (QA + code review) | Actual diff vs prescribed model | Erosion = BLOCKING (fix loop); drift = WARNING |
+| `/sprint-retro` | Aggregate findings across the sprint | Recommendation to run `/sprint-architect --update` if findings have piled up |
+
+**Drift vs erosion** (the distinction matters):
+
+- **Drift** = code introduces something the doc doesn't mention (new component, new edge). The doc is silent, not violated. Often correct — the doc is incomplete and reality has more nuance. **Severity: WARNING.**
+- **Erosion** = code violates an explicit Accepted ADR or cross-cutting constraint. The doc said "do X", the code did "not X". Almost always a bug or a deliberate decision that needs to be re-recorded. **Severity: BLOCKING.**
+
+When erosion is intentional, the fix is `/sprint-architect --update <project-id>` — record the new decision as an ADR, supersede the old one in the Change Log, and the next sprint's drift check passes.
+
+**Hard requirement**: `/sprint-architect` requires Linear MCP. Drift checks in other commands degrade gracefully when Linear is absent — they skip with a one-line note rather than failing.
 
 ---
 
@@ -108,8 +160,15 @@ Claude Code is powerful but undirected. Without structure, it writes code howeve
 ### Command Map
 
 ```
+   /sprint-architect    ── creates Linear Project + Architecture & Roadmap doc + Epics
+        │                  (run once per initiative; --update later)
+        ▼
                             ┌──── plan + dispatch ─────┐
    /sprint-grill ──▶ /sprint-plan ──▶ /sprint-enrich ──▶ /sprint-start
+   (optional)        (auto-loads      (specialists also     (Phase 3 QA + review
+                      Architecture     check drift from     run drift check)
+                      doc when given   their domain angle)
+                      an Epic ID)
                                                               │
         ┌─────────────────────────────────────────────────────┤
         │                                                     │
@@ -122,6 +181,9 @@ Claude Code is powerful but undirected. Without structure, it writes code howeve
                                           ┌───────────────────┘
                                           ▼
                                    /sprint-retro · /sprint-rollback · /sprint-review
+                                   (retro emits drift summary;
+                                    if findings pile up, suggests
+                                    /sprint-architect --update)
 ```
 
 ---
@@ -137,7 +199,7 @@ Add the marketplace and install the plugin directly in Claude Code:
 /plugins install sprint-workflow
 ```
 
-One plugin — batteries included. All 9 agents and 22 engineering skills in a single install.
+One plugin — batteries included. All 9 agents and 23 engineering skills in a single install.
 
 ### Option B: Install from local clone
 
@@ -273,15 +335,21 @@ Every agent follows a **3-step onboarding**:
 2. Read project CLAUDE.md
 3. Execute the task
 
-#### 12 Sprint Commands
+#### 13 Sprint Commands
+
+##### Architecture-First (added v3.3)
+
+| Command | Purpose |
+|---------|---------|
+| `/sprint-architect` | Produce a Linear Project + `Architecture & Roadmap` document (C4 + ADR + arc42) + Epic Issues from any context (session conversation, PRD, attached docs). Asks ≤5 clarifying questions, each with a "Choose for me" option. Use `--update <project-id>` to refresh the doc with a Change Log entry. **Hard requirement: Linear MCP** — refuses to write architecture artifacts to local markdown. |
 
 ##### Core Lifecycle
 
 | Command | Purpose |
 |---------|---------|
-| `/sprint-plan` | Invoke product-manager to create a structured plan with agent assignments and parallel groups. Pass `--grill` to interrogate the spec first. |
-| `/sprint-enrich` | Specialist agents review the plan — add gotchas, anti-patterns, test cases, security/DBA concerns |
-| `/sprint-start` | Execute the approved plan through the 6-phase flow (build → test → QA+review → fix → docs → commit) |
+| `/sprint-plan` | Invoke product-manager to create a structured plan with agent assignments and parallel groups. Pass `--grill` to interrogate the spec first. **v3.3**: when given a Linear Epic ID, auto-loads the Architecture & Roadmap doc from the Epic's parent Project and runs a drift self-check. |
+| `/sprint-enrich` | Specialist agents review the plan — add gotchas, anti-patterns, test cases, security/DBA concerns. **v3.3**: each specialist also flags domain-specific drift against the Architecture & Roadmap doc. |
+| `/sprint-start` | Execute the approved plan through the 6-phase flow (build → test → QA+review → fix → docs → commit). **v3.3**: Phase 3 QA + code review run the architecture drift check; erosion is BLOCKING, drift is WARNING. |
 | `/sprint-review` | Run quality gates and code review on completed work (standalone, outside sprint flow) |
 | `/sprint-status` | Report current sprint/task status from Linear or plan documents |
 
@@ -299,7 +367,7 @@ Every agent follows a **3-step onboarding**:
 |---------|---------|
 | `/sprint-bug-triage` | Multi-agent bug review (code-reviewer + security-agent + qa-agent + Codex adversarial). Dedups, presents to user, files Linear sub-issues under an Epic OR appends to `docs/BUG_BACKLOG.md` |
 | `/sprint-grill` | Pre-planning interrogation — `product-manager` grills the user against the domain model until sprint inputs are unambiguous. Adapts a pattern from [mattpocock/skills](https://github.com/mattpocock/skills). |
-| `/sprint-retro` | Generate a sprint retrospective — analyzes commits, QA cycles, fix-loop counts, codex-vs-claude split. Emits `docs/retros/<epic>_<date>/<sprint>_retro.md` plus suggested CLAUDE.md updates |
+| `/sprint-retro` | Generate a sprint retrospective — analyzes commits, QA cycles, fix-loop counts, codex-vs-claude split. **v3.3**: emits an Architecture Drift Summary; recommends `/sprint-architect --update` if findings have piled up. Emits `docs/retros/<epic>_<date>/<sprint>_retro.md` plus suggested CLAUDE.md updates |
 | `/sprint-rollback` | Safety-gated revert of a sprint's commits + Linear/MD status reset. Never force-pushes, always uses revert branches. |
 
 #### Automated Hooks
@@ -338,7 +406,7 @@ The `discover-skills.sh` script automatically finds:
 
 This means agents adapt to any project without manual configuration.
 
-### 22 Engineering Skills
+### 23 Engineering Skills
 
 Bundled skill files that define how code should be written. Agents read these automatically via `${CLAUDE_PLUGIN_ROOT}/skills/`.
 
@@ -395,8 +463,14 @@ Bundled skill files that define how code should be written. Agents read these au
 
 | Skill | Covers |
 |-------|--------|
-| `linear-sprint-planning` | [Linear](https://linear.app) issue taxonomy, Milestone-based sprints, label definitions, status lifecycle, MCP query/creation patterns |
-| `codex-delegation` | [Codex](https://github.com/openai/codex) eligibility criteria, adversarial review focus strings, fix routing, context passing |
+| `linear-sprint-planning` | [Linear](https://linear.app) issue taxonomy, Milestone-based sprints, label definitions, status lifecycle, MCP query/creation patterns. **v3.3**: §12 Project Documents (Architecture & Roadmap structure, save/get/update patterns, Epic linking convention) |
+| `codex-delegation` | [Codex](https://github.com/openai/codex) eligibility criteria, adversarial review focus strings, fix routing, context passing. **v3.3**: §11 Architecture Drift Check — orchestrator pre-fetches the doc and passes the prescribed-model summary inline (Codex doesn't have Linear MCP) |
+
+#### Architecture Governance (added v3.3)
+
+| Skill | Covers |
+|-------|--------|
+| `architecture-drift-check` | Reflexion-modeling check that compares planned or implemented work against the Linear Architecture & Roadmap document. Distinguishes **drift** (new, undocumented — WARNING) from **erosion** (violates an Accepted ADR or quality attribute — BLOCKING). Defines the standard report format used by `/sprint-plan`, `/sprint-enrich`, Phase 3 QA + code review, and `/sprint-retro`. Skips gracefully when Linear is absent or no doc exists. |
 
 ---
 
@@ -511,7 +585,7 @@ sprint_workflow/
         │   └── scripts/
         ├── scripts/
         │   └── discover-skills.sh         # Auto skill discovery
-        └── skills/                        # 22 engineering skills
+        └── skills/                        # 23 engineering skills
             ├── api-design/
             ├── bpmn-workflow/
             ├── cli-agent-patterns/
@@ -554,6 +628,9 @@ sprint_workflow/
 | Bug triage | 3.1 | `/sprint-bug-triage` — parallel multi-agent review → dedup → user-approved Linear/MD bug tickets |
 | Grill, retro, rollback | 3.1 | `/sprint-grill` (pre-plan interrogation), `/sprint-retro` (data-driven retro), `/sprint-rollback` (safety-gated revert) |
 | Engineering discipline skills | 3.1 | `diagnose`, `tdd`, `zoom-out` — adapted in part from [mattpocock/skills](https://github.com/mattpocock/skills) |
+| Worktree handoff | 3.2 | `worktree-handoff` skill + agent contract for safe subagent/Codex worktree integration |
+| Sentinel-gated Stop hook | 3.2.1 | Replaced prompt-type Stop hook with sentinel-gated bash hook — no false positives in non-sprint sessions, cannot loop |
+| Architecture-first workflow | 3.3 | `/sprint-architect` (Linear-backed C4+ADR architecture & roadmap), `architecture-drift-check` skill, drift detection wired into `/sprint-plan`, `/sprint-enrich`, Phase 3 QA, code review, and `/sprint-retro` |
 
 ### Future
 
@@ -563,6 +640,32 @@ sprint_workflow/
 | OWASP ZAP CLI scanning | Automated API security scanning in CI |
 | OpenAPI auto-generation | Generate specs from code annotations, not just document existing ones |
 | Migration CI gate | Pre-merge migration safety check as a CI step |
+
+---
+
+## Sources & Industry Patterns
+
+The architecture-first workflow and drift detection in v3.3 are grounded in established practitioner and academic sources:
+
+**Architecture documentation**
+- C4 model — [c4model.com](https://c4model.com/) (Simon Brown)
+- ADRs (Architecture Decision Records) — [adr.github.io](https://adr.github.io/)
+- arc42 template — [arc42.org](https://arc42.org/)
+- The C4 + ADR + arc42 hybrid for SaaS teams — [Working Software guide](https://www.workingsoftware.dev/software-architecture-documentation-the-ultimate-guide/), [arc42 + C4 example](https://github.com/bitsmuggler/arc42-c4-software-architecture-documentation-example)
+
+**Architectural drift & erosion**
+- Reflexion modeling (Murphy et al., 1995; widely surveyed since)
+- "Drift and Erosion in Software Architecture" — [Li et al., 2020](https://www.researchgate.net/publication/339385701_Drift_and_Erosion_in_Software_Architecture_Summary_and_Prevention_Strategies)
+- "Detecting deviations using architecture view-based drift analysis" — [ScienceDirect, 2023](https://www.sciencedirect.com/science/article/pii/S0920548923000557)
+- "Assessing architectural drift in commercial software" — [Rosik 2011](https://onlinelibrary.wiley.com/doi/full/10.1002/spe.999)
+
+**Epic decomposition**
+- [Atlassian — Epics, Stories, Initiatives](https://www.atlassian.com/agile/project-management/epics-stories-themes)
+- [Aha — Agile Epics Best Practices](https://www.aha.io/roadmapping/guide/agile/agile-epics-explained)
+
+**Linear**
+- [Linear Project Documents](https://linear.app/docs/project-documents)
+- [Linear API](https://linear.app/developers)
 
 ---
 

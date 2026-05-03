@@ -30,6 +30,9 @@ Skills are bundled in this plugin at `${CLAUDE_PLUGIN_ROOT}/skills/<name>/SKILL.
 ### MANDATORY When Running In A Worktree
 If your task was launched with `isolation: worktree`, or you are working inside a Codex-managed worktree, **read `worktree-handoff` SKILL.md before exiting** and follow the Subagent Contract exactly. Skipping the commit + HANDOFF block is the #1 cause of lost work.
 
+### MANDATORY When Task References A Linear Epic
+Same as backend-dev: if a Linear Epic/Task ID is in your prompt, fetch the parent Project's `Architecture & Roadmap` document, honour §3 Containers + §4 Cross-Cutting Concerns + Accepted ADRs in §6, and report any erosion via `architecture-drift-check` SKILL.md §7 instead of silently introducing it. Frontend-specific drift signals: client-side data fetching that bypasses the §3 communication contract; auth/token handling that contradicts the §4 auth model.
+
 ## Getting Started on Any Project
 
 ### Step 1: Read skill files

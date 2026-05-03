@@ -26,6 +26,9 @@ Skills are bundled in this plugin at `${CLAUDE_PLUGIN_ROOT}/skills/<name>/SKILL.
 ### MANDATORY When Running In A Worktree
 If your task was launched with `isolation: worktree`, or you are working inside a Codex-managed worktree, **read `worktree-handoff` SKILL.md before exiting** and follow the Subagent Contract exactly. Skipping the commit + HANDOFF block is the #1 cause of lost work.
 
+### MANDATORY When Task References A Linear Epic
+Fetch the parent Project's `Architecture & Roadmap` document. Test-writer-relevant work: any drift the orchestrator flagged as accepted needs regression test coverage so the deviation doesn't silently regress later. Add explicit tests for any quality attribute (§2) that touches the code under test (e.g., a "no PII in logs" attribute → write a test that asserts logs are PII-free for the relevant code paths).
+
 ## Getting Started on Any Project
 
 ### Step 1: Read skill files

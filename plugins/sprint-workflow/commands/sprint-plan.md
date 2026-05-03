@@ -67,6 +67,19 @@ Before dispatching the PM agent, collect what it needs:
 3. **Spec documents**: If arguments reference a file path (e.g., "from docs/PRD.md"), read it. If CLAUDE.md references spec docs, note their paths.
 4. **Current codebase state**: Run a quick `git log --oneline -10` and check project structure to understand what's already built.
 5. **Available skills**: Use the auto-discovered skills above to understand what standards apply.
+6. **Architecture & Roadmap context (Linear mode + Epic ID)**: If `$ARGUMENTS` resolves to a Linear Epic ID (e.g., `EPIC-42`, or a Linear issue URL), auto-load the Architecture & Roadmap document for that Epic's parent Project. This is the single most important context source when one exists.
+
+### 1b. Load Architecture & Roadmap (when targeting an Epic in Linear)
+
+When `$ARGUMENTS` references a Linear Epic, do this **before** dispatching the PM agent:
+
+1. `get_issue({id: "<epic-id>", includeRelations: true})` — fetch the Epic. Capture `projectId` from the response.
+2. If no `projectId` → the Epic isn't in a Project. Skip drift context (not applicable). Note this to the user: `ℹ Epic has no parent Project — architecture context unavailable`.
+3. `list_documents({projectId})` → search for a document titled `Architecture & Roadmap`.
+4. If found → `get_document({id})` → capture the markdown body.
+5. If not found → note to the user: `ℹ No Architecture & Roadmap document on parent Project. /sprint-plan will proceed without architecture context. Run /sprint-architect to create one.`
+6. Pass the document body (when available) to the PM agent in step 2 below as a tagged section: `## Architecture & Roadmap (prescribed model)\n\n<full body>`.
+7. Also pass the skill path `${CLAUDE_PLUGIN_ROOT}/skills/architecture-drift-check/SKILL.md` so the PM runs a self-check on the proposed Task list.
 
 ### 2. Dispatch the Product Manager Agent
 
@@ -150,7 +163,24 @@ Stories in this group depend on Group 1 completing first.
 
 ### 3. Present the Plan to the User
 
-When the PM agent returns, present the complete plan to the user. Do NOT start execution. Wait for the user to:
+When the PM agent returns, present the complete plan to the user. Do NOT start execution.
+
+**If the PM's output contains a `## Architecture Drift Detected` section**, surface it prominently at the top of your response — drift findings are blocking decisions for the user, not footnotes. Format:
+
+```
+⚠ Architecture Drift Detected — review before approving
+
+<paste the section verbatim from the PM>
+
+Options:
+  1. Revise the plan to honour the prescribed architecture (re-dispatch PM with constraints)
+  2. Run /sprint-architect --update <project-id> to record the deliberate change, then re-plan
+  3. Approve as-is and accept the deviation (you'll see this again in Phase 3 QA)
+
+Which option?
+```
+
+If there is no drift section, present the plan and wait for the user to:
 - **Approve** the plan as-is
 - **Request changes** (re-dispatch PM with feedback)
 - **Run `/sprint-enrich`** to have specialist agents review the plan before starting

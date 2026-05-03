@@ -6,7 +6,15 @@ These rules govern how Claude Code orchestrates development work across any proj
 
 | Plugin | Version | Purpose |
 |--------|---------|---------|
-| `sprint-workflow` | 3.2.1 | 9 specialist agents, 22 engineering skills (incl. `worktree-handoff`), 12 commands, sentinel-gated Stop hook, auto skill discovery, Linear MCP (opt-in), Codex delegation (opt-in), recovery commands (continue/resume-task/handoff), bug-triage, grill, retro, rollback |
+| `sprint-workflow` | 3.3.0 | 9 specialist agents, 23 engineering skills (incl. `architecture-drift-check`), 13 commands (incl. `/sprint-architect`), sentinel-gated Stop hook, drift detection across plan/enrich/QA/review/retro, auto skill discovery, Linear MCP (opt-in for sprints, required for `/sprint-architect`), Codex delegation (opt-in) |
+
+## Architecture Is In Linear, Not In Markdown
+
+The architecture & roadmap artifact for any non-trivial initiative lives in Linear as a **Project Document** titled `Architecture & Roadmap` — created by `/sprint-architect`, updated by `/sprint-architect --update`. Local markdown architecture files are explicitly forbidden because they go stale and nobody opens them.
+
+Agents fetch the doc via Linear MCP when their task references a Linear Epic or Task; they do not duplicate it into the repo. The chain is: Linear Project → Project Document → Epic Issue → Task Issue → implementation. Every level resolves back up to the doc.
+
+When the implementation diverges from the doc, agents report it via the standard `## Architecture Drift Detected` block defined in `architecture-drift-check` SKILL.md — drift is a `WARNING`, erosion (violating an Accepted ADR) is `BLOCKING`. The fix is either to revise the work or to run `/sprint-architect --update <project-id>` to record the deliberate decision change.
 
 Install via: `/plugins marketplace add rynhardt-potgieter/sprint_workflow` then `/plugins install sprint-workflow`
 
@@ -25,10 +33,13 @@ Both are opt-in. When unavailable, the plugin operates identically to v2.x (mark
 
 ## Command Surface (12 total)
 
+### Architecture-first
+- `/sprint-architect` — produce a Linear Project + `Architecture & Roadmap` document + Epic issues from any context (session conversation, PRD, attached docs). Hard requirement: Linear MCP. Use `--update <project-id>` to refresh the doc when reality has shifted.
+
 ### Core lifecycle
-- `/sprint-plan` — produce a sprint plan (accepts `--grill` for spec interrogation first)
-- `/sprint-enrich` — specialist enrichment of the plan
-- `/sprint-start` — execute the 6-phase flow
+- `/sprint-plan` — produce a sprint plan (accepts `--grill` for spec interrogation first; auto-loads parent Project's `Architecture & Roadmap` when given an Epic ID)
+- `/sprint-enrich` — specialist enrichment of the plan; specialists also flag domain-specific drift against the Architecture & Roadmap
+- `/sprint-start` — execute the 6-phase flow; Phase 3 includes architecture drift check
 - `/sprint-review` — quality gates on completed work outside sprint flow
 - `/sprint-status` — current sprint status from Linear or MD
 
@@ -198,7 +209,7 @@ After completing every implementation task:
 
 ---
 
-## Bundled Engineering Skills (22)
+## Bundled Engineering Skills (23)
 
 All skills live at `${CLAUDE_PLUGIN_ROOT}/skills/<name>/SKILL.md` inside the plugin.
 
@@ -226,6 +237,7 @@ All skills live at `${CLAUDE_PLUGIN_ROOT}/skills/<name>/SKILL.md` inside the plu
 | `tdd` | Engineering discipline | Red-green-refactor; mandatory regression tests for bug fixes; integration with `/sprint-start` Phase 1/2 |
 | `zoom-out` | Engineering discipline | Recovery procedure when 3+ navigation attempts have failed or code is unfamiliar |
 | `worktree-handoff` | Engineering discipline | Subagent + orchestrator contract for getting code out of an isolated worktree (Claude or Codex) without losing work or copying files by hand |
+| `architecture-drift-check` | Architecture governance | Reflexion-modeling check that compares planned or implemented work against the Linear Architecture & Roadmap doc. Distinguishes drift (warning) from erosion (blocking). Used by `/sprint-plan`, `/sprint-enrich`, Phase 3 QA, code review, and `/sprint-retro` |
 
 ---
 

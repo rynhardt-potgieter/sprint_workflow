@@ -88,6 +88,8 @@ If `docs/SPRINT_HANDOFF.md` exists, check git log for that file. Each modificati
 | Net diff size | `git diff --stat` summary |
 | Sprint duration | end - start |
 | Sessions / interruptions | Handoff file modification count |
+| Architecture drift findings | Sum of `## Architecture Drift Detected` entries from `/sprint-plan`, `/sprint-enrich`, Phase 3 QA, code review (parsed from Linear comments and the local sprint output). 0 if no Architecture & Roadmap doc on the parent Project. |
+| Architecture erosion findings | Subset of above flagged as `BLOCKING` per `architecture-drift-check` SKILL.md §8 |
 
 Round percentages to whole numbers.
 
@@ -166,6 +168,27 @@ Document template:
 - QA results: PASS / FAIL with iteration count
 - Code review results: PASS / FAIL with issue count
 - Reverts during sprint: N
+
+## Architecture Drift Summary
+
+(Only emit this section when Linear mode is active AND the sprint's parent Project has an Architecture & Roadmap document.)
+
+| Source | Drift Findings | Erosion Findings |
+|---|---|---|
+| /sprint-plan (PM self-check) | N | N |
+| /sprint-enrich (specialists) | N | N |
+| Phase 3 QA (Codex / qa-agent) | N | N |
+| Phase 3 code review | N | N |
+| **Total** | **N** | **N** |
+
+### Top Drift / Erosion Themes
+- <e.g., "Catalog ↔ Inventory communication: 3 erosion findings — code keeps reaching for sync HTTP despite ADR-3">
+- <e.g., "Caching: 4 drift findings — Redis keeps appearing without being in the doc">
+
+### Recommendation
+- **Drift > 5 OR any erosion merged**: schedule `/sprint-architect --update <project-id>` to align doc with reality
+- **Drift 1–5, no erosion**: the doc is roughly accurate; capture in next planning cycle
+- **Zero findings**: doc is healthy, no action
 
 ## Reflection
 

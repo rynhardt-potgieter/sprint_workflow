@@ -19,8 +19,9 @@ Skills are bundled in this plugin at `${CLAUDE_PLUGIN_ROOT}/skills/<name>/SKILL.
 - Project-specific skills in `.claude/skills/*/SKILL.md` relative to the project root — these define project-specific patterns, domain entities, and constraints
 
 ### Read When Instructed by Orchestrator
-- `${CLAUDE_PLUGIN_ROOT}/skills/linear-sprint-planning/SKILL.md` — when the orchestrator tells you Linear mode is active. Defines issue taxonomy, label rules, Milestone-based sprint grouping, and description format for Linear issues.
+- `${CLAUDE_PLUGIN_ROOT}/skills/linear-sprint-planning/SKILL.md` — when the orchestrator tells you Linear mode is active. Defines issue taxonomy, label rules, Milestone-based sprint grouping, description format, and §12 Project Documents (the Architecture & Roadmap doc structure).
 - `${CLAUDE_PLUGIN_ROOT}/skills/codex-delegation/SKILL.md` — when the orchestrator tells you Codex is available. Defines eligibility criteria for flagging tasks as codex-eligible.
+- `${CLAUDE_PLUGIN_ROOT}/skills/architecture-drift-check/SKILL.md` — when the orchestrator passes you an Architecture & Roadmap document for context (most `/sprint-plan` runs that target an Epic). You compare the proposed Task list against the doc and flag any Plan-level erosion before it reaches implementation.
 
 ## Getting Started on Any Project
 
@@ -74,6 +75,77 @@ A vertical slice has all of: a user role, a trigger, a visible outcome, and the 
 Read the acceptance criteria. If every AC describes one layer (only DB, only API, only UI), it's horizontal — rewrite it. If the ACs walk a request from trigger to outcome through every layer, it's a slice.
 
 This rule comes from project CLAUDE.md and is enforced by `qa-agent` during Phase 3.
+
+## Architecture Mode (when invoked by `/sprint-architect`)
+
+When the orchestrator dispatches you in **architecture mode**, you produce the body of a Linear Project Document titled `Architecture & Roadmap`, plus a list of Epics to create. You do NOT call any Linear tools yourself — you return markdown and a structured Epic list, and the orchestrator does the writes.
+
+### Required reading
+
+1. Read `${CLAUDE_PLUGIN_ROOT}/skills/linear-sprint-planning/SKILL.md` §12 for the exact document structure.
+2. Read project `CLAUDE.md` if present.
+3. Read all relevant skill files for the tech stack the orchestrator passes you.
+
+### Document structure (mandatory)
+
+Follow §12.1 of `linear-sprint-planning` exactly. The structure is the **C4 + ADR + arc42 hybrid** that the SaaS architecture documentation literature has converged on (C4 for hierarchical clarity, ADRs for decision history, arc42 section ordering for completeness). Sections:
+
+1. Context (problem, users, external systems, out of scope)
+2. Quality Attributes (ranked, testable)
+3. Containers (C4 Level 2 — building blocks + communication style)
+4. Cross-Cutting Concerns (auth, multi-tenancy, secrets, logging, observability)
+5. Roadmap (Phases — each one becomes an Epic)
+6. Architectural Decisions (ADRs — Status / Context / Decision / Consequences)
+7. Change Log (empty on first run)
+
+### Phase → Epic mapping
+
+For each Phase in §5, return one Epic spec to the orchestrator:
+
+```
+{
+  "title": "Phase N: <short title>",
+  "scope_summary": "<one paragraph — what this Phase delivers, who benefits>",
+  "dependencies": ["Phase N-1", ...] or [],
+  "labels": ["Epic", "Feature"]   // or "Improvement" for refactor phases
+}
+```
+
+### Decision recording rules
+
+- Every "Choose for me" answer the user gave gets an ADR with `Status: Accepted (auto-selected)` and the recommendation reasoning under Context.
+- Every "Skip / not sure" answer gets an ADR with `Status: Accepted (deferred)` and the safe default chosen under Decision.
+- Every explicit user choice gets a normal `Status: Accepted` ADR.
+- Decisions you (the agent) made internally without asking — only record as ADRs if they're material; minor implementation choices stay out of the doc.
+
+### Architecture mode anti-patterns
+
+- Don't include Tasks in the Roadmap section — only Phases. Tasks come from `/sprint-plan` later.
+- Don't invent constraints not present in the input. If the user didn't specify a latency target, leave Quality Attributes minimal — don't fabricate "<200ms p99" out of habit.
+- Don't write more than 3–5 ADRs in the initial document. ADRs accrete over time via `/sprint-architect --update`. Capture only the architecturally significant decisions made *now*.
+- Don't omit the §7 Change Log (even empty). It signals that the doc is intended to be updated.
+
+---
+
+## Plan Mode With Architecture Context (when `/sprint-plan` targets an Epic)
+
+When the orchestrator dispatches you in plan mode AND passes an Architecture & Roadmap document body, you MUST:
+
+1. **Read `${CLAUDE_PLUGIN_ROOT}/skills/architecture-drift-check/SKILL.md`** before writing the plan.
+2. **Build the prescribed model** by extracting Containers (§3), ADRs (§6), and Cross-Cutting Concerns (§4) from the document.
+3. **Build the proposed model** from your Task breakdown — what new components, edges, and storage decisions does the Task list imply?
+4. **Compare** per the reflexion-modeling approach in `architecture-drift-check` SKILL.md §6.
+5. **If you find any drift or erosion in your own proposed plan**, append the standard `## Architecture Drift Detected` section (per the skill's §7 format) to your output BEFORE the plan itself, so the user sees it first.
+
+This is a self-check — you're not waiting for QA to find that your plan would erode the architecture. You catch it at planning time when the cost of fixing is one paragraph in the plan, not a re-implementation.
+
+If the proposed plan would require erosion (BLOCKING per `architecture-drift-check` §8), explicitly recommend at the top:
+
+> **Recommendation**: Either revise the plan to honour ADR-N, OR run `/sprint-architect --update <project-id>` to record the deliberate decision change before sprint starts.
+
+The user decides which path; you don't pick.
+
+---
 
 ## Sprint Planning Process
 

@@ -208,6 +208,7 @@ Dispatch `qa-agent` (sonnet) as in v2.2.2:
 - Include skill file paths for the domains being validated
 - Tell it to run: build, type-check, lint, tests, spec compliance
 - Tell it to produce a structured report with BLOCKING/WARNING/INFO
+- Architecture drift check (see "Architecture Drift in Phase 3" below)
 
 #### Gate 2: Code Review
 
@@ -216,6 +217,27 @@ Dispatch `pr-review-toolkit:code-reviewer` — **ALWAYS Claude, never Codex.**
 - Include acceptance criteria
 - Tell it to review all changes since the sprint started
 - Tell it to flag UX regressions, spec mismatches, and pattern violations
+- Architecture drift check (see "Architecture Drift in Phase 3" below)
+
+#### Architecture Drift in Phase 3
+
+When Linear mode is active AND the sprint's parent Project has an `Architecture & Roadmap` document, both Gate 1 and Gate 2 MUST run the drift check per `${CLAUDE_PLUGIN_ROOT}/skills/architecture-drift-check/SKILL.md`.
+
+Pre-fetch the document **once** in the orchestrator (main session), then pass the body inline to both gates so neither has to call Linear MCP themselves:
+
+1. Pick any Story from this sprint → `get_issue({id, includeRelations: true})` → capture `projectId`.
+2. `list_documents({projectId})` → find `Architecture & Roadmap`.
+3. `get_document({id})` → capture body.
+4. Pass body + the skill path to:
+   - **Codex adversarial review** (when Codex available): include the prescribed-model summary in the focus string. Codex doesn't have Linear MCP — it relies on the inline context.
+   - **`qa-agent`** (Claude fallback): include in prompt as `## Architecture & Roadmap (compare diff against this)` section + skill path.
+   - **`pr-review-toolkit:code-reviewer`**: same as qa-agent.
+
+If the document doesn't exist → both gates skip the drift check with a one-line note (per skill §9). The sprint still completes — the check is graceful.
+
+Findings are merged into the gate's standard report:
+- **Erosion** → `BLOCKING` (counted in the existing BLOCKING list, fix loop applies)
+- **Drift** → `WARNING` (counted in WARNING list; informational, doesn't block)
 
 **After both gates complete:**
 - Collect BLOCKING issues from both reports
