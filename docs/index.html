@@ -2013,6 +2013,21 @@ footer a:hover { color: var(--accent); }
         <p>Build, lint, type-check, tests. Spec compliance. Architecture drift checks. When Codex is installed, replaced entirely by Codex's adversarial review &mdash; cross-model verification.</p>
       </div>
 
+      <!-- code-reviewer (external — pr-review-toolkit) -->
+      <div class="agent" style="border-style: dashed; background: linear-gradient(180deg, var(--card) 0%, var(--bg-2) 100%);">
+        <div class="agent-top">
+          <div class="agent-icon" style="background: linear-gradient(135deg,#4F46E5,#3730A3);">R</div>
+          <div class="agent-id">
+            <span class="name">code-reviewer <span style="font-family: var(--mono); font-size: 0.62rem; color: var(--ink-3); font-weight: 500; background: var(--bg-3); border: 1px solid var(--line); padding: 0.05rem 0.35rem; border-radius: 4px; margin-left: 0.3rem; letter-spacing: 0.04em; text-transform: uppercase;">external</span></span>
+            <span class="role">Code review · Phase 3</span>
+          </div>
+        </div>
+        <div class="agent-badges">
+          <span class="badge opus">Opus</span>
+        </div>
+        <p>Always Claude, never Codex. Dispatched in the QA + review loop to validate patterns, catch UX regressions, and flag spec mismatches. <strong>Comes from <a href="https://claude.com/plugins/pr-review-toolkit" target="_blank" rel="noopener" style="color: var(--accent); border-bottom: 1px solid var(--accent-line);">Anthropic's <code>pr-review-toolkit</code></a> plugin</strong> — install it alongside sprint-workflow.</p>
+      </div>
+
       <!-- qa-playwright -->
       <div class="agent">
         <div class="agent-top">
@@ -2485,6 +2500,21 @@ footer a:hover { color: var(--accent); }
         </div>
       </div>
 
+      <div class="stack required">
+        <div class="stack-tier">
+          <span class="tone"></span>
+          <span class="word">Required</span>
+        </div>
+        <div class="stack-body">
+          <h4><a href="https://claude.com/plugins/pr-review-toolkit" target="_blank" rel="noopener" style="color: var(--ink); border-bottom: 1px solid var(--line-2);">pr-review-toolkit</a> <span style="font-family: var(--mono); font-size: 0.78rem; color: var(--ink-3); font-weight: 500;">— Anthropic's code-review plugin</span></h4>
+          <p>The <strong>code-reviewer agent dispatched in Phase 3</strong> ships in this separate plugin from Anthropic. Without it, the QA + review loop can't run the Claude-side review pass. <strong>One install</strong>, available in the official Anthropic marketplace (auto-loaded in Claude Code).</p>
+        </div>
+        <div class="stack-meta">
+          <span class="tag-required">Required</span>
+          <span>Anthropic · official marketplace</span>
+        </div>
+      </div>
+
       <div class="stack optional">
         <div class="stack-tier">
           <span class="tone"></span>
@@ -2709,7 +2739,7 @@ footer a:hover { color: var(--accent); }
     <div class="section-head">
       <div class="eyebrow">11 · install</div>
       <h2>Up and running<br>in <em>under a minute</em>.</h2>
-      <p>Two commands to install. Two more to wire up the optional integrations when you're ready.</p>
+      <p>Three commands to install (sprint-workflow + Anthropic's <code>pr-review-toolkit</code>). Two more to wire up the optional Linear and Codex integrations when you're ready.</p>
     </div>
 
     <div class="install">
@@ -2732,6 +2762,14 @@ footer a:hover { color: var(--accent); }
       <div class="step">
         <div class="step-num">03</div>
         <div>
+          <h4>Install <a href="https://claude.com/plugins/pr-review-toolkit" target="_blank" rel="noopener" style="color: var(--accent); border-bottom: 1px solid var(--accent-line);">pr-review-toolkit</a> <span class="opt-tag req">Required</span></h4>
+          <p>Anthropic's code-review plugin, available in the official marketplace (auto-loaded in Claude Code). The Phase 3 QA + review loop dispatches the <code>code-reviewer</code> agent from this plugin.</p>
+<pre><span class="pr">$</span> /plugins install pr-review-toolkit</pre>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">04</div>
+        <div>
           <h4>Linear MCP <span class="opt-tag">Optional</span></h4>
           <p>Required for <code>/sprint-architect</code>. Without it, plans live in a markdown file.</p>
 <pre><span class="cm"># Follow Linear's MCP setup</span>
@@ -2739,7 +2777,7 @@ footer a:hover { color: var(--accent); }
         </div>
       </div>
       <div class="step">
-        <div class="step-num">04</div>
+        <div class="step-num">05</div>
         <div>
           <h4>Codex CLI <span class="opt-tag">Optional</span></h4>
           <p>Auto-detected. When available, eligible tasks route to Codex automatically. See <a href="https://github.com/openai/codex-plugin-cc" target="_blank" rel="noopener" style="color: var(--codex); border-bottom: 1px solid rgba(16,163,127,0.4);">openai/codex-plugin-cc</a> for setup.</p>
@@ -2749,7 +2787,7 @@ footer a:hover { color: var(--accent); }
         </div>
       </div>
       <div class="step">
-        <div class="step-num">05</div>
+        <div class="step-num">06</div>
         <div>
           <h4>Start an initiative</h4>
           <p>Already had a brainstorm in this conversation? Use the current chat as context.</p>
