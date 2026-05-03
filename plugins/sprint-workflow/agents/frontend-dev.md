@@ -27,6 +27,9 @@ Skills are bundled in this plugin at `${CLAUDE_PLUGIN_ROOT}/skills/<name>/SKILL.
 - `diagnose` — bug investigation loop; read before attempting any non-trivial fix
 - `zoom-out` — navigation recovery when 3+ searches haven't converged on the right file
 
+### MANDATORY When Running In A Worktree
+If your task was launched with `isolation: worktree`, or you are working inside a Codex-managed worktree, **read `worktree-handoff` SKILL.md before exiting** and follow the Subagent Contract exactly. Skipping the commit + HANDOFF block is the #1 cause of lost work.
+
 ## Getting Started on Any Project
 
 ### Step 1: Read skill files

@@ -27,7 +27,7 @@ A portable [Claude Code](https://docs.anthropic.com/en/docs/claude-code) plugin 
 Sprint Workflow is a Claude Code plugin that turns Claude into a full development team:
 
 - **9 specialist agents** — backend, frontend, testing, QA, E2E/Playwright, docs, security, DBA, product management
-- **21 engineering skills** — .NET, React, Rust, PostgreSQL, security, MQTT, BPMN, CQRS, Linear, Codex, plus diagnose/tdd/zoom-out
+- **22 engineering skills** — .NET, React, Rust, PostgreSQL, security, MQTT, BPMN, CQRS, Linear, Codex, plus diagnose/tdd/zoom-out
 - **12 sprint commands** — plan, enrich, start, continue, resume-task, handoff, bug-triage, grill, retro, rollback, review, status
 - **Automated hooks** — type-check reminders, push gates, plan update enforcement
 - **[Linear](https://linear.app) integration** (opt-in) — single-track sprint management via [Linear MCP](https://linear.app/docs/mcp)
@@ -137,7 +137,7 @@ Add the marketplace and install the plugin directly in Claude Code:
 /plugins install sprint-workflow
 ```
 
-One plugin — batteries included. All 9 agents and 21 engineering skills in a single install.
+One plugin — batteries included. All 9 agents and 22 engineering skills in a single install.
 
 ### Option B: Install from local clone
 
@@ -318,7 +318,7 @@ The `discover-skills.sh` script automatically finds:
 
 This means agents adapt to any project without manual configuration.
 
-### 21 Engineering Skills
+### 22 Engineering Skills
 
 Bundled skill files that define how code should be written. Agents read these automatically via `${CLAUDE_PLUGIN_ROOT}/skills/`.
 
@@ -369,6 +369,7 @@ Bundled skill files that define how code should be written. Agents read these au
 | `diagnose` | Disciplined bug-investigation loop — reproduce → minimize → hypothesize → instrument → fix → verify. Required reading for every reviewer in `/sprint-bug-triage` and every fix in Phase 4 |
 | `tdd` | Red-green-refactor loop, when to TDD vs not, mandatory regression tests for bug fixes |
 | `zoom-out` | Recovery procedure when an agent is stuck — when grep/scope returns confusing results, when 3+ navigation attempts have failed |
+| `worktree-handoff` | Subagent + orchestrator contract for getting code OUT of an isolated worktree (Claude `isolation: worktree` or Codex Handoff) without losing work or copying files by hand. Defines the mandatory exit-time HANDOFF block and the orchestrator's fetch/merge/cleanup sequence (added v3.2.0) |
 
 #### Integration Skills
 
@@ -490,7 +491,7 @@ sprint_workflow/
         │   └── scripts/
         ├── scripts/
         │   └── discover-skills.sh         # Auto skill discovery
-        └── skills/                        # 21 engineering skills
+        └── skills/                        # 22 engineering skills
             ├── api-design/
             ├── bpmn-workflow/
             ├── cli-agent-patterns/

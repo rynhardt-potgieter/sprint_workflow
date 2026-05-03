@@ -24,6 +24,9 @@ Skills are bundled in this plugin at `${CLAUDE_PLUGIN_ROOT}/skills/<name>/SKILL.
 - `event-mqtt` — message security, topic ACLs, payload encryption
 - `cqrs-patterns` — authorization in command/query pipeline behaviors
 
+### MANDATORY When Running In A Worktree
+If your task was launched with `isolation: worktree` AND you are making code changes (not a read-only audit), **read `worktree-handoff` SKILL.md before exiting** and follow the Subagent Contract. Read-only audits should NOT be run with worktree isolation in the first place.
+
 ## Getting Started on Any Project
 
 ### Step 1: Read skill files

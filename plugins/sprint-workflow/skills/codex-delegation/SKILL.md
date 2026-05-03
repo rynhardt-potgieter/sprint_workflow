@@ -322,3 +322,15 @@ These responsibilities ALWAYS stay with Claude agents regardless of Codex availa
 - From `/codex:rescue`: Codex makes changes to the working directory. Verify via build + spot-check.
 - From `/codex:adversarial-review`: Returns a structured review verdict. Parse into the QA report format.
 - Capture Codex session IDs from output for potential `codex resume <id>` if follow-up is needed.
+
+---
+
+## 10. Worktree Handoff
+
+If the Codex thread runs inside a Codex-managed worktree (Codex App's Worktree mode, or any flow that creates a separate working tree), the orchestrator MUST follow `worktree-handoff` SKILL.md to integrate the result. Codex-specific quirks covered there:
+
+- Codex worktrees default to **detached HEAD** — the thread must create a named branch (`agent/<task-id>-<slug>`) and commit before exiting, otherwise the orchestrator cannot fetch the work.
+- `.gitignored` files do **not** survive Codex Handoff — never include local-only config in the diff.
+- Codex Handoff (Local ↔ Worktree) replaces the orchestrator's `git fetch` step, but all other integration steps (merge, conflict resolution in main tree, cleanup after merge) are unchanged.
+
+Never copy files out of a Codex worktree by hand — that is the symptom of a missing commit. Re-invoke Codex with the exit contract instead.
