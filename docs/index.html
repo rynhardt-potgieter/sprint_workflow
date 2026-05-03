@@ -850,7 +850,8 @@ h1.hero em {
   gap: 1rem;
   grid-template-columns: 1fr;
 }
-@media (min-width: 720px) { .pipe-stages { grid-template-columns: repeat(3, 1fr); gap: 1rem; } }
+@media (min-width: 720px)  { .pipe-stages { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 1024px) { .pipe-stages { grid-template-columns: repeat(4, 1fr); } }
 .pipe-stage {
   background: var(--bg-2);
   border: 1px solid var(--line);
@@ -1531,7 +1532,7 @@ footer a:hover { color: var(--accent); }
           sprint-workflow is a Claude Code plugin that turns one AI assistant into a
           coordinated team. A sprint lead orchestrates nine specialist agents &mdash;
           backend, frontend, tests, DBA, security, docs &mdash; while the work plan
-          and every status change live in Linear, where your team already looks.
+          and every status change live in <a href="https://linear.app" target="_blank" rel="noopener" style="color: var(--accent); border-bottom: 1px solid var(--accent-line); transition: border-color 120ms;">Linear</a>, where your team already looks.
         </p>
 
         <div class="hero-cta">
@@ -1699,7 +1700,7 @@ footer a:hover { color: var(--accent); }
       </div>
       <div class="role-legend-item">
         <span class="badge codex">Codex</span>
-        <p><strong>OpenAI Codex CLI.</strong> Optional. When installed, eligible tasks route to Codex first &mdash; cheaper and faster for scoped work like CRUD endpoints, migrations, boilerplate. Falls back to Opus automatically if Codex isn't available.</p>
+        <p><strong><a href="https://github.com/openai/codex-plugin-cc" target="_blank" rel="noopener" style="color: var(--codex); border-bottom: 1px solid rgba(16,163,127,0.4);">OpenAI Codex CLI</a></strong> &mdash; via the official <code>codex-plugin-cc</code> plugin for Claude Code. Optional. When installed, eligible tasks route to Codex first &mdash; cheaper and faster for scoped work like CRUD endpoints, migrations, boilerplate. Falls back to Opus automatically if Codex isn't available.</p>
       </div>
     </div>
 
@@ -1950,14 +1951,20 @@ footer a:hover { color: var(--accent); }
         </div>
         <div class="pipe-stage">
           <span class="pipe-num">STAGE 02</span>
-          <h4>Plan &amp; Enrich</h4>
-          <p>Pick an Epic. Break it into tasks with agent assignments and acceptance criteria. Specialist agents enrich with security, DB, and test concerns.</p>
-          <span class="pipe-cmd">/sprint-plan + enrich</span>
+          <h4>Plan</h4>
+          <p>Pick an Epic. The product-manager agent breaks it into Tasks with agent assignments, acceptance criteria, dependencies, and estimates &mdash; written straight to Linear as sub-issues.</p>
+          <span class="pipe-cmd">/sprint-plan &lt;epic-id&gt;</span>
+        </div>
+        <div class="pipe-stage">
+          <span class="pipe-num">STAGE 03 &middot; OPTIONAL</span>
+          <h4>Enrich</h4>
+          <p>A separate command. Dispatches specialist agents (dba, security, test-writer, backend, frontend, qa-playwright) to review the plan <em>before sprint starts</em> and add: missing acceptance criteria, anti-patterns to avoid, gotchas the PM missed, security and migration concerns, test cases per story.</p>
+          <span class="pipe-cmd">/sprint-enrich</span>
         </div>
         <div class="pipe-stage terminal">
-          <span class="pipe-num">STAGE 03</span>
+          <span class="pipe-num">STAGE 04</span>
           <h4>Execute &amp; Ship</h4>
-          <p>The sprint lead runs the six phases below: build → test → QA + review → fix → docs → ship. Failures loop back. Linear stays current.</p>
+          <p>The sprint lead runs the six phases below: build → test → QA + review → fix → docs → ship. Failures loop back. Linear stays current throughout.</p>
           <span class="pipe-cmd">/sprint-start</span>
         </div>
       </div>
@@ -2103,7 +2110,7 @@ footer a:hover { color: var(--accent); }
       <div class="eyebrow">06 · codex routing &middot; optional</div>
       <h2>Cheaper execution.<br><em>Cross-model</em> verification.</h2>
       <p>
-        <strong>Codex</strong> is OpenAI's command-line coding agent. When you have it installed, sprint-workflow auto-detects it and routes scoped tasks to Codex instead of Claude &mdash; roughly four times more token-efficient for well-bounded work, and the model swap means quality reviews happen across two model families instead of one.
+        <strong>Codex</strong> is OpenAI's command-line coding agent. The official <a href="https://github.com/openai/codex-plugin-cc" target="_blank" rel="noopener" style="color: var(--codex); border-bottom: 1px solid rgba(16,163,127,0.4);"><code>codex-plugin-cc</code></a> wires it into Claude Code &mdash; once it's installed, sprint-workflow auto-detects it and routes scoped tasks to Codex instead of Claude. Roughly four times more token-efficient for well-bounded work, and the model swap means quality reviews happen across two model families instead of one.
       </p>
     </div>
 
@@ -2336,8 +2343,9 @@ footer a:hover { color: var(--accent); }
         <div class="step-num">04</div>
         <div>
           <h4>Codex CLI <span class="opt-tag">Optional</span></h4>
-          <p>Auto-detected. When available, eligible tasks route to Codex automatically.</p>
+          <p>Auto-detected. When available, eligible tasks route to Codex automatically. See <a href="https://github.com/openai/codex-plugin-cc" target="_blank" rel="noopener" style="color: var(--codex); border-bottom: 1px solid rgba(16,163,127,0.4);">openai/codex-plugin-cc</a> for setup.</p>
 <pre><span class="cm"># Install codex-plugin-cc to wire it in</span>
+<span class="pr">$</span> /plugins marketplace add openai/codex-plugin-cc
 <span class="pr">$</span> /plugins install codex</pre>
         </div>
       </div>
