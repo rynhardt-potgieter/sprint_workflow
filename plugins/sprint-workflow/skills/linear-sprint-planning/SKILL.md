@@ -420,3 +420,179 @@ When `/sprint-start` or `/sprint-enrich` loads a plan from Linear:
 6. Reconstruct the execution plan structure matching the markdown format
 
 Use tolerant parsing — regex match field patterns rather than exact string matching, since users may edit descriptions manually.
+
+---
+
+## 12. Project Documents (Architecture & Roadmap)
+
+`/sprint-architect` produces a Linear **Project Document** titled `Architecture & Roadmap` that holds the prescribed system design and feature roadmap. It is the authoritative artifact that `/sprint-plan`, `/sprint-enrich`, and Phase 3 quality gates compare against for drift detection.
+
+**Why a Project Document and not an Issue description**: Linear Documents support full-page Markdown with the same editor as Issues, version history, and direct issue-reference linking. They sit on the Project page (where the team already looks) instead of buried in a single Issue. They scale to long-form content (10–50k chars) without crowding any one Issue's view.
+
+### 12.1 Document Structure (C4 + ADR + arc42 hybrid)
+
+This structure is the industry consensus for SaaS teams: C4 for hierarchical clarity, ADRs for decision history, arc42 section ordering for completeness without bloat. Sources: arc42 + C4 official guidance, Atlassian/Aha PM literature.
+
+```markdown
+# <Initiative Name>
+
+> One-paragraph elevator pitch. What we're building, who it's for, why now.
+
+## 1. Context (C4 Level 1)
+
+- **Problem**: <single sentence>
+- **Users / actors**: <list with one-line role descriptions>
+- **External systems we integrate with**: <list with purpose>
+- **Out of scope (explicit)**: <list — these are things people might assume are in scope but aren't>
+
+## 2. Quality Attributes
+
+Ranked, not exhaustive. Each one must be testable.
+
+| Rank | Attribute | Target | How we'll verify |
+|------|-----------|--------|------------------|
+| 1 | <e.g., Latency> | <e.g., p99 < 200ms> | <e.g., load test in staging> |
+| 2 | <e.g., PII protection> | <e.g., No PII in logs or error messages> | <e.g., automated grep + security review> |
+
+## 3. Containers (C4 Level 2)
+
+The high-level building blocks of the system and how they communicate.
+
+| Container | Responsibility | Tech | Communication In | Communication Out |
+|-----------|---------------|------|------------------|-------------------|
+| <e.g., Orders API> | <one line> | <e.g., .NET 8> | <e.g., HTTP from Frontend> | <e.g., Events to EventBus, SQL to OrdersDB> |
+
+Communication style for each edge: `sync/http`, `async/event`, `shared-db`, `file`.
+
+## 4. Cross-Cutting Concerns
+
+- **Auth model**: <e.g., Auth0 JWT, RBAC via roles claim>
+- **Multi-tenancy**: <e.g., Single-tenant, isolated by AWS account>
+- **Secrets**: <e.g., Azure Key Vault, no .env in source>
+- **Logging**: <e.g., Serilog → CloudWatch, no PII fields, structured JSON>
+- **Observability**: <e.g., OpenTelemetry, Honeycomb>
+
+## 5. Roadmap (Phases)
+
+Each Phase maps 1:1 to an Epic in Linear. Phases are sequenced by dependency, not by team.
+
+### Phase 1: <Title>
+- **Goal**: <user-visible outcome>
+- **Dependencies**: None
+- **Exit criteria**: <testable conditions for "this Phase is done">
+
+### Phase 2: <Title>
+- **Goal**: <user-visible outcome>
+- **Dependencies**: Phase 1
+- **Exit criteria**: <testable conditions>
+
+(...etc)
+
+## 6. Architectural Decisions (ADRs)
+
+Every binding decision is captured here. Status `Accepted` is binding; `Proposed` is open; `Deprecated`/`Superseded` is historical.
+
+### ADR-1: <Title>
+- **Status**: Accepted
+- **Context**: <what forces are in play>
+- **Decision**: <what we decided>
+- **Consequences**: <what this enables, what it forbids, what we accept as cost>
+
+### ADR-2: <Title>
+- **Status**: Accepted (auto-selected)
+- **Context**: <...>
+- **Decision**: <...>
+- **Consequences**: <...>
+
+(Decisions made via "Choose for me" in /sprint-architect get the `(auto-selected)` tag. Deferred decisions get `(deferred)` and a safe default.)
+
+## 7. Change Log
+
+Empty on first run; populated by `/sprint-architect --update`.
+
+### <YYYY-MM-DD> — <one-line summary>
+- **Trigger**: <e.g., Drift findings from Sprint 4 retro>
+- **Changes**: <e.g., ADR-3 superseded by ADR-7 (events → sync HTTP for catalog reads); §3 Containers added Redis cache>
+- **Sprint impact**: <e.g., No active sprint affected; next /sprint-plan should re-validate>
+```
+
+### 12.2 MCP Calls
+
+#### Create
+
+```
+save_document({
+  projectId: "<project-id>",
+  title: "Architecture & Roadmap",
+  content: "<full markdown body>"
+})
+```
+
+Returns `{ id, url, ... }`. Capture both — the URL goes into Epic descriptions.
+
+#### Update
+
+```
+save_document({
+  id: "<document-id>",
+  content: "<updated markdown body>"
+})
+```
+
+Linear retains version history automatically. Do NOT delete and recreate — that loses history.
+
+#### Fetch
+
+```
+list_documents({ projectId: "<project-id>" })
+// → find the entry where title === "Architecture & Roadmap"
+get_document({ id: "<document-id>" })
+// → returns { id, title, content, ... }
+```
+
+### 12.3 Epic Description Convention (link back to the doc)
+
+Every Epic created under a Project that has an Architecture & Roadmap document MUST include this section in its description:
+
+```markdown
+## Architecture Context
+
+This Epic is part of the [<Project Name>](<project-url>) initiative.
+Full architecture and roadmap: [Architecture & Roadmap](<document-url>)
+
+Read the document before breaking this Epic into Tasks via /sprint-plan.
+```
+
+This is what makes the architecture context **discoverable from any task downstream**. `/sprint-plan` parses the Epic description, finds the `Architecture & Roadmap` link, fetches the document, and includes it in the product-manager agent's prompt before breaking the Epic into Tasks.
+
+### 12.4 When To Update vs Replace
+
+- **Update (`save_document` with `id`)**: any time the architecture has shifted but the same initiative is in flight. Adds a Change Log entry. Preserves history.
+- **Replace (delete + recreate)**: never. The document is a living artifact; even a major rewrite gets recorded as a Change Log entry rather than a fresh document.
+- **New Project / new doc**: when the work is genuinely a new initiative with different scope, users, and quality attributes. Run `/sprint-architect` again with new context — it creates a new Project + Document.
+
+### 12.5 Reading From Phases Down To Tasks
+
+The chain that makes drift detection work:
+
+```
+Linear Project (initiative)
+  └── Project Document "Architecture & Roadmap"  ← prescribed model
+  └── Epic Issues (one per Phase)
+        └── Task Issues (created by /sprint-plan)
+              └── Implementation work
+                    ↓
+                    Phase 3 QA + code review
+                          ↓
+                          drift check compares diff vs prescribed model
+```
+
+Every level can resolve back up to the Architecture & Roadmap doc through `parent` and `project` relations on the Issue. Agents working on a Task fetch the doc by:
+
+```
+1. get_issue({id: "<task-id>", includeRelations: true})    // → has parentId, projectId
+2. list_documents({projectId})                              // → find "Architecture & Roadmap"
+3. get_document({id})                                       // → prescribed model
+```
+
+This is what `architecture-drift-check` SKILL.md formalizes.

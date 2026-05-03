@@ -334,3 +334,48 @@ If the Codex thread runs inside a Codex-managed worktree (Codex App's Worktree m
 - Codex Handoff (Local ↔ Worktree) replaces the orchestrator's `git fetch` step, but all other integration steps (merge, conflict resolution in main tree, cleanup after merge) are unchanged.
 
 Never copy files out of a Codex worktree by hand — that is the symptom of a missing commit. Re-invoke Codex with the exit contract instead.
+
+---
+
+## 11. Architecture Drift Check (Phase 3 with Codex)
+
+When `/sprint-start` Phase 3 routes QA through Codex adversarial review and the sprint's parent Project has an `Architecture & Roadmap` document, the **main session orchestrator** must pre-fetch the document and pass its prescribed-model summary inline to Codex. Codex does not have Linear MCP — it cannot fetch the doc itself.
+
+### Step 1: Pre-fetch (orchestrator, before invoking Codex)
+
+```
+1. Pick any Story from the sprint → get_issue({id, includeRelations: true}) → projectId
+2. list_documents({projectId}) → find "Architecture & Roadmap"
+3. get_document({id}) → capture body
+4. Extract the prescribed-model summary: §3 Containers, §4 Cross-Cutting Concerns, §6 Accepted ADRs (skip Proposed/Deprecated)
+```
+
+If the document doesn't exist, skip the drift portion of the focus string (per `architecture-drift-check` SKILL.md §9 graceful skip).
+
+### Step 2: Compose Focus String With Architecture Context
+
+Append to the standard focus string from §5 of this skill:
+
+```
+"; architecture drift — compare the diff against this prescribed model:
+
+CONTAINERS: <one-line each>
+EDGES: <container A → container B [sync/async/shared-db]>
+CROSS-CUTTING: <one-line each>
+ACCEPTED ADRs:
+- ADR-N: <decision> → forbids: <one-line>
+
+Flag erosion (violates an ADR or cross-cutting constraint) as BLOCKING.
+Flag drift (new component/edge not in this model) as WARNING."
+```
+
+This trades tokens for cross-model verification — Codex is now checking Claude's implementation against a doc Claude wrote. Cost is ~500–1500 extra tokens per Codex call; benefit is catching erosion that Claude-reviewing-Claude would rationalize away.
+
+### Step 3: Parse Drift Findings From Codex Output
+
+Codex returns its review in the standard format. Parse `## Architecture Drift Detected` sub-sections (per `architecture-drift-check` SKILL.md §7) and merge into the QA report:
+
+- Erosion → joins the `BLOCKING` list (fix loop applies)
+- Drift → joins the `WARNING` list (informational, recorded in retro)
+
+The Claude-side `pr-review-toolkit:code-reviewer` ALSO runs the drift check (it has Linear MCP via the orchestrator's tools). When both Codex and Claude reviewers flag the same finding, dedupe by file path + ADR reference — same finding from two angles is one finding, not two.

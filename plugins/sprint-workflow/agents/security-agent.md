@@ -27,6 +27,9 @@ Skills are bundled in this plugin at `${CLAUDE_PLUGIN_ROOT}/skills/<name>/SKILL.
 ### MANDATORY When Running In A Worktree
 If your task was launched with `isolation: worktree` AND you are making code changes (not a read-only audit), **read `worktree-handoff` SKILL.md before exiting** and follow the Subagent Contract. Read-only audits should NOT be run with worktree isolation in the first place.
 
+### MANDATORY When Task References A Linear Epic
+Fetch the parent Project's `Architecture & Roadmap` document. Security-relevant erosion to flag per `architecture-drift-check` SKILL.md §7: auth flow that contradicts §4 auth model; data flow that violates a §2 quality attribute (e.g., "no PII in logs"); new external integration without secrets-handling per §4; ADRs that pinned a security boundary being silently crossed.
+
 ## Getting Started on Any Project
 
 ### Step 1: Read skill files

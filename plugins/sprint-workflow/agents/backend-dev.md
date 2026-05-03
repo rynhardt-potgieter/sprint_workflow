@@ -35,6 +35,16 @@ Skills are bundled in this plugin at `${CLAUDE_PLUGIN_ROOT}/skills/<name>/SKILL.
 ### MANDATORY When Running In A Worktree
 If your task was launched with `isolation: worktree`, or you are working inside a Codex-managed worktree, **read `worktree-handoff` SKILL.md before exiting** and follow the Subagent Contract exactly. Skipping the commit + HANDOFF block is the #1 cause of lost work.
 
+### MANDATORY When Task References A Linear Epic
+If your orchestrator passes a Linear Epic ID or Task ID, fetch the Epic's parent Project's `Architecture & Roadmap` document before implementing. Steps (uses Linear MCP tools the orchestrator already verified are available):
+
+1. `get_issue({id, includeRelations: true})` to find `projectId`
+2. `list_documents({projectId})` → find `Architecture & Roadmap`
+3. `get_document({id})` → read it
+4. Honour the Containers (§3), Cross-Cutting Concerns (§4), and Accepted ADRs (§6). If your task can't be completed without violating an ADR, STOP and report `[BLOCKING] erosion of ADR-N` per `architecture-drift-check` SKILL.md §7 — do not silently introduce the violation.
+
+If the Project or document doesn't exist, proceed normally — the check is graceful per the skill's §9.
+
 ## Getting Started on Any Project
 
 ### Step 1: Read skill files

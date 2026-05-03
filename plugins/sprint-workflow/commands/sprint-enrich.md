@@ -56,6 +56,17 @@ Read the full plan document.
 5. For each Story, query Tasks: call `list_issues` with `parentId`
 6. Reconstruct the plan structure from Linear issues (parse structured fields from descriptions)
 
+### 1b. Load Architecture & Roadmap (Linear mode + Project context)
+
+If in Linear mode, find the parent Project for the sprint plan:
+
+1. The plan's Stories are Linear Issues with a `projectId`. Pick any Story → `get_issue({id, includeRelations: true})` → capture `projectId`.
+2. `list_documents({projectId})` → search for `Architecture & Roadmap`.
+3. If found → `get_document({id})` → capture body.
+4. If not found → note to the user and skip the architecture-context portion of enrichment.
+
+Pass the Architecture & Roadmap document body (when available) to **every** specialist agent dispatched in step 3. Each specialist will compare the plan against the prescribed architecture from their domain angle.
+
 ### 2. Analyze the Plan for Enrichment Opportunities
 
 Scan each story in the plan and identify which specialist agents should review it:
@@ -78,6 +89,20 @@ Launch the relevant agents simultaneously. Each agent prompt MUST include:
 3. **Project CLAUDE.md path** (if present)
 4. **Their specific review mandate:**
 
+#### Universal mandate (every specialist)
+
+**Architecture drift check** — when the Architecture & Roadmap document was loaded in step 1b, every specialist also reads `${CLAUDE_PLUGIN_ROOT}/skills/architecture-drift-check/SKILL.md` and reviews the plan from their domain angle for drift or erosion. Domain-specific drift signals:
+
+| Specialist | Drift signals to watch for |
+|---|---|
+| `dba-agent` | Plan implies a new datastore not in §3 Containers; storage edge contradicts §4 (e.g., shared DB across contexts when ADR-N forbids it); PII column added without §4 cross-cutting compliance handling |
+| `security-agent` | Plan implies a new auth flow contradicting §4 auth model; new external integration without secrets-handling per §4; data flow that violates a stated quality attribute (e.g., "no PII in logs") |
+| `backend-dev` | Plan implies a new service or sync edge between bounded contexts when ADR-N mandates async; service boundary erosion |
+| `frontend-dev` | Plan implies new client-side data fetch pattern not aligned with §3 communication contracts; auth handling on the frontend that bypasses the §4 model |
+| `test-writer` | Plan lacks tests for any drift the PM already flagged (drift that's accepted needs regression coverage) |
+
+Each specialist reports drift findings in their enrichment notes, in the standard `## Architecture Drift Detected` format from `architecture-drift-check` SKILL.md §7.
+
 #### dba-agent Review Mandate
 - Review all stories that touch the database
 - Flag migration safety issues (locking, backward compatibility)
@@ -85,6 +110,7 @@ Launch the relevant agents simultaneously. Each agent prompt MUST include:
 - Identify PII/compliance concerns with new data
 - Add migration pre-flight checklist items to relevant stories
 - Suggest expand-contract pattern where needed
+- **Architecture drift**: per the universal mandate above
 
 #### security-agent Review Mandate
 - Review all stories for OWASP Top 10 2025 concerns
@@ -92,6 +118,7 @@ Launch the relevant agents simultaneously. Each agent prompt MUST include:
 - Identify PII exposure risks in new features
 - Add security-specific acceptance criteria to stories
 - Flag any dependency additions that need vetting
+- **Architecture drift**: per the universal mandate above
 
 #### test-writer Review Mandate
 - For each story, list the test cases that should be written:
@@ -100,6 +127,7 @@ Launch the relevant agents simultaneously. Each agent prompt MUST include:
   - What should be mocked vs tested against real services
 - Flag stories with insufficient testability (missing acceptance criteria)
 - Recommend test fixtures or setup needed
+- **Architecture drift**: per the universal mandate above
 
 #### qa-playwright Review Mandate
 - For each user-facing story, list E2E test scenarios:
@@ -113,6 +141,7 @@ Launch the relevant agents simultaneously. Each agent prompt MUST include:
 - Identify missing technical acceptance criteria
 - Note anti-patterns to avoid for each story
 - Suggest implementation approach or existing patterns to reuse
+- **Architecture drift**: per the universal mandate above
 
 ### 4. Consolidate Enrichments
 
@@ -150,6 +179,29 @@ When all review agents return, consolidate their feedback into a structured enri
 ### Gotchas
 [Unexpected issues the specialists flagged]
 ```
+
+### 4b. Surface Architecture Drift Findings
+
+If any specialist returned a `## Architecture Drift Detected` section, consolidate them at the **top** of the enrichment report (before the per-domain tables) — drift is a blocking decision the user must triage before sprint execution:
+
+```
+⚠ Architecture Drift Detected (consolidated across specialists)
+
+### Drift (WARNING) — N findings
+- <finding> [flagged by: <agent>]
+  ...
+
+### Erosion (BLOCKING) — N findings
+- <finding> [flagged by: <agent>]
+  ...
+
+Recommendation: review with the user. Options:
+  1. Revise affected stories to honour the prescribed architecture
+  2. Run /sprint-architect --update <project-id> to record the deliberate change
+  3. Accept and proceed (you'll see this again in Phase 3)
+```
+
+Erosion findings BLOCK approval — the user must explicitly choose option 1, 2, or 3 before the sprint can start.
 
 ### 5. Present to User and Update Plan
 
