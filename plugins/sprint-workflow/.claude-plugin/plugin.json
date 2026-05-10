@@ -1,7 +1,7 @@
 {
   "name": "sprint-workflow",
-  "version": "3.4.0",
-  "description": "Sprint workflow orchestration — 9 specialist agents, 23 engineering skills, 13 sprint commands. v3.3 adds /sprint-architect (Linear-backed C4+ADR architecture & roadmap with clarifying questions and 'Choose for me' delegation) and architecture drift detection across plan/enrich/QA/review/retro using reflexion modeling. Includes worktree-handoff for safe subagent/Codex integration, sentinel-gated Stop hook, auto skill discovery, Linear MCP integration (opt-in for sprints, required for /sprint-architect), and Codex CLI delegation (opt-in).",
+  "version": "3.5.0",
+  "description": "Sprint workflow orchestration — 9 specialist agents, 23 engineering skills, 13 sprint commands. v3.5 adds Phase 1.5 (integrate-to-local-master before review), rate-limited Stop hook (configurable via SPRINT_STOP_HOOK_RATE_LIMIT_S, fires once per session minimum, never loops), Linear comments ingestion in dispatch (sub-agents see [NOTE]/[USER]/[DEFERRED]/[CARRYOVER] context from prior turns), and explicit Codex foreground-only constraint. Reviews compare against origin/master..HEAD on local master; remote push happens once at Phase 6. Earlier: /sprint-architect (Linear-backed C4+ADR architecture & roadmap), architecture drift detection across plan/enrich/QA/review/retro, worktree-handoff for safe subagent/Codex integration, auto skill discovery, Linear MCP integration (opt-in for sprints, required for /sprint-architect), Codex CLI delegation (opt-in).",
   "author": {
     "name": "rynha"
   }

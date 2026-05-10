@@ -6,7 +6,7 @@ These rules govern how Claude Code orchestrates development work across any proj
 
 | Plugin | Version | Purpose |
 |--------|---------|---------|
-| `sprint-workflow` | 3.4.0 | 9 specialist agents, 23 engineering skills (incl. `architecture-drift-check`), 13 commands (incl. `/sprint-architect`) with consistent `<epic-id>`/`<milestone-id>`/`<task-id>`/`<project-id>` argument convention, sentinel-gated Stop hook, drift detection across plan/enrich/QA/review/retro, auto skill discovery, Linear MCP (opt-in for sprints, required for `/sprint-architect`), Codex delegation (opt-in) |
+| `sprint-workflow` | 3.5.0 | 9 specialist agents, 23 engineering skills (incl. `architecture-drift-check`), 13 commands (incl. `/sprint-architect`). v3.5: Phase 1.5 integrate-to-local-master before review, three-layer rate-limited Stop hook, Linear comments ingestion in dispatch, Codex foreground-only constraint. Plus all v3.4 features: consistent `<epic-id>`/`<milestone-id>`/`<task-id>`/`<project-id>` argument convention, drift detection across plan/enrich/QA/review/retro, auto skill discovery, Linear MCP (opt-in for sprints, required for `/sprint-architect`), Codex delegation (opt-in) |
 
 ## Architecture Is In Linear, Not In Markdown
 

@@ -1703,7 +1703,7 @@ footer a:hover { color: var(--accent); }
     <a class="brand" href="#hero">
       <span class="brand-mark"></span>
       <span class="brand-name">sprint-workflow</span>
-      <span class="brand-ver">v3.4.0</span>
+      <span class="brand-ver">v3.5.0</span>
     </a>
     <ul class="nav-links">
       <li><a href="#what" data-spy="what">What it does</a></li>
@@ -1734,7 +1734,7 @@ footer a:hover { color: var(--accent); }
       <div>
         <div class="hero-tag">
           <span class="pulse"></span>
-          <span>Claude Code plugin · v3.4.0 · MIT</span>
+          <span>Claude Code plugin · v3.5.0 · MIT</span>
         </div>
 
         <h1 class="hero">
@@ -2202,11 +2202,12 @@ footer a:hover { color: var(--accent); }
         <div class="pipe-phases-head">/sprint-start unfolds into</div>
         <div class="phase-row">
           <div class="phase"><div class="pn">PHASE 01</div><div class="pt">Implement</div></div>
+          <div class="phase"><div class="pn">PHASE 1.5</div><div class="pt">Integrate</div></div>
           <div class="phase"><div class="pn">PHASE 02</div><div class="pt">Tests</div></div>
           <div class="phase"><div class="pn">PHASE 03</div><div class="pt">QA + Review</div></div>
           <div class="phase"><div class="pn">PHASE 04</div><div class="pt">Fix loop</div></div>
           <div class="phase"><div class="pn">PHASE 05</div><div class="pt">Docs</div></div>
-          <div class="phase"><div class="pn">PHASE 06</div><div class="pt">Ship</div></div>
+          <div class="phase"><div class="pn">PHASE 06</div><div class="pt">Push</div></div>
         </div>
       </div>
     </div>
@@ -2432,7 +2433,7 @@ footer a:hover { color: var(--accent); }
             <div class="act-meta"><span class="who">codex</span> · 14:11</div>
             <div class="act-text">
               HANDOFF · 4 files · build: <strong>pass</strong> · tests: <strong>pass</strong>
-              <br><code style="margin-top: 0.3rem; display: inline-block;">branch: agent/PROJ-122-catalog · head: a1b2c3d</code>
+              <br><code style="margin-top: 0.3rem; display: inline-block;">branch: sprint/PROJ-122 · head: a1b2c3d</code>
             </div>
           </div>
         </div>
@@ -2440,8 +2441,11 @@ footer a:hover { color: var(--accent); }
         <div class="act">
           <div class="act-av av-sl">SL</div>
           <div class="act-body">
-            <div class="act-meta"><span class="who">sprint-lead</span> · 14:11</div>
-            <div class="act-text">moved <span class="arr">In Progress → In Review</span> · Phase 3 quality gates running</div>
+            <div class="act-meta"><span class="who">sprint-lead</span> · 14:12</div>
+            <div class="act-text">
+              Phase 1.5 · rebased <code>sprint/PROJ-122</code> onto local <code>master</code>, ff-merged, ran build/lint/test on master · <strong>green</strong>
+              <br>moved <span class="arr">In Progress → In Review</span> · Phase 3 will review against <code>origin/master..HEAD</code>
+            </div>
           </div>
         </div>
 
@@ -2728,11 +2732,12 @@ footer a:hover { color: var(--accent); }
           <span class="hook-cost">~50ms</span>
         </div>
         <div class="hook-name">stop-sprint-tracking.sh</div>
-        <div class="hook-desc">Before the session ends, checks for a <code>.claude/.sprint-active</code> sentinel file. <strong>No sentinel → silent</strong> (the common case for any non-sprint work). <strong>Sentinel present → one reminder per session</strong>, tailored to whether the active sprint is tracked in Linear or markdown. Cannot loop, cannot false-fire.</div>
+        <div class="hook-desc">Before the session ends, checks for a <code>.claude/.sprint-active</code> sentinel file. <strong>No sentinel → silent</strong> (the common case for any non-sprint work). <strong>Sentinel present → reminder fires</strong> once per new session immediately, then at most every <code>SPRINT_STOP_HOOK_RATE_LIMIT_S</code> seconds within that session (default 600 = 10 min, configurable per-project in <code>.claude/settings.local.json</code>). Uses <code>hookSpecificOutput.additionalContext</code> rather than a blocking decision, so it cannot loop. The message tells the agent not to acknowledge — perform the reconciliation or stay silent.</div>
         <div class="hook-detail">
           <span class="lbl">Triggers on</span>session stop
           <br><span class="lbl">Sentinel</span><code>.claude/.sprint-active</code>
-          <br><span class="lbl">Once per</span>session_id
+          <br><span class="lbl">First fire</span>every new session_id
+          <br><span class="lbl">Then rate-limited</span>SPRINT_STOP_HOOK_RATE_LIMIT_S (default 600s)
         </div>
       </div>
     </div>
@@ -2855,7 +2860,7 @@ footer a:hover { color: var(--accent); }
       </div>
     </div>
     <div class="foot-meta">
-      <span>sprint-workflow · v3.4.0</span>
+      <span>sprint-workflow · v3.5.0</span>
       <span>MIT</span>
       <span>built with Claude Code</span>
       <span style="margin-left: auto;">© 2026</span>
