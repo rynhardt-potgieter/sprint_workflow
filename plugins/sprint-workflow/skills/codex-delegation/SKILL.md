@@ -325,6 +325,22 @@ These responsibilities ALWAYS stay with Claude agents regardless of Codex availa
 
 ---
 
+## 9b. Codex Execution Constraints (FOREGROUND ONLY)
+
+**Codex must always run foreground.** Never invoke `/codex:rescue`, `/codex:adversarial-review`, or `codex exec` with `run_in_background=true` (or any equivalent async/detached flag) via the `Bash` tool. Background Codex causes lost work in this user's setup — results don't surface cleanly to the orchestrator and state diverges.
+
+If multiple Codex tasks are queued, run them sequentially in foreground. For parallelism, prefer routing tasks to multiple Claude `Agent` calls in one message — those can run concurrently safely.
+
+## 9c. Worktree Base for Codex-Adjacent Work
+
+Codex itself does not manage worktrees from the CLI side, but the surrounding orchestration must be aware:
+
+- **Claude Code's `Agent(isolation: "worktree")` bases worktrees on `origin/HEAD`**, not the orchestrator's current branch ([anthropics/claude-code#41680](https://github.com/anthropics/claude-code/issues/41680)). Use manual `git switch -c` from local `master` for Phase 1 / Phase 4 implementation branches in `/sprint-start`. Do NOT use `Agent(isolation: "worktree")` during a sprint — it will silently exclude any commits already integrated onto local `master` from earlier tasks in this sprint.
+- **The Codex App's Worktree mode** (when humans use it directly) lets the user pick a base branch explicitly, so it does not have this problem.
+- **By the time Codex runs in `/sprint-start`** (Phase 3 adversarial review, Phase 4 surgical fixes), all prior task work has been integrated to local `master`. Codex's natural `origin/HEAD`-base orientation aligns with the review baseline (`origin/master..HEAD`), so the orchestrator can hand Codex `--base origin/master` confidently.
+
+---
+
 ## 10. Worktree Handoff
 
 If the Codex thread runs inside a Codex-managed worktree (Codex App's Worktree mode, or any flow that creates a separate working tree), the orchestrator MUST follow `worktree-handoff` SKILL.md to integrate the result. Codex-specific quirks covered there:

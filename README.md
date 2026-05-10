@@ -114,8 +114,18 @@ When erosion is intentional, the fix is `/sprint-architect --update <project-id>
   /sprint-start                                           ▼
   ┌──────────────────────────────────────┐    ◀─── /sprint-continue (resume any phase)
   │  Phase 1: Implementation (parallel)  │    ◀─── /sprint-resume-task <id>
-  │  backend-dev · frontend-dev · dba    │         (single-task re-dispatch)
+  │  branches off LOCAL master           │         (single-task re-dispatch)
+  │  backend-dev · frontend-dev · dba    │
   │  Codex-eligible → /codex:rescue      │
+  │  prior comments injected as context  │
+  └──────────────────┬───────────────────┘
+                     │
+  ┌──────────────────▼───────────────────┐
+  │  Phase 1.5: Integrate (sequential)   │
+  │  rebase + ff-merge each task branch  │
+  │  into local master · run build/lint/ │
+  │  test on master · revert+bounce on   │
+  │  red · status → In Review on green   │
   └──────────────────┬───────────────────┘
                      │
   ┌──────────────────▼───────────────────┐
@@ -126,6 +136,7 @@ When erosion is intentional, the fix is `/sprint-architect --update <project-id>
                      │
   ┌──────────────────▼───────────────────┐
   │  Phase 3: Quality Gates (parallel)   │
+  │  reviews compare origin/master..HEAD │
   │  QA (Codex adversarial OR Claude)    │
   │       + pr-review-toolkit (Claude)   │
   └──────────────────┬───────────────────┘
@@ -134,7 +145,7 @@ When erosion is intentional, the fix is `/sprint-architect --update <project-id>
                      │      └──▶ Phase 4: Fix Loop
                      │           surgical (1 file) → /codex:rescue
                      │           architectural    → original Claude agent
-                     │           (diagnose skill — repro before fix)
+                     │           fixes branch off local master, ff-merge back
                      ▼
   ┌──────────────────────────────────────┐
   │  Phase 5: Documentation              │
@@ -142,9 +153,11 @@ When erosion is intentional, the fix is `/sprint-architect --update <project-id>
   └──────────────────┬───────────────────┘
                      │
   ┌──────────────────▼───────────────────┐
-  │  Phase 6: Commit & Push              │
-  │  logical units via git/tfs-flow      │
-  │  finalize Linear/MD tracking         │
+  │  Phase 6: Push                       │
+  │  single git push origin master       │
+  │  (all logical commits already on     │
+  │   local master from earlier phases)  │
+  │  finalize Linear/MD tracking → Done  │
   └──────────────────┬───────────────────┘
                      │
                      ▼
@@ -376,26 +389,32 @@ Every agent follows a **3-step onboarding**:
 |-------|--------|------|
 | After Edit/Write | Reminds you to run type-checks for the edited language (matched by extension) | <50ms bash, silent for unmatched files |
 | Before `git push` | Reminds you to verify builds before pushing | <50ms bash, silent for non-push Bash calls |
-| Before Stop | If a sprint is active, reminds you to update Linear/markdown tracking | <50ms bash, silent in non-sprint sessions |
+| Before Stop | If a sprint is active, reminds the agent to reconcile Linear/markdown tracking | <50ms bash, silent in non-sprint sessions |
 
-##### Stop hook: how it works (v3.2.1+)
+##### Stop hook: how it works
 
 The Stop hook is **gated on a sentinel file** (`.claude/.sprint-active`) so it cannot fire in ordinary sessions and cannot loop:
 
 - **Activated** by `/sprint-start` after user approval, before Phase 1 dispatch. Sentinel records the active tracking source (`linear` or `md`).
-- **Re-asserted** by `/sprint-continue` when resuming an interrupted sprint.
-- **Cleared** by `/sprint-start` Phase 6 (after final commits and tracking finalized) and by `/sprint-rollback` step 7b.
+- **Re-asserted** by `/sprint-continue` and `/sprint-resume-task` when resuming an interrupted sprint.
+- **Cleared** by `/sprint-start` Phase 6 (after final commits and tracking finalized) and by `/sprint-rollback`.
 - **Left in place** by `/sprint-handoff` — the sprint is paused, not done; the next session's Stop hook should still nag.
 
-When the sentinel is present, the hook emits a one-shot `systemMessage` reminder. It also writes `.claude/.sprint-active.last-nag` with the current `session_id` so it nags **once per session** — subsequent Stop events in the same session are silent. A new Claude Code session re-arms the reminder.
+The hook ships with three layers of loop protection that solve the long-standing tension between "fires every turn and loops" and "never fires and the agent forgets":
+
+1. **`hookSpecificOutput.additionalContext`** — never `decision: "block"`. Stop is never blocked, so the user is returned to prompt and the reminder lands on the next user-initiated turn. There is no forced re-loop.
+2. **Per-session rate limit** — within a single session the hook fires at most once every `SPRINT_STOP_HOOK_RATE_LIMIT_S` seconds (default 600 = 10 minutes). The first Stop of a brand-new session always fires immediately, regardless of when the previous session last fired. Override per-project in `.claude/settings.local.json`:
+   ```json
+   { "env": { "SPRINT_STOP_HOOK_RATE_LIMIT_S": "1800" } }
+   ```
+   `/sprint-start`, `/sprint-continue`, and `/sprint-resume-task` write the default value into `settings.local.json` if it isn't already set, so users never have to configure it manually.
+3. **Anti-acknowledgement wording** — the message body explicitly tells the agent *not* to reply "acknowledged"; either perform the reconciliation via tool calls or stay silent. No reply text means no follow-up Stop event even if the first two layers were broken.
 
 When the sentinel is absent (the common case for ad-hoc work, exploration, debugging, or any project where you use this plugin only for the skills/agents), the hook is silent and exits in milliseconds.
 
-This design replaced the v3.1.x prompt-type Stop hook, which fired on every session in every project, ran a 15s LLM evaluation each time, and could loop indefinitely if its `block` response triggered more file edits that re-triggered the heuristic.
-
 If you find a stale sentinel from a sprint that was never finalized:
 ```bash
-rm -f .claude/.sprint-active .claude/.sprint-active.last-nag
+rm -f .claude/.sprint-active .claude/.sprint-active.last-nag .claude/.sprint-active.last-fire
 ```
 
 #### Auto Skill Discovery
@@ -493,7 +512,15 @@ Implement one feature end-to-end (backend + frontend + tests) before starting th
 1. **QA** — build, lint, test, spec compliance, adversarial code review (catches implementation bugs). Runs on [Codex](https://github.com/openai/codex) when available for cross-model review; falls back to Claude `qa-agent` otherwise.
 2. **pr-review-toolkit:code-reviewer** — code quality, patterns, UX regressions (catches design issues). Always Claude.
 
-Both gates have retry loops. Surgical fixes route to Codex; architectural fixes go back to the original Claude agent.
+Both gates run **after** task branches have been integrated to local `master` (Phase 1.5), and they review against `origin/master..HEAD` — the same diff that will eventually land remotely. Surgical fixes route to Codex (foreground only), architectural fixes go back to the original Claude agent. Either way, fixes branch off local `master`, fast-forward back, and re-review on local `master` until clean. The remote `origin/master` is only updated once at Phase 6, after every gate has passed.
+
+### Integrate-Then-Review (Phase 1.5)
+
+Implementation agents work on per-task branches off local `master`. As each agent finishes, the orchestrator rebases its branch onto current local `master`, fast-forwards it in, and runs build/lint/test on `master`. Failures revert the merge and bounce the task back to Phase 1 with the failure as context — other tasks proceed independently. By the time reviews run, `master` carries the integrated sprint state and reviewers see the same shape that will land on the remote. Codex's natural `origin/HEAD`-base orientation aligns with `origin/master..HEAD`, so its adversarial review reads the right diff without override flags.
+
+### Sub-Agents See Prior User Context
+
+Before dispatching any task, the orchestrator pulls comments from the Linear task and its parent Story (or the markdown plan's Carryover/Notes sections), filters for `[NOTE]`, `[USER]`, `[DEFERRED]`, `[CARRYOVER]`, `[FOLLOW-UP]` tags or non-bot authors, and injects them into the agent's prompt under `## Prior Context`. Combined with the Stop hook's reminder to *write* `[DEFERRED]` comments when items get pushed out, this closes the loop: nothing the user typed into Linear, and nothing earlier tasks deferred, gets dropped on the floor when the next sub-agent dispatches.
 
 ### Project-Local Skills Override Globals
 
@@ -632,6 +659,10 @@ sprint_workflow/
 | Sentinel-gated Stop hook | 3.2.1 | Replaced prompt-type Stop hook with sentinel-gated bash hook — no false positives in non-sprint sessions, cannot loop |
 | Architecture-first workflow | 3.3 | `/sprint-architect` (Linear-backed C4+ADR architecture & roadmap), `architecture-drift-check` skill, drift detection wired into `/sprint-plan`, `/sprint-enrich`, Phase 3 QA, code review, and `/sprint-retro` |
 | Consistent argument convention | 3.4 | All 13 commands now use a unified `<epic-id>` / `<milestone-id>` / `<task-id>` / `<project-id>` argument scheme. `/sprint-start` requires an explicit `<epic-id>`; `/sprint-continue`, `/sprint-review`, `/sprint-status` accept it optionally and auto-detect the most-recently-touched in-progress Epic. Lets users run multiple sprints in parallel by scoping every command. |
+| Phase 1.5 + integrate-then-review | 3.5 | New Phase 1.5 (Integrate) between implementation and tests: each task branch rebases + ff-merges to local `master`, runs build/lint/test, reverts and bounces on failure. Reviews compare against `origin/master..HEAD` on local master, not against task branches. Phase 6 becomes a single `git push origin master` after all gates pass. Implementation branches are created via manual `git switch -c` from local master (NOT `Agent(isolation:"worktree")`) to avoid the [origin/HEAD-base bug](https://github.com/anthropics/claude-code/issues/41680). |
+| Stop hook v2 | 3.5 | Three-layer loop protection: `additionalContext` (never blocks Stop), session-aware rate limit (default 600s, configurable via `SPRINT_STOP_HOOK_RATE_LIMIT_S` env or `.claude/settings.local.json`, first Stop of new session always fires), and anti-acknowledgement message wording. Auto-configured by `/sprint-start`, `/sprint-continue`, `/sprint-resume-task`. Solves the "fires every turn / never fires" tension that previous versions oscillated between. |
+| Linear comments ingestion | 3.5 | Before dispatching any task, the orchestrator pulls comments from the Linear task and parent Story (or markdown plan Carryover/Notes), filters for `[NOTE]`/`[USER]`/`[DEFERRED]`/`[CARRYOVER]`/`[FOLLOW-UP]` tags or non-bot authors, and injects them under `## Prior Context` in the agent prompt. Closes the loop with the Stop hook's reminder to *write* `[DEFERRED]` comments — items pushed out of one turn are picked up by the next dispatch. |
+| Codex foreground-only | 3.5 | All Codex invocations (`/codex:rescue`, `/codex:adversarial-review`, `codex exec`) run foreground; never `run_in_background=true`. For parallelism, route to multiple Claude `Agent` calls in one message instead. Documented in `codex-delegation` SKILL.md §9b. |
 
 ### Future
 
