@@ -178,7 +178,7 @@ In the plan document:
 Remove the Stop-hook sentinel so subsequent ordinary sessions are not nagged about a sprint that no longer exists:
 
 ```bash
-rm -f .claude/.sprint-active .claude/.sprint-active.last-nag
+rm -f .claude/.sprint-active .claude/.sprint-active.last-nag .claude/.sprint-active.last-fire
 ```
 
 ### 8. Final Report
