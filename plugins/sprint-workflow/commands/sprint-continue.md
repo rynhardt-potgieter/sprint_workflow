@@ -83,6 +83,23 @@ mkdir -p .claude
 
 (First line should be `linear` or `md` matching the active tracking mode detected above.)
 
+Also ensure the Stop-hook rate limit is set in `.claude/settings.local.json` (idempotent — never overwrites an existing value):
+
+```bash
+node -e '
+const fs = require("fs");
+const path = ".claude/settings.local.json";
+let cfg = {};
+try { cfg = JSON.parse(fs.readFileSync(path, "utf8")); } catch(e) {}
+cfg.env = cfg.env || {};
+if (!("SPRINT_STOP_HOOK_RATE_LIMIT_S" in cfg.env)) {
+  cfg.env.SPRINT_STOP_HOOK_RATE_LIMIT_S = "600";
+  fs.mkdirSync(".claude", { recursive: true });
+  fs.writeFileSync(path, JSON.stringify(cfg, null, 2) + "\n");
+}
+'
+```
+
 ### 2. Determine Current Phase
 
 Map the status distribution to the 6-phase model. Same table as `/sprint-handoff`:
@@ -146,6 +163,7 @@ A task marked `In Progress` may have been partially completed by a prior session
 
 1. **Check git for uncommitted changes** related to the task's target files. If present, read them — the prior agent may have already done substantial work.
 2. **Check Linear comments** (or MD plan notes) for any "files modified" entries the prior session left. The `sprint-start` orchestrator records these after Codex/agent completion.
+3. **Pull full prior context for the resuming agent** — same as `/sprint-start` Step 0: `list_comments` on the task AND its parent Story, filter for `[NOTE]`, `[USER]`, `[DEFERRED]`, `[CARRYOVER]`, `[FOLLOW-UP]` tags or non-bot authors, inject verbatim under `## Prior Context (read carefully before starting)` in the agent prompt. MD mode equivalent: read Carryover section + task Notes lines.
 3. **Decide: resume vs restart.**
    - If files exist with partial implementation → instruct the resuming agent to **continue from current state**: include in the prompt "Files <list> already modified by previous session. Read them, complete the remaining acceptance criteria, do NOT restart from scratch."
    - If no files exist → dispatch fresh as in `/sprint-start` Phase 1.

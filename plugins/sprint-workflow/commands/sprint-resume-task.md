@@ -64,7 +64,7 @@ For the resolved task, gather:
 - **Anti-patterns** if listed
 - **Spec section reference** if the task points to a spec file (e.g., "see `docs/ux-report.md` Section 5")
 - **Current status** of the task
-- **Prior comments / notes** on the task (Linear comments, MD plan notes) — these tell you what went wrong before
+- **Prior context for the agent** — pull ALL comments on the task and on its parent Story (Linear: `list_comments({ issueId })` for both; MD: read Carryover section + task Notes lines). Filter for `[NOTE]`, `[USER]`, `[DEFERRED]`, `[CARRYOVER]`, `[FOLLOW-UP]` tags or non-bot authors, and capture verbatim. This is what tells the resuming agent what the user said, what was deferred from earlier tasks, and what went wrong on the previous run. Inject into the dispatched agent's prompt under `## Prior Context (read carefully before starting)`.
 
 ### 3. Determine Re-Run Reason
 
@@ -96,6 +96,34 @@ This shapes the prompt sent to the agent. Capture the reason verbatim and includ
 ### 5. Read Skill Files
 
 For each skill assigned to the task, read it from `${CLAUDE_PLUGIN_ROOT}/skills/<name>/SKILL.md`. If the agent is going to be dispatched (not Codex), pass file paths in the prompt. If Codex is going to handle the work, paste relevant skill content into the prompt (Codex cannot read plugin skill files).
+
+### 5b. Re-Assert Sprint Sentinel
+
+A sprint task is being resumed → ensure the Stop hook keeps reminding about tracking. Re-create the sentinel if missing (idempotent):
+
+```bash
+mkdir -p .claude
+[ -f .claude/.sprint-active ] || echo "<linear|md>" > .claude/.sprint-active
+```
+
+(First line should be `linear` or `md` matching `TRACKING_MODE`.)
+
+Also ensure the Stop-hook rate limit is set in `.claude/settings.local.json` (idempotent):
+
+```bash
+node -e '
+const fs = require("fs");
+const path = ".claude/settings.local.json";
+let cfg = {};
+try { cfg = JSON.parse(fs.readFileSync(path, "utf8")); } catch(e) {}
+cfg.env = cfg.env || {};
+if (!("SPRINT_STOP_HOOK_RATE_LIMIT_S" in cfg.env)) {
+  cfg.env.SPRINT_STOP_HOOK_RATE_LIMIT_S = "600";
+  fs.mkdirSync(".claude", { recursive: true });
+  fs.writeFileSync(path, JSON.stringify(cfg, null, 2) + "\n");
+}
+'
+```
 
 ### 6. Update Tracking Before Dispatch
 
