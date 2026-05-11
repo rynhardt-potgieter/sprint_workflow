@@ -388,29 +388,42 @@ Every agent follows a **3-step onboarding**:
 | Event | Action | Cost |
 |-------|--------|------|
 | After Edit/Write | Reminds you to run type-checks for the edited language (matched by extension) | <50ms bash, silent for unmatched files |
+| After Edit/Write (sprint reminder) | If a sprint is active, injects a reconcile-tracking reminder into the agent's context (rate-limited) | <50ms bash, silent in non-sprint sessions |
 | Before `git push` | Reminds you to verify builds before pushing | <50ms bash, silent for non-push Bash calls |
-| Before Stop | If a sprint is active, reminds the agent to reconcile Linear/markdown tracking | <50ms bash, silent in non-sprint sessions |
+| Before Stop | If a sprint is active, emits a `systemMessage` to the user about reconciling tracking | <50ms bash, silent in non-sprint sessions |
 
-##### Stop hook: how it works
+##### Sprint tracking reminders: how they work
 
-The Stop hook is **gated on a sentinel file** (`.claude/.sprint-active`) so it cannot fire in ordinary sessions and cannot loop:
+Both the PostToolUse sprint-reminder hook and the Stop hook are **gated on a sentinel file** (`.claude/.sprint-active`) so they cannot fire in ordinary sessions:
 
 - **Activated** by `/sprint-start` after user approval, before Phase 1 dispatch. Sentinel records the active tracking source (`linear` or `md`).
 - **Re-asserted** by `/sprint-continue` and `/sprint-resume-task` when resuming an interrupted sprint.
 - **Cleared** by `/sprint-start` Phase 6 (after final commits and tracking finalized) and by `/sprint-rollback`.
-- **Left in place** by `/sprint-handoff` — the sprint is paused, not done; the next session's Stop hook should still nag.
+- **Left in place** by `/sprint-handoff` — the sprint is paused, not done; the next session's hooks should still nag.
 
-The hook ships with three layers of loop protection that solve the long-standing tension between "fires every turn and loops" and "never fires and the agent forgets":
+The split between the two hooks comes from the Claude Code hook schema:
 
-1. **`hookSpecificOutput.additionalContext`** — never `decision: "block"`. Stop is never blocked, so the user is returned to prompt and the reminder lands on the next user-initiated turn. There is no forced re-loop.
-2. **Per-session rate limit** — within a single session the hook fires at most once every `SPRINT_STOP_HOOK_RATE_LIMIT_S` seconds (default 600 = 10 minutes). The first Stop of a brand-new session always fires immediately, regardless of when the previous session last fired. Override per-project in `.claude/settings.local.json`:
-   ```json
-   { "env": { "SPRINT_STOP_HOOK_RATE_LIMIT_S": "1800" } }
-   ```
-   `/sprint-start`, `/sprint-continue`, and `/sprint-resume-task` write the default value into `settings.local.json` if it isn't already set, so users never have to configure it manually.
-3. **Anti-acknowledgement wording** — the message body explicitly tells the agent *not* to reply "acknowledged"; either perform the reconciliation via tool calls or stay silent. No reply text means no follow-up Stop event even if the first two layers were broken.
+- **Stop hooks** support `systemMessage` (visible to the user only) and `decision: "block"` (forces another agent turn — the historical loop ingredient). They do **not** support `hookSpecificOutput.additionalContext`. So a Stop hook can either nag the user or block the agent — there's no in-between option that injects context the agent itself reads.
+- **PostToolUse hooks** *do* support `hookSpecificOutput.additionalContext`. The reminder is appended to the agent's conversation context as standing guidance, and the agent reads it on its next reasoning step.
 
-When the sentinel is absent (the common case for ad-hoc work, exploration, debugging, or any project where you use this plugin only for the skills/agents), the hook is silent and exits in milliseconds.
+To give the agent itself a visible reminder, sprint-workflow uses a **PostToolUse hook on Edit and Write** (`post-sprint-reminder.sh`) that:
+
+1. Fires only when the sprint sentinel exists.
+2. Is rate-limited by `SPRINT_STOP_HOOK_RATE_LIMIT_S` (default 600s = 10 min) via a shared `.sprint-active.last-fire` file. Same env var also governs the Stop hook, so a single project setting controls overall nag frequency.
+3. New sessions always fire on first eligible edit, regardless of stale rate-limit state from prior sessions.
+4. Outputs `additionalContext` per the PostToolUse schema — message lands in the agent's context, not just the UI.
+
+The Stop hook (`stop-sprint-tracking.sh`) is kept as a `systemMessage` nudge to *you*, the user — useful when you want to verify the agent did the reconciliation before ending a turn. Since `systemMessage` is UI-only and never injected into agent context, it cannot loop and cannot ack-storm.
+
+Override the rate limit per-project in `.claude/settings.local.json`:
+
+```json
+{ "env": { "SPRINT_STOP_HOOK_RATE_LIMIT_S": "1800" } }
+```
+
+`/sprint-start`, `/sprint-continue`, and `/sprint-resume-task` write the default value (`600`) into `settings.local.json` if it isn't already set, so users never have to configure it manually.
+
+When the sentinel is absent (the common case for ad-hoc work, exploration, debugging, or any project where you use this plugin only for the skills/agents), both hooks are silent and exit in milliseconds.
 
 If you find a stale sentinel from a sprint that was never finalized:
 ```bash
@@ -660,7 +673,7 @@ sprint_workflow/
 | Architecture-first workflow | 3.3 | `/sprint-architect` (Linear-backed C4+ADR architecture & roadmap), `architecture-drift-check` skill, drift detection wired into `/sprint-plan`, `/sprint-enrich`, Phase 3 QA, code review, and `/sprint-retro` |
 | Consistent argument convention | 3.4 | All 13 commands now use a unified `<epic-id>` / `<milestone-id>` / `<task-id>` / `<project-id>` argument scheme. `/sprint-start` requires an explicit `<epic-id>`; `/sprint-continue`, `/sprint-review`, `/sprint-status` accept it optionally and auto-detect the most-recently-touched in-progress Epic. Lets users run multiple sprints in parallel by scoping every command. |
 | Phase 1.5 + integrate-then-review | 3.5 | New Phase 1.5 (Integrate) between implementation and tests: each task branch rebases + ff-merges to local `master`, runs build/lint/test, reverts and bounces on failure. Reviews compare against `origin/master..HEAD` on local master, not against task branches. Phase 6 becomes a single `git push origin master` after all gates pass. Implementation branches are created via manual `git switch -c` from local master (NOT `Agent(isolation:"worktree")`) to avoid the [origin/HEAD-base bug](https://github.com/anthropics/claude-code/issues/41680). |
-| Stop hook v2 | 3.5 | Three-layer loop protection: `additionalContext` (never blocks Stop), session-aware rate limit (default 600s, configurable via `SPRINT_STOP_HOOK_RATE_LIMIT_S` env or `.claude/settings.local.json`, first Stop of new session always fires), and anti-acknowledgement message wording. Auto-configured by `/sprint-start`, `/sprint-continue`, `/sprint-resume-task`. Solves the "fires every turn / never fires" tension that previous versions oscillated between. |
+| PostToolUse sprint-reminder hook | 3.5 | New hook (`post-sprint-reminder.sh`) on Edit/Write that injects sprint tracking reminders into the agent's context via `hookSpecificOutput.additionalContext` — the Stop hook schema does not support that field, so the agent-visible reminder lives on PostToolUse instead. Sentinel-gated, rate-limited via `SPRINT_STOP_HOOK_RATE_LIMIT_S` (default 600s, configurable in `.claude/settings.local.json`, first edit of new session always fires, shared `.sprint-active.last-fire` file with the Stop hook so one setting controls overall nag frequency). Auto-configured by `/sprint-start`, `/sprint-continue`, `/sprint-resume-task`. Stop hook stays as a `systemMessage` nudge to the user. |
 | Linear comments ingestion | 3.5 | Before dispatching any task, the orchestrator pulls comments from the Linear task and parent Story (or markdown plan Carryover/Notes), filters for `[NOTE]`/`[USER]`/`[DEFERRED]`/`[CARRYOVER]`/`[FOLLOW-UP]` tags or non-bot authors, and injects them under `## Prior Context` in the agent prompt. Closes the loop with the Stop hook's reminder to *write* `[DEFERRED]` comments — items pushed out of one turn are picked up by the next dispatch. |
 | Codex foreground-only | 3.5 | All Codex invocations (`/codex:rescue`, `/codex:adversarial-review`, `codex exec`) run foreground; never `run_in_background=true`. For parallelism, route to multiple Claude `Agent` calls in one message instead. Documented in `codex-delegation` SKILL.md §9b. |
 
