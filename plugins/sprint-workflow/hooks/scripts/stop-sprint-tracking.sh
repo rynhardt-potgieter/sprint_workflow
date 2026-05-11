@@ -94,9 +94,17 @@ case "$tracking_source" in
     ;;
 esac
 
-# Use hookSpecificOutput.additionalContext so the directive is appended to the
-# agent's context as instructions (not a passive sidebar). This NEVER blocks
-# Stop — it cannot loop. Escape the message for JSON.
+# NOTE: Stop hooks do not support hookSpecificOutput.additionalContext (that
+# field is only valid on SessionStart / UserPromptSubmit / PreToolUse /
+# PostToolUse / PostToolBatch). Stop hooks accept only top-level fields:
+# continue, suppressOutput, stopReason, decision, reason, systemMessage.
+#
+# `systemMessage` is UI-visible to the user but NOT injected into the agent's
+# context — the agent will not re-read it on the next turn. This means the
+# user sees the reminder and can nudge the agent. To get the agent itself to
+# see a sprint reminder, the proper mechanism is a SessionStart hook (separate
+# script) using its additionalContext field. This file deliberately uses
+# systemMessage to avoid the block/loop pattern that bit earlier versions.
 escaped=$(printf '%s' "$msg" | sed 's/\\/\\\\/g; s/"/\\"/g')
-printf '{"hookSpecificOutput":{"hookEventName":"Stop","additionalContext":"%s"}}\n' "$escaped"
+printf '{"systemMessage":"%s"}\n' "$escaped"
 exit 0
