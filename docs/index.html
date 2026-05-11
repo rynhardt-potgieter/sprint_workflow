@@ -1703,7 +1703,7 @@ footer a:hover { color: var(--accent); }
     <a class="brand" href="#hero">
       <span class="brand-mark"></span>
       <span class="brand-name">sprint-workflow</span>
-      <span class="brand-ver">v3.5.0</span>
+      <span class="brand-ver">v3.5.1</span>
     </a>
     <ul class="nav-links">
       <li><a href="#what" data-spy="what">What it does</a></li>
@@ -1734,7 +1734,7 @@ footer a:hover { color: var(--accent); }
       <div>
         <div class="hero-tag">
           <span class="pulse"></span>
-          <span>Claude Code plugin · v3.5.0 · MIT</span>
+          <span>Claude Code plugin · v3.5.1 · MIT</span>
         </div>
 
         <h1 class="hero">
@@ -2695,8 +2695,8 @@ footer a:hover { color: var(--accent); }
   <div class="shell">
     <div class="section-head">
       <div class="eyebrow">10 · automated hooks</div>
-      <h2>Three quiet helpers running<br><em>in the background</em>.</h2>
-      <p>Hooks are scripts Claude Code runs automatically on tool events. The plugin ships three of them &mdash; all silent unless they have something useful to say. They cost roughly nothing per call and never block your work.</p>
+      <h2>Four quiet helpers running<br><em>in the background</em>.</h2>
+      <p>Hooks are scripts Claude Code runs automatically on tool events. The plugin ships four of them &mdash; all silent unless they have something useful to say. They cost roughly nothing per call and never block your work.</p>
     </div>
 
     <div class="hook-grid">
@@ -2728,16 +2728,30 @@ footer a:hover { color: var(--accent); }
 
       <div class="hook">
         <div class="hook-head">
+          <span class="hook-event">PostToolUse</span>
+          <span class="hook-cost">~50ms</span>
+        </div>
+        <div class="hook-name">post-sprint-reminder.sh</div>
+        <div class="hook-desc">After every <code>Edit</code> or <code>Write</code>, if <code>.claude/.sprint-active</code> exists, injects a tracking-reconcile reminder into the agent's context via <code>hookSpecificOutput.additionalContext</code> — the field Claude Code's hook schema actually permits for agent-visible output. The Stop event does not support this field, so the agent-visible reminder lives on PostToolUse instead. Rate-limited via <code>SPRINT_STOP_HOOK_RATE_LIMIT_S</code> (default 600s = 10 min, shared with the Stop hook so one setting governs nag frequency). First edit of a new session always fires.</div>
+        <div class="hook-detail">
+          <span class="lbl">Triggers on</span><code>Edit | Write</code>
+          <br><span class="lbl">Sentinel</span><code>.claude/.sprint-active</code>
+          <br><span class="lbl">First fire</span>every new session_id
+          <br><span class="lbl">Then rate-limited</span>SPRINT_STOP_HOOK_RATE_LIMIT_S (default 600s)
+        </div>
+      </div>
+
+      <div class="hook">
+        <div class="hook-head">
           <span class="hook-event">Stop</span>
           <span class="hook-cost">~50ms</span>
         </div>
         <div class="hook-name">stop-sprint-tracking.sh</div>
-        <div class="hook-desc">Before the session ends, checks for a <code>.claude/.sprint-active</code> sentinel file. <strong>No sentinel → silent</strong> (the common case for any non-sprint work). <strong>Sentinel present → reminder fires</strong> once per new session immediately, then at most every <code>SPRINT_STOP_HOOK_RATE_LIMIT_S</code> seconds within that session (default 600 = 10 min, configurable per-project in <code>.claude/settings.local.json</code>). Uses <code>hookSpecificOutput.additionalContext</code> rather than a blocking decision, so it cannot loop. The message tells the agent not to acknowledge — perform the reconciliation or stay silent.</div>
+        <div class="hook-desc">Before the session ends, if the sprint sentinel exists, emits a <code>systemMessage</code> visible to <em>you</em> — a nudge to check that tracking matches reality before walking away. Same rate-limit semantics as the PostToolUse reminder. The Stop hook deliberately uses <code>systemMessage</code> rather than <code>decision: "block"</code> because the historical loop in v3.1.x came from a prompt-type Stop hook that kept choosing to block; a UI-only nudge cannot loop.</div>
         <div class="hook-detail">
           <span class="lbl">Triggers on</span>session stop
           <br><span class="lbl">Sentinel</span><code>.claude/.sprint-active</code>
-          <br><span class="lbl">First fire</span>every new session_id
-          <br><span class="lbl">Then rate-limited</span>SPRINT_STOP_HOOK_RATE_LIMIT_S (default 600s)
+          <br><span class="lbl">Output</span><code>systemMessage</code> (user-visible)
         </div>
       </div>
     </div>
@@ -2860,7 +2874,7 @@ footer a:hover { color: var(--accent); }
       </div>
     </div>
     <div class="foot-meta">
-      <span>sprint-workflow · v3.5.0</span>
+      <span>sprint-workflow · v3.5.1</span>
       <span>MIT</span>
       <span>built with Claude Code</span>
       <span style="margin-left: auto;">© 2026</span>
