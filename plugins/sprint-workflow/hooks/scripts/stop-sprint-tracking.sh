@@ -80,17 +80,15 @@ if [ -r "$sentinel" ]; then
   tracking_source=$(head -n1 "$sentinel" 2>/dev/null || true)
 fi
 
-ack_guard="DO NOT REPLY WITH 'Acknowledged' OR ANY TEXT TO THIS REMINDER. Either perform the reconciliation via tool calls in your next user-initiated turn, or stay silent. Replying creates a Stop loop."
-
 case "$tracking_source" in
   linear)
-    msg="SPRINT ACTIVE (Linear). For every task you touched this turn that is now functionally complete: (1) save_issue → transition status to In Review or Done, (2) save_comment with files changed + outcome, (3) for deferred items, save_comment on the originating task tagged [DEFERRED] so the next dispatch picks it up. ${ack_guard}"
+    msg="SPRINT ACTIVE (Linear). For every task you touched this turn that is now functionally complete: (1) save_issue → transition status to In Review or Done, (2) save_comment with files changed + outcome. For deferred items: save_issue a new sub-task under the same Epic OR save_comment on an upcoming task in the sprint — never just comment on the closing task (those comments are not re-read by future dispatches)."
     ;;
   md)
-    msg="SPRINT ACTIVE (markdown plan). For every story/task you touched this turn: update its status field and checklists; record deferred items in the plan's Carryover section. ${ack_guard}"
+    msg="SPRINT ACTIVE (markdown plan). For every story/task you touched this turn: update its status field and checklists. For deferred items: add a new task entry to the plan OR record them in the plan's Carryover section — do not just append a note under the completed task."
     ;;
   *)
-    msg="SPRINT ACTIVE. Reconcile sprint tracking (Linear or markdown plan) for every task touched this turn — statuses, completion notes, deferred items. ${ack_guard}"
+    msg="SPRINT ACTIVE. Reconcile sprint tracking (Linear or markdown plan) for every task touched this turn — statuses, completion notes. Route deferred items to a new task or upcoming task, not as comments on the closing task."
     ;;
 esac
 

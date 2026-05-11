@@ -74,13 +74,13 @@ fi
 
 case "$tracking_source" in
   linear)
-    msg="Sprint reminder (Linear tracking active): when you finish the current task, transition its Linear status via save_issue (In Progress → In Review or Done) and post a save_comment with files changed + outcome. For any items you defer or push out of scope, post a save_comment on the originating task tagged [DEFERRED] so the next dispatch picks it up. The Linear board, not your chat output, is the source of truth — keep it current."
+    msg="Sprint reminder (Linear tracking active): when you finish the current task, transition its Linear status via save_issue (In Progress → In Review or Done) and post a save_comment with files changed + outcome. For any items you defer or push out of scope, route them to where the next dispatch will see them — EITHER (a) save_issue to create a new sub-task under the same Epic (preferred for standalone work) OR (b) save_comment on an UPCOMING task in this sprint with the deferred context (preferred for small follow-ups that fit a planned task). Do NOT just comment on the closing task — closed-task comments are not re-read by future dispatches. The Linear board, not your chat output, is the source of truth — keep it current."
     ;;
   md)
-    msg="Sprint reminder (markdown plan active): when you finish the current task, update its status field and checklists in the plan document, and record any deferred items in the plan's Carryover section so the next dispatch picks them up. The plan document, not your chat output, is the source of truth — keep it current."
+    msg="Sprint reminder (markdown plan active): when you finish the current task, update its status field and checklists in the plan document. For deferred items, route them to where the next dispatch will see them — EITHER add a new task entry to the plan OR record them in the plan's Carryover section (the dispatcher reads Carryover at Step 0). Do NOT just append a note under the completed task — that's dead-end storage. The plan document, not your chat output, is the source of truth — keep it current."
     ;;
   *)
-    msg="Sprint reminder: sprint tracking (Linear or markdown plan) needs to be reconciled when the current task completes — status transition, completion note, and any deferred items recorded. The tracker, not your chat output, is the source of truth."
+    msg="Sprint reminder: sprint tracking (Linear or markdown plan) needs to be reconciled when the current task completes — status transition, completion note, and deferred items routed to a new task or upcoming task where the next dispatch will see them. Do not just comment on the closing task. The tracker, not your chat output, is the source of truth."
     ;;
 esac
 

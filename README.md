@@ -533,7 +533,7 @@ Implementation agents work on per-task branches off local `master`. As each agen
 
 ### Sub-Agents See Prior User Context
 
-Before dispatching any task, the orchestrator pulls comments from the Linear task and its parent Story (or the markdown plan's Carryover/Notes sections), filters for `[NOTE]`, `[USER]`, `[DEFERRED]`, `[CARRYOVER]`, `[FOLLOW-UP]` tags or non-bot authors, and injects them into the agent's prompt under `## Prior Context`. Combined with the Stop hook's reminder to *write* `[DEFERRED]` comments when items get pushed out, this closes the loop: nothing the user typed into Linear, and nothing earlier tasks deferred, gets dropped on the floor when the next sub-agent dispatches.
+Before dispatching any task, the orchestrator pulls comments from the Linear task and its parent Story (or the markdown plan's Carryover/Notes sections), filters for `[NOTE]`, `[USER]`, `[DEFERRED]`, `[CARRYOVER]`, `[FOLLOW-UP]` tags or non-bot authors, and injects them into the agent's prompt under `## Prior Context`. Combined with the PostToolUse + Stop reminders telling agents to route deferred work to a *new Linear issue* or to an *upcoming task* in the sprint — never as a comment on the closing task that nobody will re-read — this closes the loop: nothing the user typed into Linear, and nothing earlier tasks deferred, gets dropped on the floor when the next sub-agent dispatches.
 
 ### Project-Local Skills Override Globals
 

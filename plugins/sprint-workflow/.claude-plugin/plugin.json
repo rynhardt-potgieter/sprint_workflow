@@ -1,6 +1,6 @@
 {
   "name": "sprint-workflow",
-  "version": "3.5.1",
+  "version": "3.5.2",
   "description": "Sprint workflow orchestration — 9 specialist agents, 23 engineering skills, 13 sprint commands. v3.5 adds Phase 1.5 (integrate-to-local-master before review), a PostToolUse sprint reminder hook (additionalContext lands in agent context — actually visible to the agent, not just the user), rate-limited via SPRINT_STOP_HOOK_RATE_LIMIT_S (default 600s, shared between Stop and PostToolUse hooks via .sprint-active.last-fire), Linear comments ingestion in dispatch (sub-agents see [NOTE]/[USER]/[DEFERRED]/[CARRYOVER] context from prior turns), and explicit Codex foreground-only constraint. Reviews compare against origin/master..HEAD on local master; remote push happens once at Phase 6. Earlier: /sprint-architect (Linear-backed C4+ADR architecture & roadmap), architecture drift detection across plan/enrich/QA/review/retro, worktree-handoff for safe subagent/Codex integration, auto skill discovery, Linear MCP integration (opt-in for sprints, required for /sprint-architect), Codex CLI delegation (opt-in).",
   "author": {
     "name": "rynha"
