@@ -27,7 +27,7 @@ A portable [Claude Code](https://docs.anthropic.com/en/docs/claude-code) plugin 
 Sprint Workflow is a Claude Code plugin that turns Claude into a full development team:
 
 - **9 specialist agents** — backend, frontend, testing, QA, E2E/Playwright, docs, security, DBA, product management
-- **23 engineering skills** — .NET, React, Rust, PostgreSQL, security, MQTT, BPMN, CQRS, Linear, Codex, plus diagnose/tdd/zoom-out
+- **29 engineering skills** — .NET, React, Next.js App Router, Rust, PostgreSQL, DynamoDB, serverless/Lambda, Pulumi, Zod/RJSF forms, security, MQTT, BPMN, CQRS, contract-safety, Linear, Codex, plus diagnose/tdd/zoom-out
 - **13 sprint commands** — architect, plan, enrich, start, continue, resume-task, handoff, bug-triage, grill, retro, rollback, review, status
 - **Architecture-first workflow** (v3.3) — `/sprint-architect` produces a Linear Project Document containing a C4+ADR system design and feature roadmap, then loads Epics into Linear. Drift detection runs at every sprint stage to flag when implementation diverges
 - **Automated hooks** — type-check reminders, push gates, plan update enforcement
@@ -212,7 +212,7 @@ Add the marketplace and install the plugin directly in Claude Code:
 /plugins install sprint-workflow
 ```
 
-One plugin — batteries included. All 9 agents and 23 engineering skills in a single install.
+One plugin — batteries included. All 9 agents and 29 engineering skills in a single install.
 
 ### Option B: Install from local clone
 
@@ -452,6 +452,16 @@ Bundled skill files that define how code should be written. Agents read these au
 | `postgresql-data` | Schema design, migrations, indexing, JSONB, Dapper, connection pooling |
 | `api-design` | REST endpoints, HTTP methods, response wrappers, pagination, error handling (RFC 7807) |
 
+#### Web & Serverless Stack (added v3.6)
+
+| Skill | Covers |
+|-------|--------|
+| `nextjs-app-router` | Next.js App Router + React 19 + Tailwind v4 + shadcn-on-Base-UI + TanStack Table/Query; server-side auth-guard pattern, design-token alignment, the persistent-surface rule for compliance/assurance messages |
+| `zod-rjsf-forms` | Zod as the single source of truth → JSON Schema → RJSF questionnaires; tabbed section layout, the cross-tab validation-error-summary rule, the "A-or-B" schema representability rule |
+| `serverless-lambda-api` | Serverless/Lambda route modules (Hono/lambda-api), Zod validation, `VisibleError` + centralized error handler, RFC-7807 responses, the add-model sentinels, and tenant-isolation from the auth context |
+| `dynamodb-single-table` | Single-table design, partition/sort key modelling, GSIs, a generic `Repository<T>` base class, org-scoped partitioning, cursor pagination, idempotency |
+| `pulumi-aws` | Pulumi (AWS) IaC — the add-model table/SSM sentinel pattern, resource naming + tagging, the SSM parameter contract between infra and the runtime, stack/config layout |
+
 #### Security & Compliance
 
 | Skill | Covers |
@@ -490,6 +500,7 @@ Bundled skill files that define how code should be written. Agents read these au
 | `tdd` | Red-green-refactor loop, when to TDD vs not, mandatory regression tests for bug fixes |
 | `zoom-out` | Recovery procedure when an agent is stuck — when grep/scope returns confusing results, when 3+ navigation attempts have failed |
 | `worktree-handoff` | Subagent + orchestrator contract for getting code OUT of an isolated worktree (Claude `isolation: worktree` or Codex Handoff) without losing work or copying files by hand. Defines the mandatory exit-time HANDOFF block and the orchestrator's fetch/merge/cleanup sequence (added v3.2.0) |
+| `contract-safety` | Keeping contracts honest across compile and HTTP boundaries — the excess-property object-literal canary for cross-boundary type drift, why an alias to a third-party type tracks drift rather than detecting it, consumer-search before rename/remove, verifying a client's route exists on the other side of the boundary, and verifying property-claiming comments and security flags against source (added v3.6) |
 
 #### Integration Skills
 
@@ -625,7 +636,7 @@ sprint_workflow/
         │   └── scripts/
         ├── scripts/
         │   └── discover-skills.sh         # Auto skill discovery
-        └── skills/                        # 23 engineering skills
+        └── skills/                        # 29 engineering skills
             ├── api-design/
             ├── bpmn-workflow/
             ├── cli-agent-patterns/
