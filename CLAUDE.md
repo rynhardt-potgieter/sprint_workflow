@@ -6,7 +6,7 @@ These rules govern how Claude Code orchestrates development work across any proj
 
 | Plugin | Version | Purpose |
 |--------|---------|---------|
-| `sprint-workflow` | 3.5.2 | 9 specialist agents, 23 engineering skills (incl. `architecture-drift-check`), 13 commands (incl. `/sprint-architect`). v3.5: Phase 1.5 integrate-to-local-master before review, PostToolUse sprint-reminder hook (additionalContext is injected into agent context — `Stop` hooks cannot do this per Claude Code schema, so the agent-visible reminder lives on PostToolUse), shared rate limit via `SPRINT_STOP_HOOK_RATE_LIMIT_S` (default 600s), Linear comments ingestion in dispatch, Codex foreground-only constraint. Plus all v3.4 features: consistent `<epic-id>`/`<milestone-id>`/`<task-id>`/`<project-id>` argument convention, drift detection across plan/enrich/QA/review/retro, auto skill discovery, Linear MCP (opt-in for sprints, required for `/sprint-architect`), Codex delegation (opt-in) |
+| `sprint-workflow` | 3.6.0 | 9 specialist agents, 29 engineering skills (incl. `architecture-drift-check`), 13 commands (incl. `/sprint-architect`). v3.6: added 5 sanitized stack skills (nextjs-app-router, zod-rjsf-forms, serverless-lambda-api, dynamodb-single-table, pulumi-aws) + a contract-safety skill. v3.5: Phase 1.5 integrate-to-local-master before review, PostToolUse sprint-reminder hook (additionalContext is injected into agent context — `Stop` hooks cannot do this per Claude Code schema, so the agent-visible reminder lives on PostToolUse), shared rate limit via `SPRINT_STOP_HOOK_RATE_LIMIT_S` (default 600s), Linear comments ingestion in dispatch, Codex foreground-only constraint. Plus all v3.4 features: consistent `<epic-id>`/`<milestone-id>`/`<task-id>`/`<project-id>` argument convention, drift detection across plan/enrich/QA/review/retro, auto skill discovery, Linear MCP (opt-in for sprints, required for `/sprint-architect`), Codex delegation (opt-in) |
 
 ## Architecture Is In Linear, Not In Markdown
 
@@ -209,7 +209,7 @@ After completing every implementation task:
 
 ---
 
-## Bundled Engineering Skills (23)
+## Bundled Engineering Skills (29)
 
 All skills live at `${CLAUDE_PLUGIN_ROOT}/skills/<name>/SKILL.md` inside the plugin.
 
@@ -238,6 +238,12 @@ All skills live at `${CLAUDE_PLUGIN_ROOT}/skills/<name>/SKILL.md` inside the plu
 | `zoom-out` | Engineering discipline | Recovery procedure when 3+ navigation attempts have failed or code is unfamiliar |
 | `worktree-handoff` | Engineering discipline | Subagent + orchestrator contract for getting code out of an isolated worktree (Claude or Codex) without losing work or copying files by hand |
 | `architecture-drift-check` | Architecture governance | Reflexion-modeling check that compares planned or implemented work against the Linear Architecture & Roadmap doc. Distinguishes drift (warning) from erosion (blocking). Used by `/sprint-plan`, `/sprint-enrich`, Phase 3 QA, code review, and `/sprint-retro` |
+| `nextjs-app-router` | Next.js web | App Router + React 19 + Tailwind v4 + shadcn-on-Base-UI + TanStack; server-side auth guard, design tokens, persistent-surface rule |
+| `zod-rjsf-forms` | Schema-driven forms | Zod → JSON Schema → RJSF questionnaires; tabbed sections, cross-tab error summary, "A-or-B" schema representability |
+| `serverless-lambda-api` | Serverless API | Lambda route modules, Zod validation, VisibleError handler, RFC-7807 errors, tenant-isolation from auth context |
+| `dynamodb-single-table` | DynamoDB | Single-table design, GSIs, generic `Repository<T>`, org-scoped partitioning, cursor pagination, idempotency |
+| `pulumi-aws` | AWS IaC | Pulumi add-model sentinels, naming + tagging, the SSM parameter contract, stack/config layout |
+| `contract-safety` | Engineering discipline | Excess-property canary for cross-boundary drift, alias-tracks-not-detects, consumer-search before rename, verify comments/security-flags against source |
 
 ---
 
